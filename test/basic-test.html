@@ -1,0 +1,103 @@
+<!doctype html>
+<!--
+@license
+Copyright (c) 2015 The Polymer Project Authors. All rights reserved.
+This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
+The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
+The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
+Code distributed by Google as part of the polymer project is also
+subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
+-->
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes">
+
+    <script src="../../webcomponentsjs/webcomponents-lite.js"></script>
+    <script src="../../web-component-tester/browser.js"></script>
+    <script src="../../iron-test-helpers/test-helpers.js"></script>
+    <script src="../../iron-test-helpers/mock-interactions.js"></script>
+
+    <!-- Step 1: import the element to test -->
+    <link rel="import" href="../docs-parameters-table.html">
+  </head>
+  <body>
+
+    <test-fixture id="basic">
+      <template>
+        <docs-parameters-table></docs-parameters-table>
+      </template>
+    </test-fixture>
+
+    <test-fixture id="autoHide">
+      <template>
+        <docs-parameters-table auto-hide></docs-parameters-table>
+      </template>
+    </test-fixture>
+
+    <script>
+    var uriParameters = [{
+      'name': '{fileId}',
+      'description': 'The ID for the file in question.',
+      'type': 'string',
+      'required': true
+    }];
+    var queryParameters = [{
+      name: 'acknowledgeAbuse',
+      type: 'boolean',
+      description: 'Whether the user is acknowledging the risk of downloading known malware or other abusive files. **Default to false**',
+      required: true
+    }, {
+      name: 'projection',
+      type: 'string',
+      description: 'This parameter is deprecated and has no function.\n\nAcceptable values are:\n* "**BASIC**": Deprecated\n* "**FULL**": Deprecated',
+      example: 'BASIC'
+    }, {
+      name: 'revisionId',
+      type: 'string',
+      description: 'Specifies the Revision ID that should be downloaded. Ignored unless __alt=media__ is specified.',
+      pattern: '[a-zA-Z0-9]',
+      example: 'qksi80a8asd9a0'
+    },{
+      name: 'fields',
+      type: 'string',
+      description: 'Selector specifying which fields to include in a partial response.',
+      example: 'editable,etag,fileExtension,fileSize,id,labels'
+    }];
+    /* global suite, test, fixture, assert */
+    suite('basic', function() {
+      test('Should not display table', function() {
+        var element = fixture('autoHide');
+        var display = getComputedStyle(element).display;
+        assert.equal(display, 'none', 'style.display equals none');
+      });
+
+      test('Should render uri parameteres', function() {
+        var element = fixture('basic');
+        element.uriParameters = uriParameters;
+        Polymer.dom.flush();
+        var header = Polymer.dom(element.root).querySelector('.params-table-header.path');
+        assert.isDefined(header, 'header exists');
+      });
+
+      test('Should render query parameteres', function() {
+        var element = fixture('basic');
+        element.queryParameters = queryParameters;
+        Polymer.dom.flush();
+        var header = Polymer.dom(element.root).querySelector('.params-table-header.query');
+        assert.isDefined(header, 'header exists');
+      });
+
+      test('Should display table', function() {
+        var element = fixture('autoHide');
+        Polymer.dom.flush();
+        element.queryParameters = queryParameters;
+        Polymer.dom.flush();
+        var display = getComputedStyle(element).display;
+        assert.equal(display, 'block', 'style.display equals block');
+      });
+    });
+    </script>
+
+  </body>
+</html>

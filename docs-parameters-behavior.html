@@ -1,0 +1,43 @@
+<!--
+@license
+Copyright 2016 The Advanced REST client authors
+Licensed under the Apache License, Version 2.0 (the "License"); you may not
+use this file except in compliance with the License. You may obtain a copy of
+the License at
+http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+License for the specific language governing permissions and limitations under
+the License.
+-->
+<link rel="import" href="../polymer/polymer.html">
+
+<script>
+(function() {
+  window.RamlBehaviors = window.RamlBehaviors || {};
+  /**
+   * Use `RamlBehaviors.DocsParametersBehavior` to implement a custom element
+   * that is rendering a parameters table in the RAML documentation view.
+   * @polymerBehavior RamlBehaviors.DocsParametersBehavior
+   */
+  window.RamlBehaviors.DocsParametersBehavior = {
+    /**
+     * Check if passed object is not empty.
+     * 0 (zero) returns true while empty string returns false.
+     *
+     * @return {Boolean} True/False depending if passed object has a value.
+     */
+    hasValue: function(obj) {
+      if (typeof obj === 'number' && obj === 0) {
+        return true;
+      }
+      if (typeof obj === 'boolean') {
+        return true;
+      }
+      return !!obj;
+    }
+  };
+})();
+
+</script>
