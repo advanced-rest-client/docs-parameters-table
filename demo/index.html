@@ -19,6 +19,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   <link rel="import" href="../../iron-demo-helpers/demo-pages-shared-styles.html">
   <link rel="import" href="../../iron-demo-helpers/demo-snippet.html">
   <link rel="import" href="../docs-parameters-table.html">
+  <link rel="import" href="../docs-headers-table.html">
+
   <style is="custom-style" include="demo-pages-shared-styles">
   .vertical-section-container {
     max-width: 600px;
@@ -28,14 +30,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     --params-table-header-color: rgba(255, 255, 255, 0.87);
     --params-table-header-background-color: #00A1DF;
     --params-table-subheader-background-color: rgba(0, 161, 223, 0.24);
-    --params-table-background-color: rgba(0, 161, 223, 0.08);
+    --params-table-row-background-color: rgba(0, 161, 223, 0.08);
   }
   </style>
 </head>
 
 <body unresolved>
   <div class="vertical-section-container centered">
-    <h3>The `docs-parameters-table`</h3>
+    <h3>URI parameters table</h3>
     <demo-snippet id="demo1">
       <template>
         <docs-parameters-table id="table1" auto-hide></docs-parameters-table>
@@ -71,6 +73,28 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         var table = document.querySelector('#table1');
         table.uriParameters = uriParameters;
         table.queryParameters = queryParameters;
+        </script>
+      </template>
+    </demo-snippet>
+    <h3>Headers table</h3>
+    <demo-snippet>
+      <template>
+        <docs-headers-table id="table2" auto-hide></docs-headers-table>
+        <script>
+        var headers = [{
+          name: 'authorization',
+          type: 'string',
+          description: 'Used to send a valid OAuth 2 access token. Do not use with the "access_token" query string parameter.',
+          required: true
+        }, {
+          name: 'clientId',
+          type: 'string',
+          description: 'Project ID that can be obtained from developer console.',
+          example: 'if-from-console-project-number@domain.com',
+          required: true
+        }];
+        var table = document.querySelector('#table2');
+        table.headers = headers;
         </script>
       </template>
     </demo-snippet>
