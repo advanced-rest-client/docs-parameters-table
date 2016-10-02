@@ -15,18 +15,12 @@ the License.
 <link rel="import" href="docs-parameters-behavior.html">
 <link rel="import" href="docs-parameters-table-shared-styles.html">
 <!--
-`<docs-parameters-table>` A parameters list and description table for the RAML documentation view
-
-This element renders a table of paramteres with the doccumentation. It can be used to display
-URL parameters.
-For headers documentation table pleae, use `<docs-headers-table>` element.
-For types documentation table pleae, use `<docs-types-table>` element.
+`<docs-headers-table>` A headers list documentation table for the RAML documentation view.
 
 ### Example
 ```
-<docs-parameters-table
-  uri-parameters="[[uriParameters]]"
-  query-parameters="[[queryParameters]]"></docs-parameters-table>
+<docs-headers-table
+  headers="[[headers]]"></docs-headers-table>
 ```
 
 ### Object properties
@@ -44,7 +38,7 @@ Currently following properties are supported:
 - max - maximum value of the parametre when the type is numeric
 
 ### Styling
-`<docs-parameters-table>` provides the following custom properties and mixins for styling:
+`<docs-headers-table>` provides the following custom properties and mixins for styling:
 
 Custom property | Description | Default
 ----------------|-------------|----------
@@ -64,55 +58,27 @@ Custom property | Description | Default
 @element docs-parameters-table
 @demo demo/index.html
 -->
-<dom-module id="docs-parameters-table">
+<dom-module id="docs-headers-table">
   <template>
     <style include="docs-parameters-table-shared-styles"></style>
     <table class="params-table">
       <thead class="params-table-header">
         <tr>
           <th>Parameter</th>
-          <th>Type</th>
           <th>Description</th>
         </tr>
       </thead>
       <tbody>
-        <template is="dom-if" if="[[hasUriParameteres]]">
-          <tr class="params-table-header subheader path">
-            <td colspan="3">Path parameters</td>
-          </tr>
-          <template is="dom-repeat" items="[[uriParameters]]">
+        <template is="dom-if" if="[[hasHeaders]]">
+          <template is="dom-repeat" items="[[headers]]">
             <tr>
               <td class="param-name">[[item.name]]<span hidden$="[[!item.required]]">*</span></td>
-              <td class="param-type">[[item.type]]</td>
               <td class="param-desc">
                 <div hidden$="[[!hasValue(item.description)]]">
+                  <b>[[item.type]].</b>
                   <marked-element markdown="[[item.description]]">
                     <div class="markdown-html markdown-body"></div>
                   </marked-element>
-                </div>
-                <div hidden$="[[!hasValue(item.pattern)]]" class="pattern">Validation pattern: <span>[[item.pattern]]</span></div>
-                <div hidden$="[[!hasValue(item.example)]]" class="example">Example value: <span>[[item.example]]</span></div>
-                <div hidden$="[[!hasValue(item.min)]]" class="example">Minimum value: <span>[[item.min]]</span></div>
-                <div hidden$="[[!hasValue(item.max)]]" class="example">Maximum value: <span>[[item.max]]</span></div>
-              </td>
-            </tr>
-          </template>
-        </template>
-        <template is="dom-if" if="[[hasQueryParameteres]]">
-          <tr class="params-table-header subheader query">
-            <td colspan="3">Query parameters</td>
-          </tr>
-          <template is="dom-repeat" items="[[queryParameters]]">
-            <tr class="query-param">
-              <td class="param-name">[[item.name]]<span hidden$="[[!item.required]]">*</span></td>
-              <td class="param-type">[[item.type]]</td>
-              <td class="param-desc">
-                <div hidden$="[[!hasValue(item.description)]]" data-property-doc-markdown$="[[index]]">
-                  <div hidden$="[[!hasValue(item.description)]]">
-                    <marked-element markdown="[[item.description]]">
-                      <div class="markdown-html markdown-body"></div>
-                    </marked-element>
-                  </div>
                 </div>
                 <div hidden$="[[!hasValue(item.pattern)]]" class="pattern">Validation pattern: <span>[[item.pattern]]</span></div>
                 <div hidden$="[[!hasValue(item.example)]]" class="example">Example value: <span>[[item.example]]</span></div>
@@ -127,57 +93,37 @@ Custom property | Description | Default
   </template>
   <script>
   Polymer({
-    is: 'docs-parameters-table',
+    is: 'docs-headers-table',
 
     behaviors: [RamlBehaviors.DocsParametersBehavior],
 
     properties: {
       /**
-       * The URI parameters array.
+       * The headers description array.
        * See overview for object details.
        */
-      uriParameters: Array,
-      /**
-       * The query parameters array.
-       * See overview for object details.
-       */
-      queryParameters: Array,
+      headers: Array,
       // True when `uriParameters` are present
-      hasUriParameteres: {
+      hasHeaders: {
         type: Boolean,
-        computed: '_computeHasUriParameteres(uriParameters.*)',
-        value: false
-      },
-      // True when `queryParameters` are present
-      hasQueryParameteres: {
-        type: Boolean,
-        computed: '_computeHasQueryParameteres(queryParameters.*)',
-        value: false
-      },
-      // If set automatically hides the element which doesn't have parameteres set
-      autoHide: {
-        type: Boolean,
+        computed: '_computeHasHeaders(headers.*)',
         value: false
       }
     },
 
     observers: [
-      '_autoHide(autoHide, hasQueryParameteres, hasUriParameteres)'
+      '_autoHide(autoHide, hasHeaders)'
     ],
 
-    _computeHasUriParameteres: function() {
-      return this.uriParameters && this.uriParameters.length;
+    _computeHasHeaders: function() {
+      return this.headers && this.headers.length;
     },
 
-    _computeHasQueryParameteres: function() {
-      return this.queryParameters && this.queryParameters.length;
-    },
-
-    _autoHide: function(autoHide, hasQueryParameteres, hasUriParameteres) {
+    _autoHide: function(autoHide, hasHeaders) {
       if (!autoHide) {
         return;
       }
-      if (hasQueryParameteres || hasUriParameteres) {
+      if (hasHeaders) {
         this.removeAttribute('hidden');
       } else {
         this.setAttribute('hidden', true);
