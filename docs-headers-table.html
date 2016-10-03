@@ -25,7 +25,8 @@ the License.
 ```
 
 ### Object properties
-An object in both arrays can contain any property that URI and query parameters can contain.
+An object in headers object can contain any property that header can contain
+according to the RAML spec.
 
 Currently following properties are supported:
 
@@ -71,12 +72,12 @@ Custom property | Description | Default
       </thead>
       <tbody>
         <template is="dom-if" if="[[hasHeaders]]">
-          <template is="dom-repeat" items="[[headers]]">
+          <template is="dom-repeat" items="[[displayHeaders]]">
             <tr>
               <td class="param-name">[[item.name]]<span hidden$="[[!item.required]]">*</span></td>
               <td class="param-desc">
+                <b>[[item.type]].</b>
                 <div hidden$="[[!hasValue(item.description)]]">
-                  <b>[[item.type]].</b>
                   <marked-element markdown="[[item.description]]">
                     <div class="markdown-html markdown-body"></div>
                   </marked-element>
@@ -100,15 +101,20 @@ Custom property | Description | Default
 
     properties: {
       /**
-       * The headers description array.
+       * The RAML's headers description object.
        * See overview for object details.
        */
-      headers: Array,
-      // True when `uriParameters` are present
+      headers: Object,
+      // True when `headers` are present
       hasHeaders: {
         type: Boolean,
         computed: '_computeHasHeaders(headers.*)',
         value: false
+      },
+      // Computed headers array from the `headers` attribute
+      displayHeaders: {
+        type: Array,
+        computed: '_computeHeaders(hasHeaders)'
       }
     },
 
@@ -117,7 +123,7 @@ Custom property | Description | Default
     ],
 
     _computeHasHeaders: function() {
-      return this.headers && this.headers.length;
+      return !!(this.headers && Object.getOwnPropertyNames(this.headers).length);
     },
 
     _autoHide: function(autoHide, hasHeaders) {
@@ -129,6 +135,14 @@ Custom property | Description | Default
       } else {
         this.setAttribute('hidden', true);
       }
+    },
+
+    _computeHeaders: function(hasHeaders) {
+      if (!hasHeaders) {
+        return [];
+      }
+      var list = this.readProperties(this.headers);
+      return list;
     }
   });
   </script>

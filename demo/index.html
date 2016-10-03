@@ -20,6 +20,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   <link rel="import" href="../../iron-demo-helpers/demo-snippet.html">
   <link rel="import" href="../docs-parameters-table.html">
   <link rel="import" href="../docs-headers-table.html">
+  <link rel="import" href="../docs-body-parameters-table.html">
+  <script src="structure.js"></script>
 
   <style is="custom-style" include="demo-pages-shared-styles">
   .vertical-section-container {
@@ -32,6 +34,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     --params-table-subheader-background-color: rgba(0, 161, 223, 0.24);
     --params-table-row-background-color: rgba(0, 161, 223, 0.08);
   }
+
   </style>
 </head>
 
@@ -42,34 +45,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       <template>
         <docs-parameters-table id="table1" auto-hide></docs-parameters-table>
         <script>
-        var uriParameters = [{
-          'name': '{fileId}',
-          'description': 'The ID for the file in question.',
-          'type': 'string',
-          'required': true
-        }];
-        var queryParameters = [{
-          name: 'acknowledgeAbuse',
-          type: 'boolean',
-          description: 'Whether the user is acknowledging the risk of downloading known malware or other abusive files. **Default to false**',
-          required: true
-        }, {
-          name: 'projection',
-          type: 'string',
-          description: 'This parameter is deprecated and has no function.\n\nAcceptable values are:\n* "**BASIC**": Deprecated\n* "**FULL**": Deprecated',
-          example: 'BASIC'
-        }, {
-          name: 'revisionId',
-          type: 'string',
-          description: 'Specifies the Revision ID that should be downloaded. Ignored unless __alt=media__ is specified.',
-          pattern: '[a-zA-Z0-9]',
-          example: 'qksi80a8asd9a0'
-        },{
-          name: 'fields',
-          type: 'string',
-          description: 'Selector specifying which fields to include in a partial response.',
-          example: 'editable,etag,fileExtension,fileSize,id,labels'
-        }];
         var table = document.querySelector('#table1');
         table.uriParameters = uriParameters;
         table.queryParameters = queryParameters;
@@ -81,20 +56,19 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       <template>
         <docs-headers-table id="table2" auto-hide></docs-headers-table>
         <script>
-        var headers = [{
-          name: 'authorization',
-          type: 'string',
-          description: 'Used to send a valid OAuth 2 access token. Do not use with the "access_token" query string parameter.',
-          required: true
-        }, {
-          name: 'clientId',
-          type: 'string',
-          description: 'Project ID that can be obtained from developer console.',
-          example: 'if-from-console-project-number@domain.com',
-          required: true
-        }];
         var table = document.querySelector('#table2');
-        table.headers = headers;
+        table.headers = headersDef;
+        </script>
+      </template>
+    </demo-snippet>
+
+    <h3>Type parameters table</h3>
+    <demo-snippet>
+      <template>
+        <docs-body-parameters-table id="table3" auto-hide></docs-body-parameters-table>
+        <script>
+        var table = document.querySelector('#table3');
+        table.type = window.personType;
         </script>
       </template>
     </demo-snippet>

@@ -22,7 +22,7 @@ the License.
 This element renders a table of paramteres with the doccumentation. It can be used to display
 URL parameters.
 For headers documentation table pleae, use `<docs-headers-table>` element.
-For types documentation table pleae, use `<docs-types-table>` element.
+For types documentation table pleae, use `<docs-body-parameters-table>` element.
 
 ### Example
 ```
@@ -82,7 +82,7 @@ Custom property | Description | Default
           <tr class="params-table-header subheader path">
             <td colspan="3">Path parameters</td>
           </tr>
-          <template is="dom-repeat" items="[[uriParameters]]">
+          <template is="dom-repeat" items="[[displayUriParameters]]">
             <tr>
               <td class="param-name">[[item.name]]<span hidden$="[[!item.required]]">*</span></td>
               <td class="param-type">[[item.type]]</td>
@@ -104,7 +104,7 @@ Custom property | Description | Default
           <tr class="params-table-header subheader query">
             <td colspan="3">Query parameters</td>
           </tr>
-          <template is="dom-repeat" items="[[queryParameters]]">
+          <template is="dom-repeat" items="[[displayQueryParameters]]">
             <tr class="query-param">
               <td class="param-name">[[item.name]]<span hidden$="[[!item.required]]">*</span></td>
               <td class="param-type">[[item.type]]</td>
@@ -135,15 +135,15 @@ Custom property | Description | Default
 
     properties: {
       /**
-       * The URI parameters array.
+       * The RAML's URI parameters object.
        * See overview for object details.
        */
-      uriParameters: Array,
+      uriParameters: Object,
       /**
-       * The query parameters array.
+       * The RAML's query parameters object.
        * See overview for object details.
        */
-      queryParameters: Array,
+      queryParameters: Object,
       // True when `uriParameters` are present
       hasUriParameteres: {
         type: Boolean,
@@ -160,6 +160,16 @@ Custom property | Description | Default
       autoHide: {
         type: Boolean,
         value: false
+      },
+      // Computed uriParameters array
+      displayUriParameters: {
+        type: Array,
+        computed: '_computeProperty(uriParameters.*)'
+      },
+      // Computed uriParameters array
+      displayQueryParameters: {
+        type: Array,
+        computed: '_computeProperty(queryParameters.*)'
       }
     },
 
@@ -168,11 +178,11 @@ Custom property | Description | Default
     ],
 
     _computeHasUriParameteres: function() {
-      return this.uriParameters && this.uriParameters.length;
+      return this.uriParameters && Object.getOwnPropertyNames(this.uriParameters).length;
     },
 
     _computeHasQueryParameteres: function() {
-      return this.queryParameters && this.queryParameters.length;
+      return this.queryParameters && Object.getOwnPropertyNames(this.queryParameters).length;
     },
 
     _autoHide: function(autoHide, hasQueryParameteres, hasUriParameteres) {
@@ -184,6 +194,13 @@ Custom property | Description | Default
       } else {
         this.setAttribute('hidden', true);
       }
+    },
+
+    _computeProperty: function(record) {
+      if (record.path in this) {
+        return this.readProperties(this[record.path]);
+      }
+      return [];
     }
   });
   </script>
