@@ -8,7 +8,9 @@
   ],
   "private": true,
   "main": [
-    "docs-parameters-table.html"
+    "docs-parameters-table.html",
+    "docs-headers-table.html",
+    "docs-body-parameters-table.html"
   ],
   "repository": {
     "type": "git",
@@ -26,7 +28,8 @@
     "iron-demo-helpers": "PolymerElements/iron-demo-helpers#^1.0.0",
     "iron-test-helpers": "PolymerElements/iron-test-helpers#^1.0.0",
     "test-fixture": "PolymerElements/test-fixture#^1.0.0",
-    "webcomponentsjs": "webcomponents/webcomponentsjs#^0.7.0"
+    "webcomponentsjs": "webcomponents/webcomponentsjs#^0.7.0",
+    "prism-element": "PolymerElements/prism-element#^1.1.1"
   },
   "ignore": [
     "**/.*",

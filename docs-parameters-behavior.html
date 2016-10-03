@@ -43,6 +43,50 @@ the License.
         return true;
       }
       return !!obj;
+    },
+    /**
+     * in RAML `properties` property of the type object is an object.
+     * To make it useful while itereing using `dom-repeat` this function
+     * produces an array of objects. Object content is the same as
+     * RAML parser's. Object's key is the same as the `name` property in the
+     * object.
+     *
+     * ## Example
+     * Source object:
+     * ```javascript
+     *  properties: {
+     *    available: {
+     *      description: 'description',
+     *      displayName: 'available',
+     *      name: 'available',
+     *      required: true
+     *    }
+     *  }
+     * ```
+     * becomes:
+     * ```javascript
+     *  properties: [
+     *    {
+     *      description: 'description',
+     *      displayName: 'available',
+     *      name: 'available',
+     *      required: true
+     *    }
+     *  ]
+     * ```
+     * @param {Object} obj The original RAML parser properties value.
+     * @return {Array}
+     */
+    readProperties: function(obj) {
+      if (!obj) {
+        return [];
+      }
+      var names = Object.getOwnPropertyNames(obj);
+      names = names.filter((i) => i !== '__METADATA__');
+      if (!names) {
+        return [];
+      }
+      return names.map((i) => obj[i]);
     }
   };
 })();
