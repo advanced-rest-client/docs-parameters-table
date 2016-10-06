@@ -1,3 +1,14 @@
+<a name="1.0.4"></a>
+## [1.0.4](https://github.com/advanced-rest-client/docs-parameters-table/compare/1.0.3...v1.0.4) (2016-10-06)
+
+
+### New
+
+* Added dependencyci ([c6b4693e698d3d0d8fbd4c1e99ed6816bdfac75f](https://github.com/advanced-rest-client/docs-parameters-table/commit/c6b4693e698d3d0d8fbd4c1e99ed6816bdfac75f))
+* Added hero image ([ee1947c7573ec45201647780ba216b0f0bbe2945](https://github.com/advanced-rest-client/docs-parameters-table/commit/ee1947c7573ec45201647780ba216b0f0bbe2945))
+
+
+
 <a name="1.0.3"></a>
 ## 1.0.3 (2016-10-03)
 
