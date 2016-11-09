@@ -149,13 +149,15 @@ Custom property | Description | Default
       hasUriParameteres: {
         type: Boolean,
         computed: '_computeHasUriParameteres(uriParameters.*)',
-        value: false
+        value: false,
+        notify: true
       },
       // True when `queryParameters` are present
       hasQueryParameteres: {
         type: Boolean,
         computed: '_computeHasQueryParameteres(queryParameters.*)',
-        value: false
+        value: false,
+        notify: true
       },
       // If set automatically hides the element which doesn't have parameteres set
       autoHide: {

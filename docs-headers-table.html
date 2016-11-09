@@ -109,7 +109,8 @@ Custom property | Description | Default
       hasHeaders: {
         type: Boolean,
         computed: '_computeHasHeaders(headers.*)',
-        value: false
+        value: false,
+        notify: true
       },
       // Computed headers array from the `headers` attribute
       displayHeaders: {
