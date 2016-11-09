@@ -157,7 +157,8 @@ Custom property | Description | Default
       hasType: {
         type: Boolean,
         computed: '_computeHasType(typeProperties.*)',
-        value: false
+        value: false,
+        notify: true
       },
       // If set automatically hides the element which doesn't have parameteres set
       autoHide: {
