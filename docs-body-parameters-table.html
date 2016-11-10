@@ -228,7 +228,8 @@ Custom property | Description | Default
 
     __transformObject: function(base, obj) {
       var bt = this.baseTypes;
-      obj.forEach((item) => {
+      var self = this;
+      obj.forEach(function(item) {
         let type = item.type;
         if (type instanceof Array) {
           if (type.length === 1) {
@@ -243,15 +244,15 @@ Custom property | Description | Default
           // other type defined in RAML
           if (item.properties) {
             base[item.name] = {};
-            base[item.name] = this.__transformObject(base[item.name],
-                this.readProperties(item.properties));
+            base[item.name] = self.__transformObject(base[item.name],
+                self.readProperties(item.properties));
           } else {
             base[item.name] = type;
           }
         } else if (type === 'object' && item.properties) {
           base[item.name] = {};
-          base[item.name] = this.__transformObject(base[item.name],
-            this.readProperties(item.properties));
+          base[item.name] = self.__transformObject(base[item.name],
+            self.readProperties(item.properties));
         } else {
           base[item.name] = item.example || type;
         }
@@ -271,7 +272,7 @@ Custom property | Description | Default
     },
 
     _highlightJson: function(displayJson) {
-      this.async(() => {
+      this.async(function() {
         this.$.output.innerHTML = this.highlight(displayJson, 'js');
       }, 1);
     },
