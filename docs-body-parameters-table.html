@@ -12,13 +12,18 @@ License for the specific language governing permissions and limitations under
 the License.
 -->
 <link rel="import" href="../polymer/polymer.html">
-<link rel="import" href="docs-parameters-behavior.html">
-<link rel="import" href="docs-parameters-table-shared-styles.html">
-<link rel="import" href="params-table-type-button.html">
 <link rel="import" href="../marked-element/marked-element.html">
 <link rel="import" href="../prism-element/prism-theme-default.html">
 <link rel="import" href="../prism-element/prism-highlighter.html">
 <link rel="import" href="../markdown-styles/markdown-styles.html">
+<link rel="import" href="../iron-pages/iron-pages.html">
+<link rel="import" href="../paper-tabs/paper-tabs.html">
+<link rel="import" href="../paper-tabs/paper-tab.html">
+<link rel="import" href="docs-parameters-behavior.html">
+<link rel="import" href="docs-parameters-table-shared-styles.html">
+<link rel="import" href="params-table-type-button.html">
+<link rel="import" href="structure-display.html">
+
 <!--
 `<docs-parameters-table>` A parameters list and description table for the RAML documentation view
 
@@ -74,6 +79,17 @@ Custom property | Description | Default
     <style include="markdown-styles"></style>
     <style include="docs-parameters-table-shared-styles"></style>
     <style>
+
+    :host {
+      --paper-tabs-selection-bar-color: var(--params-table-header-background-color, #00A1DF);
+      --paper-tab-ink: var(--params-table-header-background-color, #00A1DF);
+      display: none;
+    }
+
+    :host([has-type]) {
+      display: block;
+    }
+
     h4 {
       padding: 0 12px;
       @apply(--docs-body-parameters-table-type-name);
@@ -94,8 +110,32 @@ Custom property | Description | Default
     <prism-highlighter></prism-highlighter>
 
     <h4>[[displayName]]</h4>
-    <pre id="output" class="language-javascript"></pre>
 
+    <div hidden$="[[hasExample]]">
+      <pre is="structure-display" display="[[displayJson]]" class="language-javascript"></pre>
+    </div>
+    <div hidden$="[[!hasExample]]">
+
+      <paper-tabs class="schemas" selected="{{selectedSchemaPage}}">
+        <paper-tab>Schema</paper-tab>
+        <paper-tab>Examples</paper-tab>
+      </paper-tabs>
+
+      <iron-pages selected="{{selectedSchemaPage}}">
+        <pre is="structure-display" display="[[displayJson]]" class="language-javascript"></pre>
+        <div>
+          <template is="dom-if" if="[[_hasExamples(type)]]">
+            <template is="dom-repeat" items="[[type.examples]]">
+              <h5>[[item.name]]</h5>
+              <pre is="structure-display" display="[[item.value]]" class="language-javascript"></pre>
+            </template>
+          </template>
+          <template is="dom-if" if="[[_hasExample(type)]]">
+            <pre is="structure-display" display="[[type.structuredExample.value]]" class="language-javascript"></pre>
+          </template>
+        </div>
+      </iron-pages>
+    </div>
     <table class="params-table">
       <thead class="params-table-header">
         <tr>
@@ -108,6 +148,28 @@ Custom property | Description | Default
     </table>
   </template>
   <script>
+  if (typeof Object.assign !== 'function') {
+    (function() {
+      Object.assign = function(target) {
+        'use strict';
+        if (target === undefined || target === null) {
+          throw new TypeError('Cannot convert undefined or null to object');
+        }
+        var output = Object(target);
+        for (var index = 1; index < arguments.length; index++) {
+          var source = arguments[index];
+          if (source !== undefined && source !== null) {
+            for (var nextKey in source) {
+              if (source.hasOwnProperty(nextKey)) {
+                output[nextKey] = source[nextKey];
+              }
+            }
+          }
+        }
+        return output;
+      };
+    })();
+  }
   Polymer({
     is: 'docs-body-parameters-table',
 
@@ -123,7 +185,8 @@ Custom property | Description | Default
         type: Boolean,
         computed: '_computeHasType(typeProperties.*)',
         value: false,
-        notify: true
+        notify: true,
+        reflectToAttribute: true
       },
       // If set automatically hides the element which doesn't have parameteres set
       autoHide: {
@@ -143,13 +206,24 @@ Custom property | Description | Default
       // Computed properties of the type.
       typeProperties: {
         type: Array
+      },
+
+      hasExample: {
+        type: Boolean,
+        value: false,
+        notify: true,
+        computed: '_computeHasExample(type.structuredExample.*)'
+      },
+      // Selected page in the tabs (where examples exists for this page)
+      selectedSchemaPage: {
+        type: Number,
+        value: 0
       }
     },
 
     observers: [
       '_autoHide(autoHide, hasType)',
-      '_highlightJson(displayJson)',
-      '_checkProperties(type.*)',
+      '_checkProperties(type)',
       '_computeHTML(hasType, typeProperties.*)'
     ],
 
@@ -157,13 +231,19 @@ Custom property | Description | Default
       'content.tap': '_contentTap'
     },
 
+    clear: function() {
+      this.set('typeProperties', []);
+    },
+
     _checkProperties: function() {
       var t = this.type;
       if (!t) {
+        this.clear();
         return;
       }
       var props = this._computeProperties();
       this.set('typeProperties', props);
+      this.$$('paper-tabs.schemas').notifyResize();
     },
 
     _computeHasType: function() {
@@ -197,6 +277,12 @@ Custom property | Description | Default
       return JSON.stringify(this.__transformObject({}, properties), null, 2);
     },
 
+    _computeHasExample: function() {
+      // example can be an array
+      var t = this.type;
+      return !!(t && (t.structuredExample || (t.examples && t.examples.length)));
+    },
+
     __transformObject: function(base, obj) {
       var bt = this.baseTypes;
       var self = this;
@@ -207,6 +293,7 @@ Custom property | Description | Default
             type = type[0];
           } else {
             // TODO: real type concatenation
+            console.info('Concatenate types!');
             type = type[0];
           }
         }
@@ -225,7 +312,7 @@ Custom property | Description | Default
           base[item.name] = self.__transformObject(base[item.name],
             self.readProperties(item.properties));
         } else {
-          base[item.name] = item.example || type;
+          base[item.name] = type; //item.example || type;
         }
       });
       return base;
@@ -235,7 +322,8 @@ Custom property | Description | Default
       if (!this.type) {
         return [];
       }
-      var props = this._readTypeProperties(this.type, true);
+      var copy = Object.assign({}, this.type);
+      var props = this._readTypeProperties(copy, true);
       if (!props) {
         return [];
       }
@@ -263,6 +351,9 @@ Custom property | Description | Default
     _readTypeProperties: function(obj, isRoot) {
       if (!obj) {
         return null;
+      }
+      if (obj._isComputed) {
+        return obj;
       }
       delete obj.__METADATA__;
       var type;
@@ -292,9 +383,21 @@ Custom property | Description | Default
         hasOwnProperties = true;
         for (var name in obj.properties) {
           var item = obj.properties[name];
-          var prop = self._readTypeProperties(item);
-          if (prop) {
-            properties[properties.length] = prop;
+          var prop;
+          if (item instanceof Array) {
+            for (var i = 0, len = item.length; i < len; i++) {
+              prop = self._readTypeProperties(item[i]);
+              prop._isComputed = true;
+              if (prop) {
+                properties[properties.length] = prop;
+              }
+            }
+          } else {
+            prop = self._readTypeProperties(item);
+            prop._isComputed = true;
+            if (prop) {
+              properties[properties.length] = prop;
+            }
           }
         }
       }
@@ -311,6 +414,7 @@ Custom property | Description | Default
           if (!prop) {
             return;
           }
+          prop._isComputed = true;
           if (prop instanceof Array) {
             if (prop.length === 0) {
               return;
@@ -333,6 +437,7 @@ Custom property | Description | Default
       if (obj.isUnion) {
         obj.properties = properties;
         obj.type = type;
+        obj._isComputed = true;
         return obj;
       }
 
@@ -342,6 +447,7 @@ Custom property | Description | Default
           delete _p.displayName;
           delete _p.name;
           _p = Object.assign(obj, _p);
+          _p._isComputed = true;
           return _p;
         }
         obj.properties = properties;
@@ -350,20 +456,10 @@ Custom property | Description | Default
         } else {
           obj.type = type;
         }
-
+        obj._isComputed = true;
         return obj;
       }
       return properties;
-    },
-
-    _highlightJson: function(displayJson) {
-      this.async(function() {
-        this.$.output.innerHTML = this.highlight(displayJson, 'js');
-      }, 1);
-    },
-
-    highlight: function(code, lang) {
-      return this.fire('syntax-highlight', {code: code, lang: lang}).detail.code;
     },
 
     _hasSubproperties: function(item) {
@@ -372,6 +468,7 @@ Custom property | Description | Default
 
     _computeHTML: function(hasType) {
       if (!hasType || !this.typeProperties) {
+        this.$.content.innerHTML = '';
         return;
       }
       this.debounce('body-params-table-render', function() {
@@ -388,7 +485,11 @@ Custom property | Description | Default
         if (parent && parent.isUnion) {
           for (var i = 0, len = item.length; i < len; i++) {
             tr = self.__createRowForItem(item[i], parent);
-            tr.dataset.parent = parent.type[iParent];
+            var _t = parent.type[iParent];
+            if (typeof _t !== 'string') {
+              _t = _t.name;
+            }
+            tr.dataset.parent = _t;
             if (iParent > 0) {
               tr.setAttribute('hidden', true);
             }
@@ -433,6 +534,9 @@ Custom property | Description | Default
       sp2.textContent = '*';
       if (item.type instanceof Array) {
         item.type.forEach(function(type, i) {
+          if (typeof type !== 'string') {
+            type = type.name;
+          }
           var button = document.createElement('button', 'params-table-type-button');
           button.textContent = type;
           button.dataset.action = 'toggle-type';
@@ -547,6 +651,24 @@ Custom property | Description | Default
         return;
       }
       div.className += ' markdown-html markdown-body docs-body-parameters-table';
+    },
+    /**
+     * Computes boolean value if current type has list of examples.
+     *
+     * @param {Object} type Current type from `type` attribute
+     * @returns {Boolean} True if has list of examples
+     */
+    _hasExamples: function(type) {
+      return !!(type && type.examples && type.examples.length);
+    },
+    /**
+     * Computes boolean value if current type has one example.
+     *
+     * @param {Object} type Current type from `type` attribute
+     * @returns {Boolean} True if has exactly one example
+     */
+    _hasExample: function(type) {
+      return !!(type && type.structuredExample && type.structuredExample.value);
     }
 
   });
