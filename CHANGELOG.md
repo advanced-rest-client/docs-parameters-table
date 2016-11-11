@@ -1,3 +1,17 @@
+<a name="1.0.7"></a>
+## [1.0.7](https://github.com/advanced-rest-client/docs-parameters-table/compare/1.0.5...v1.0.7) (2016-11-11)
+
+
+### Breaking
+
+* Changed data model for the body types. Now the table will accept internall datatype ([cc0c9e6ad524d48afabb32d293b6435c31ae7cf5](https://github.com/advanced-rest-client/docs-parameters-table/commit/cc0c9e6ad524d48afabb32d293b6435c31ae7cf5))
+
+### Docs
+
+* Updated docs for the button ([230363d0af644e5dc8070f15bc3e32739adcd622](https://github.com/advanced-rest-client/docs-parameters-table/commit/230363d0af644e5dc8070f15bc3e32739adcd622))
+
+
+
 <a name="1.0.6"></a>
 ## [1.0.6](https://github.com/advanced-rest-client/docs-parameters-table/compare/1.0.5...v1.0.6) (2016-11-11)
 
