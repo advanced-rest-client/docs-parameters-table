@@ -133,3 +133,18 @@ Custom property | Description | Default
 `--docs-body-parameters-table-json` | Mixin applied to the JSON output | `{}`
 `--docs-body-parameters-table-type-name` | Mixin applied to the name of the type | `{}`
 
+# docs-body-table
+
+The `docs-body-table` is a view for the RAML documentation body.
+Body may contain more than one type (RAML's union types) so in this case
+this will show a more than one table of the parameters.
+# params-table-type-button
+
+A button to toggle union types in the body table.
+
+Custom property | Description | Default
+----------------|-------------|----------
+`--params-table-type-button` | Mixin applied to the button | `{}`
+`--params-table-type-button-active` | Mixin applied to the button when active | `{}`
+`--params-table-type-button-first-margin-left` | Margin left of first button (first child) | `0`
+
