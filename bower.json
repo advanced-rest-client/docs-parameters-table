@@ -11,7 +11,8 @@
     "docs-parameters-table.html",
     "docs-headers-table.html",
     "docs-body-parameters-table.html",
-    "docs-body-table.html"
+    "docs-body-table.html",
+    "params-table-type-button.html"
   ],
   "repository": {
     "type": "git",

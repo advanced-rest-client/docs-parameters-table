@@ -14,7 +14,16 @@ the License.
 <link rel="import" href="../polymer/polymer.html">
 <link rel="import" href="../iron-behaviors/iron-button-state.html">
 <link rel="import" href="../paper-styles/typography.html">
+<!--
+A button to toggle union types in the body table.
 
+Custom property | Description | Default
+----------------|-------------|----------
+`--params-table-type-button` | Mixin applied to the button | `{}`
+`--params-table-type-button-active` | Mixin applied to the button when active | `{}`
+`--params-table-type-button-first-margin-left` | Margin left of first button (first child) | `0`
+
+-->
 <dom-module id="params-table-type-button">
   <template>
     <style>
@@ -26,13 +35,15 @@ the License.
       padding: 4px;
       text-decoration: none;
       cursor: pointer;
+      @apply(--params-table-type-button);
     }
     :host(:first-child) {
-      padding-left: 0;
+      padding-left: var(--params-table-type-button-first-margin-left, 0);
     }
 
     :host([active]) {
       text-decoration: underline;
+      @apply(--params-table-type-button-active);
     }
     </style>
     <div id="content">
