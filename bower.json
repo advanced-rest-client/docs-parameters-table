@@ -21,7 +21,8 @@
   "dependencies": {
     "polymer": "Polymer/polymer#^1.0.0",
     "marked-element": "PolymerElements/marked-element#^1.2.0",
-    "paper-styles": "PolymerElements/paper-styles#^1.1.5"
+    "paper-styles": "PolymerElements/paper-styles#^1.1.5",
+    "markdown-styles": "advanced-rest-client/markdown-styles#^1.0.0"
   },
   "devDependencies": {
     "iron-component-page": "polymerelements/iron-component-page#1.0.0",
@@ -40,5 +41,5 @@
     "test",
     "tasks"
   ],
-  "version": "1.0.6"
+  "version": "1.0.7"
 }
