@@ -18,7 +18,7 @@ the License.
 <link rel="import" href="../marked-element/marked-element.html">
 <link rel="import" href="../prism-element/prism-theme-default.html">
 <link rel="import" href="../prism-element/prism-highlighter.html">
-
+<link rel="import" href="../markdown-styles/markdown-styles.html">
 <!--
 `<docs-parameters-table>` A parameters list and description table for the RAML documentation view
 
@@ -71,6 +71,7 @@ Custom property | Description | Default
 <dom-module id="docs-body-parameters-table">
   <template>
     <style include="prism-theme-default"></style>
+    <style include="markdown-styles"></style>
     <style include="docs-parameters-table-shared-styles"></style>
     <style>
     h4 {
@@ -81,6 +82,7 @@ Custom property | Description | Default
     #output {
       padding: 12px;
       @apply(--docs-body-parameters-table-json);
+      white-space: pre-wrap;
     }
     .param-name.subproperty::before {
       content: '.';
@@ -95,7 +97,6 @@ Custom property | Description | Default
     <pre id="output" class="language-javascript"></pre>
 
     <table class="params-table">
-
       <thead class="params-table-header">
         <tr>
           <th>Parameter</th>
@@ -103,9 +104,7 @@ Custom property | Description | Default
           <th>Description</th>
         </tr>
       </thead>
-
       <tbody id="content"></tbody>
-
     </table>
   </template>
   <script>
@@ -240,7 +239,6 @@ Custom property | Description | Default
       if (!props) {
         return [];
       }
-      console.log('Read properties: ', props);
       return props;
     },
     /**
@@ -273,8 +271,6 @@ Custom property | Description | Default
           return obj;
         }
         if (obj.type.length && obj.type.length > 1) {
-          // console.warn('Union types are not yet supported');
-          // return null;
           obj.isUnion = true;
         } else {
           type = obj.type[0];
@@ -503,7 +499,7 @@ Custom property | Description | Default
 
     _contentTap: function(e) {
       e = Polymer.dom(e);
-      var target = e.rootTarget;
+      var target = e.localTarget;
       if (!target || !target.dataset || !target.dataset.action) {
         return;
       }
