@@ -14,6 +14,7 @@ the License.
 <link rel="import" href="../polymer/polymer.html">
 <link rel="import" href="docs-parameters-behavior.html">
 <link rel="import" href="docs-parameters-table-shared-styles.html">
+<link rel="import" href="params-table-type-button.html">
 <link rel="import" href="../marked-element/marked-element.html">
 <link rel="import" href="../prism-element/prism-theme-default.html">
 <link rel="import" href="../prism-element/prism-highlighter.html">
@@ -70,7 +71,8 @@ Custom property | Description | Default
 <dom-module id="docs-body-parameters-table">
   <template>
     <style include="prism-theme-default"></style>
-    <style include="docs-parameters-table-shared-styles">
+    <style include="docs-parameters-table-shared-styles"></style>
+    <style>
     h4 {
       padding: 0 12px;
       @apply(--docs-body-parameters-table-type-name);
@@ -93,6 +95,7 @@ Custom property | Description | Default
     <pre id="output" class="language-javascript"></pre>
 
     <table class="params-table">
+
       <thead class="params-table-header">
         <tr>
           <th>Parameter</th>
@@ -100,46 +103,9 @@ Custom property | Description | Default
           <th>Description</th>
         </tr>
       </thead>
-      <tbody>
-        <template is="dom-if" if="[[hasType]]">
-          <template is="dom-repeat" items="[[typeProperties]]">
-            <tr>
-              <td class="param-name">[[item.name]]<span hidden$="[[!item.required]]">*</span></td>
-              <td class="param-type">[[item.type]]</td>
-              <td class="param-desc">
-                <div hidden$="[[!hasValue(item.description)]]">
-                  <marked-element markdown="[[item.description]]">
-                    <div class="markdown-html markdown-body"></div>
-                  </marked-element>
-                </div>
-                <div hidden$="[[!hasValue(item.pattern)]]" class="pattern">Validation pattern: <span>[[item.pattern]]</span></div>
-                <div hidden$="[[!hasValue(item.example)]]" class="example">Example value: <span>[[item.example]]</span></div>
-                <div hidden$="[[!hasValue(item.min)]]" class="example">Minimum value: <span>[[item.min]]</span></div>
-                <div hidden$="[[!hasValue(item.max)]]" class="example">Maximum value: <span>[[item.max]]</span></div>
-              </td>
-            </tr>
-            <template is="dom-if" if="[[_hasSubproperties(item)]]" restamp="true">
-              <template is="dom-repeat" items="[[readProperties(item.properties)]]" index-as="subIndex">
-                <tr>
-                  <td class="param-name subproperty">[[item.name]]<span hidden$="[[!item.required]]">*</span></td>
-                  <td class="param-type">[[item.type]]</td>
-                  <td class="param-desc">
-                    <div hidden$="[[!hasValue(item.description)]]">
-                      <marked-element markdown="[[item.description]]">
-                        <div class="markdown-html markdown-body"></div>
-                      </marked-element>
-                    </div>
-                    <div hidden$="[[!hasValue(item.pattern)]]" class="pattern">Validation pattern: <span>[[item.pattern]]</span></div>
-                    <div hidden$="[[!hasValue(item.example)]]" class="example">Example value: <span>[[item.example]]</span></div>
-                    <div hidden$="[[!hasValue(item.min)]]" class="example">Minimum value: <span>[[item.min]]</span></div>
-                    <div hidden$="[[!hasValue(item.max)]]" class="example">Maximum value: <span>[[item.max]]</span></div>
-                  </td>
-                </tr>
-              </template>
-            </template>
-          </template>
-        </template>
-      </tbody>
+
+      <tbody id="content"></tbody>
+
     </table>
   </template>
   <script>
@@ -177,26 +143,32 @@ Custom property | Description | Default
       },
       // Computed properties of the type.
       typeProperties: {
-        type: Array,
-        computed: '_computeProperties(type.properties.*)'
-      },
-      // RAML base types
-      baseTypes: {
-        type: Array,
-        value: function() {
-          return ['object', 'array','integer', 'string','number','boolean',
-            'datetime','file', 'null','any'];
-        }
+        type: Array
       }
     },
 
     observers: [
       '_autoHide(autoHide, hasType)',
-      '_highlightJson(displayJson)'
+      '_highlightJson(displayJson)',
+      '_checkProperties(type.*)',
+      '_computeHTML(hasType, typeProperties.*)'
     ],
 
+    listeners: {
+      'content.tap': '_contentTap'
+    },
+
+    _checkProperties: function() {
+      var t = this.type;
+      if (!t) {
+        return;
+      }
+      var props = this._computeProperties();
+      this.set('typeProperties', props);
+    },
+
     _computeHasType: function() {
-      return this.typeProperties && this.typeProperties.length;
+      return !!(this.typeProperties && this.typeProperties.length);
     },
 
     _autoHide: function(autoHide, hasType) {
@@ -228,7 +200,8 @@ Custom property | Description | Default
 
     __transformObject: function(base, obj) {
       var bt = this.baseTypes;
-      obj.forEach((item) => {
+      var self = this;
+      obj.forEach(function(item) {
         let type = item.type;
         if (type instanceof Array) {
           if (type.length === 1) {
@@ -243,15 +216,15 @@ Custom property | Description | Default
           // other type defined in RAML
           if (item.properties) {
             base[item.name] = {};
-            base[item.name] = this.__transformObject(base[item.name],
-                this.readProperties(item.properties));
+            base[item.name] = self.__transformObject(base[item.name],
+                self.readProperties(item.properties));
           } else {
             base[item.name] = type;
           }
         } else if (type === 'object' && item.properties) {
           base[item.name] = {};
-          base[item.name] = this.__transformObject(base[item.name],
-            this.readProperties(item.properties));
+          base[item.name] = self.__transformObject(base[item.name],
+            self.readProperties(item.properties));
         } else {
           base[item.name] = item.example || type;
         }
@@ -263,15 +236,132 @@ Custom property | Description | Default
       if (!this.type) {
         return [];
       }
-      var props = this.type.properties;
+      var props = this._readTypeProperties(this.type, true);
       if (!props) {
         return [];
       }
-      return this.readProperties(props);
+      console.log('Read properties: ', props);
+      return props;
+    },
+    /**
+     * Creates a structure of a properties recursively.
+     * Returns an array with similar structure:
+     * [{
+     *   name: xxx,
+     *   required: xxx,
+     *   type: string
+     * },{
+     *   name: xxx,
+     *   required: xxx,
+     *   type: object,
+     *   properties: [(recursive)]
+     * }]
+     *
+     * Parser's output may vary so the whole object's structure must be normalized.
+     * Types can be defined in a `.type` property. In this case it attach `.type` properties
+     * to the properties list. Types can also be defined on a property level so it must also
+     * check if the property contain a type declaration.
+     */
+    _readTypeProperties: function(obj, isRoot) {
+      if (!obj) {
+        return null;
+      }
+      delete obj.__METADATA__;
+      var type;
+      if (obj.type) {
+        if (typeof obj.type === 'string') {
+          return obj;
+        }
+        if (obj.type.length && obj.type.length > 1) {
+          // console.warn('Union types are not yet supported');
+          // return null;
+          obj.isUnion = true;
+        } else {
+          type = obj.type[0];
+        }
+      }
+
+      if (type && this.baseTypes.indexOf(type) !== -1) {
+        if (type !== 'object') {
+          // TODO: Array and Union.
+          obj.type = type;
+          return obj;
+        }
+      }
+
+      var properties = [];
+      var self = this;
+      var hasOwnProperties = false;
+      if (obj.properties && Object.getOwnPropertyNames(obj.properties).length) {
+        hasOwnProperties = true;
+        for (var name in obj.properties) {
+          var item = obj.properties[name];
+          var prop = self._readTypeProperties(item);
+          if (prop) {
+            properties[properties.length] = prop;
+          }
+        }
+      }
+      if (obj.isUnion) {
+        type = [];
+      }
+      if (obj.type && obj.type.length) {
+        // properties from parent objects must be included into current properties list
+        obj.type.forEach(function(subType) {
+          if (!subType || typeof subType === 'string') {
+            return;
+          }
+          prop = self._readTypeProperties(subType, true);
+          if (!prop) {
+            return;
+          }
+          if (prop instanceof Array) {
+            if (prop.length === 0) {
+              return;
+            }
+            if (obj.isUnion) {
+              type[type.length] = subType.name;
+              properties[properties.length] = prop;
+            } else {
+              properties = properties.concat(prop);
+            }
+          } else {
+            properties[properties.length] = prop;
+          }
+        });
+      }
+      if (properties.length === 0) {
+        return null;
+      }
+
+      if (obj.isUnion) {
+        obj.properties = properties;
+        obj.type = type;
+        return obj;
+      }
+
+      if (!isRoot) {
+        if (!hasOwnProperties && properties.length === 1) {
+          var _p = properties[0];
+          delete _p.displayName;
+          delete _p.name;
+          _p = Object.assign(obj, _p);
+          return _p;
+        }
+        obj.properties = properties;
+        if (typeof type !== 'string') {
+          obj.type = type.displayName || type.name;
+        } else {
+          obj.type = type;
+        }
+
+        return obj;
+      }
+      return properties;
     },
 
     _highlightJson: function(displayJson) {
-      this.async(() => {
+      this.async(function() {
         this.$.output.innerHTML = this.highlight(displayJson, 'js');
       }, 1);
     },
@@ -282,6 +372,185 @@ Custom property | Description | Default
 
     _hasSubproperties: function(item) {
       return !!(item.properties && Object.getOwnPropertyNames(item.properties).length);
+    },
+
+    _computeHTML: function(hasType) {
+      if (!hasType || !this.typeProperties) {
+        return;
+      }
+      this.debounce('body-params-table-render', function() {
+        this.$.content.innerHTML = '';
+        this.__computeHtml(this.typeProperties);
+      }.bind(this), 100);
+    },
+
+    __computeHtml: function(props, f, parent) {
+      var self = this;
+      f = f || document.createDocumentFragment();
+      props.forEach(function(item, iParent) {
+        var tr;
+        if (parent && parent.isUnion) {
+          for (var i = 0, len = item.length; i < len; i++) {
+            tr = self.__createRowForItem(item[i], parent);
+            tr.dataset.parent = parent.type[iParent];
+            if (iParent > 0) {
+              tr.setAttribute('hidden', true);
+            }
+            f.appendChild(tr);
+            if (self._hasSubproperties(item[i])) {
+              self.__computeHtml(item[i].properties, f, item[i]);
+            }
+          }
+        } else {
+          tr = self.__createRowForItem(item, parent);
+          f.appendChild(tr);
+          if (self._hasSubproperties(item)) {
+            self.__computeHtml(item.properties, f, item);
+          }
+        }
+      });
+      this.$.content.appendChild(f);
+    },
+
+    __createRowForItem: function(item, parent) {
+      var tr = document.createElement('tr');
+      var td1 = document.createElement('td');
+      var td2 = document.createElement('td');
+      var td3 = document.createElement('td');
+      var sp1 = document.createElement('span');
+      var sp2 = document.createElement('span');
+      tr.className = 'style-scope docs-body-parameters-table';
+      td1.className = 'style-scope docs-body-parameters-table param-name';
+      td2.className = 'style-scope docs-body-parameters-table param-type';
+      td3.className = 'style-scope docs-body-parameters-table param-desc';
+      sp1.className = 'style-scope docs-body-parameters-table display';
+      if (!item.required) {
+        sp2.setAttribute('hidden', true);
+      }
+      var itemName = '';
+      if (parent) {
+        td1.className += ' subproperty';
+        sp1.className += ' child';
+      }
+      itemName += item.name;
+      sp1.textContent = itemName;
+      sp2.textContent = '*';
+      if (item.type instanceof Array) {
+        item.type.forEach(function(type, i) {
+          var button = document.createElement('button', 'params-table-type-button');
+          button.textContent = type;
+          button.dataset.action = 'toggle-type';
+          button.dataset.type = type;
+          button.className = 'docs-body-parameters-table';
+          if (i === 0) {
+            button.setAttribute('active', true);
+          }
+          td2.appendChild(button);
+        });
+      } else {
+        td2.textContent = item.type;
+      }
+
+      if (item.description) {
+        var marked = document.createElement('marked-element');
+        var html = document.createElement('div');
+        marked.className = 'style-scope docs-body-parameters-table';
+        marked.setAttribute('smartypants', true);
+        marked.addEventListener('marked-render-complete', this._markedRendered.bind(this));
+        html.className = 'markdown-html markdown-body style-scope docs-body-parameters-table';
+        marked.appendChild(html);
+        td3.appendChild(marked);
+        marked.markdown = item.description;
+      }
+      if (item.pattern) {
+        var pattern = this.__createCellProperty('pattern', 'Validation pattern:', item.pattern);
+        td3.appendChild(pattern);
+      }
+      if (item.example) {
+        var example = this.__createCellProperty('example', 'Example:', item.example);
+        td3.appendChild(example);
+      }
+      if (item.min || item.min === 0) {
+        var min = this.__createCellProperty('example', 'Minimum value:', item.min);
+        td3.appendChild(min);
+      }
+      if (item.max || item.max === 0) {
+        var max = this.__createCellProperty('example', 'Maximum value:', item.max);
+        td3.appendChild(max);
+      }
+
+      td1.appendChild(sp1);
+      td1.appendChild(sp2);
+      tr.appendChild(td1);
+      tr.appendChild(td2);
+      tr.appendChild(td3);
+      return tr;
+    },
+
+    __createCellProperty: function(name, label, value) {
+      var container = document.createElement('div');
+      container.className = 'style-scope docs-body-parameters-table ' + name;
+      var display = document.createElement('span');
+      var valueNode = document.createElement('span');
+      display.className = 'style-scope docs-body-parameters-table display';
+      valueNode.className = 'style-scope docs-body-parameters-table value';
+      display.textContent = label;
+      valueNode.textContent = value;
+      container.appendChild(display);
+      container.appendChild(valueNode);
+      return container;
+    },
+
+    _contentTap: function(e) {
+      e = Polymer.dom(e);
+      var target = e.rootTarget;
+      if (!target || !target.dataset || !target.dataset.action) {
+        return;
+      }
+      var self = this;
+      switch (target.dataset.action) {
+        case 'toggle-type':
+          target.parentElement.childNodes.forEach((node) => {
+            if (node === target) {
+              return;
+            }
+            if (node && node.hasAttribute && node.hasAttribute('active')) {
+              node.removeAttribute('active');
+              self._toggleType(node.dataset.type, false);
+            }
+          });
+          this._toggleType(target.dataset.type, true);
+        break;
+      }
+    },
+
+    _toggleType: function(type, visible) {
+      if (!type) {
+        return;
+      }
+      Polymer.dom(this.$.content).querySelectorAll('[data-parent="' + type + '"]')
+      .forEach(function(node) {
+        if (visible) {
+          node.removeAttribute('hidden');
+        } else {
+          node.setAttribute('hidden', true);
+        }
+      });
+    },
+
+    _markedRendered: function(e) {
+      e = Polymer.dom(e);
+      var target = e.rootTarget;
+      var p = target.querySelector('p');
+      if (!p) {
+        return;
+      }
+      p.className += ' docs-body-parameters-table';
+      var div = target.querySelector('#content');
+      if (!div) {
+        return;
+      }
+      div.className += ' markdown-html markdown-body docs-body-parameters-table';
     }
 
   });
