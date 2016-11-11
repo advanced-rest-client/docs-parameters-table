@@ -27,7 +27,7 @@ this will show a more than one table of the parameters.
     </style>
     <div hidden$="[[!hasTypes]]">
       <template is="dom-repeat" items="[[type.type]]" index-as="index">
-        <docs-body-parameters-table type="[[item.properties]]"></docs-body-parameters-table>
+        <docs-body-parameters-table type="[[item]]" auto-hide="[[autoHide]]"></docs-body-parameters-table>
       </template>
     </div>
   </template>
@@ -45,12 +45,18 @@ this will show a more than one table of the parameters.
           type: Boolean,
           value: false,
           notify: true,
-          computed: '_computeHasTypes(type.length)'
+          computed: '_computeHasTypes(type.*)'
+        },
+        // If set automatically hides the element which doesn't have parameteres set
+        autoHide: {
+          type: Boolean,
+          value: false
         }
       },
 
-      _computeHasTypes: function(length) {
-        return !!(length && length > 0);
+      _computeHasTypes: function() {
+        var type = this.type;
+        return !!(type && (type.properties || type.type));
       }
     });
   </script>
