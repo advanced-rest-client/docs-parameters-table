@@ -10,7 +10,8 @@
   "main": [
     "docs-parameters-table.html",
     "docs-headers-table.html",
-    "docs-body-parameters-table.html"
+    "docs-body-parameters-table.html",
+    "docs-body-table.html"
   ],
   "repository": {
     "type": "git",

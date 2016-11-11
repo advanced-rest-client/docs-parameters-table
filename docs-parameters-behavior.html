@@ -27,6 +27,14 @@ the License.
       autoHide: {
         type: Boolean,
         value: false
+      },
+      // RAML base types
+      baseTypes: {
+        type: Array,
+        value: function() {
+          return ['object', 'array','integer', 'string','number','boolean',
+            'datetime','file', 'null','any'];
+        }
       }
     },
     /**
@@ -82,11 +90,11 @@ the License.
         return [];
       }
       var names = Object.getOwnPropertyNames(obj);
-      names = names.filter((i) => i !== '__METADATA__');
+      names = names.filter(function(i) { return i !== '__METADATA__'; });
       if (!names) {
         return [];
       }
-      return names.map((i) => obj[i]);
+      return names.map(function(i) { return obj[i]; });
     }
   };
 })();
