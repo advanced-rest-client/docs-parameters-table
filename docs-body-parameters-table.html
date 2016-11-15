@@ -19,10 +19,14 @@ the License.
 <link rel="import" href="../iron-pages/iron-pages.html">
 <link rel="import" href="../paper-tabs/paper-tabs.html">
 <link rel="import" href="../paper-tabs/paper-tab.html">
+<link rel="import" href="../paper-dropdown-menu/paper-dropdown-menu.html">
+<link rel="import" href="../paper-listbox/paper-listbox.html">
+<link rel="import" href="../paper-item/paper-item.html">
 <link rel="import" href="docs-parameters-behavior.html">
 <link rel="import" href="docs-parameters-table-shared-styles.html">
-<link rel="import" href="params-table-type-button.html">
 <link rel="import" href="structure-display.html">
+<link rel="import" href="docs-json-parameters-table.html">
+<link rel="import" href="docs-xml-parameters-table.html">
 
 <!--
 `<docs-parameters-table>` A parameters list and description table for the RAML documentation view
@@ -95,81 +99,23 @@ Custom property | Description | Default
       @apply(--docs-body-parameters-table-type-name);
     }
 
-    #output {
-      padding: 12px;
-      @apply(--docs-body-parameters-table-json);
-      white-space: pre-wrap;
+    paper-listbox paper-item {
+      cursor: pointer;
     }
-    .param-name.subproperty::before {
-      content: '.';
-    }
-    .param-name.subproperty {
-      padding-left: 16px !important;
-    }
+
     </style>
     <prism-highlighter></prism-highlighter>
 
     <h4>[[displayName]]</h4>
 
-    <div hidden$="[[hasExample]]">
-      <pre is="structure-display" display="[[displayJson]]" class="language-javascript"></pre>
-    </div>
-    <div hidden$="[[!hasExample]]">
-
-      <paper-tabs class="schemas" selected="{{selectedSchemaPage}}">
-        <paper-tab>Schema</paper-tab>
-        <paper-tab>Examples</paper-tab>
-      </paper-tabs>
-
-      <iron-pages selected="{{selectedSchemaPage}}">
-        <pre is="structure-display" display="[[displayJson]]" class="language-javascript"></pre>
-        <div>
-          <template is="dom-if" if="[[_hasExamples(type)]]">
-            <template is="dom-repeat" items="[[type.examples]]">
-              <h5>[[item.name]]</h5>
-              <pre is="structure-display" display="[[item.value]]" class="language-javascript"></pre>
-            </template>
-          </template>
-          <template is="dom-if" if="[[_hasExample(type)]]">
-            <pre is="structure-display" display="[[type.structuredExample.value]]" class="language-javascript"></pre>
-          </template>
-        </div>
-      </iron-pages>
-    </div>
-    <table class="params-table">
-      <thead class="params-table-header">
-        <tr>
-          <th>Parameter</th>
-          <th>Type</th>
-          <th>Description</th>
-        </tr>
-      </thead>
-      <tbody id="content"></tbody>
-    </table>
+    <template is="dom-if" if="[[isJson]]">
+      <docs-json-parameters-table type="[[type]]" has-type="{{hasTypeJson}}"></docs-json-parameters-table>
+    </template>
+    <template is="dom-if" if="[[isXml]]">
+      <docs-xml-parameters-table type="[[type]]" has-type="{{hasTypeXml}}"></docs-xml-parameters-table>
+    </template>
   </template>
   <script>
-  if (typeof Object.assign !== 'function') {
-    (function() {
-      Object.assign = function(target) {
-        'use strict';
-        if (target === undefined || target === null) {
-          throw new TypeError('Cannot convert undefined or null to object');
-        }
-        var output = Object(target);
-        for (var index = 1; index < arguments.length; index++) {
-          var source = arguments[index];
-          if (source !== undefined && source !== null) {
-            for (var nextKey in source) {
-              if (source.hasOwnProperty(nextKey)) {
-                output[nextKey] = source[nextKey];
-              }
-            }
-          }
-        }
-        return output;
-      };
-    })();
-  }
   Polymer({
     is: 'docs-body-parameters-table',
 
@@ -180,74 +126,50 @@ Custom property | Description | Default
        * A RAML's type definition for the body payload.
        */
       type: Object,
-      // True when `type` is present
-      hasType: {
-        type: Boolean,
-        computed: '_computeHasType(typeProperties.*)',
-        value: false,
-        notify: true,
-        reflectToAttribute: true
-      },
-      // If set automatically hides the element which doesn't have parameteres set
-      autoHide: {
-        type: Boolean,
-        value: false
-      },
+
       // Display name of the property.
       displayName: {
         type: String,
-        computed: '_computeDisplayName(type.*)'
+        computed: '_computeDisplayName(type.contentType)'
       },
-      // JSON created from the type definition
-      displayJson: {
-        type: String,
-        computed: '_computeDisplayJson(typeProperties.*)'
+      // Computed value, true if current type is a JSON type object
+      isJson: {
+        type: Object,
+        value: false,
+        readOnly: true
       },
-      // Computed properties of the type.
-      typeProperties: {
-        type: Array
+      // Computed value, true if current type is an XML type object
+      isXml: {
+        type: Object,
+        value: false,
+        readOnly: true
       },
-
-      hasExample: {
+      hasTypeJson: {
+        type: Boolean,
+        vealue: false,
+        observer: '_hasValueChanged'
+      },
+      hasTypeXml: {
+        type: Boolean,
+        vealue: false,
+        observer: '_hasValueChanged'
+      },
+      // True if any content type tables has a value.
+      hasType: {
         type: Boolean,
         value: false,
-        notify: true,
-        computed: '_computeHasExample(type.structuredExample.*)'
-      },
-      // Selected page in the tabs (where examples exists for this page)
-      selectedSchemaPage: {
-        type: Number,
-        value: 0
+        readOnly: true,
+        reflectToAttribute: true
       }
     },
 
     observers: [
       '_autoHide(autoHide, hasType)',
-      '_checkProperties(type)',
-      '_computeHTML(hasType, typeProperties.*)'
+      '_computeContentType(type.*)'
     ],
 
-    listeners: {
-      'content.tap': '_contentTap'
-    },
-
-    clear: function() {
-      this.set('typeProperties', []);
-    },
-
-    _checkProperties: function() {
-      var t = this.type;
-      if (!t) {
-        this.clear();
-        return;
-      }
-      var props = this._computeProperties();
-      this.set('typeProperties', props);
-      this.$$('paper-tabs.schemas').notifyResize();
-    },
-
-    _computeHasType: function() {
-      return !!(this.typeProperties && this.typeProperties.length);
+    _hasValueChanged: function() {
+      this._setHasType(this.hasTypeJson || this.hasTypeXml);
     },
 
     _autoHide: function(autoHide, hasType) {
@@ -269,406 +191,36 @@ Custom property | Description | Default
       return type.displayName || type.name || type.type;
     },
 
-    _computeDisplayJson: function() {
-      var properties = this.typeProperties;
-      if (!properties || !properties.length) {
-        return '';
-      }
-      return JSON.stringify(this.__transformObject({}, properties), null, 2);
-    },
-
-    _computeHasExample: function() {
-      // example can be an array
-      var t = this.type;
-      return !!(t && (t.structuredExample || (t.examples && t.examples.length)));
-    },
-
-    __transformObject: function(base, obj) {
-      var bt = this.baseTypes;
-      var self = this;
-      obj.forEach(function(item) {
-        let type = item.type;
-        if (type instanceof Array) {
-          if (type.length === 1) {
-            type = type[0];
-          } else {
-            // TODO: real type concatenation
-            console.info('Concatenate types!');
-            type = type[0];
-          }
-        }
-
-        if (bt.indexOf(type) === -1) {
-          // other type defined in RAML
-          if (item.properties) {
-            base[item.name] = {};
-            base[item.name] = self.__transformObject(base[item.name],
-                self.readProperties(item.properties));
-          } else {
-            base[item.name] = type;
-          }
-        } else if (type === 'object' && item.properties) {
-          base[item.name] = {};
-          base[item.name] = self.__transformObject(base[item.name],
-            self.readProperties(item.properties));
-        } else {
-          base[item.name] = type; //item.example || type;
-        }
-      });
-      return base;
-    },
-
-    _computeProperties: function() {
-      if (!this.type) {
-        return [];
-      }
-      var copy = Object.assign({}, this.type);
-      var props = this._readTypeProperties(copy, true);
-      if (!props) {
-        return [];
-      }
-      return props;
-    },
-    /**
-     * Creates a structure of a properties recursively.
-     * Returns an array with similar structure:
-     * [{
-     *   name: xxx,
-     *   required: xxx,
-     *   type: string
-     * },{
-     *   name: xxx,
-     *   required: xxx,
-     *   type: object,
-     *   properties: [(recursive)]
-     * }]
-     *
-     * Parser's output may vary so the whole object's structure must be normalized.
-     * Types can be defined in a `.type` property. In this case it attach `.type` properties
-     * to the properties list. Types can also be defined on a property level so it must also
-     * check if the property contain a type declaration.
-     */
-    _readTypeProperties: function(obj, isRoot) {
-      if (!obj) {
-        return null;
-      }
-      if (obj._isComputed) {
-        return obj;
-      }
-      delete obj.__METADATA__;
-      var type;
-      if (obj.type) {
-        if (typeof obj.type === 'string') {
-          return obj;
-        }
-        if (obj.type.length && obj.type.length > 1) {
-          obj.isUnion = true;
-        } else {
-          type = obj.type[0];
-        }
-      }
-
-      if (type && this.baseTypes.indexOf(type) !== -1) {
-        if (type !== 'object') {
-          // TODO: Array and Union.
-          obj.type = type;
-          return obj;
-        }
-      }
-
-      var properties = [];
-      var self = this;
-      var hasOwnProperties = false;
-      if (obj.properties && Object.getOwnPropertyNames(obj.properties).length) {
-        hasOwnProperties = true;
-        for (var name in obj.properties) {
-          var item = obj.properties[name];
-          var prop;
-          if (item instanceof Array) {
-            for (var i = 0, len = item.length; i < len; i++) {
-              prop = self._readTypeProperties(item[i]);
-              prop._isComputed = true;
-              if (prop) {
-                properties[properties.length] = prop;
-              }
-            }
-          } else {
-            prop = self._readTypeProperties(item);
-            prop._isComputed = true;
-            if (prop) {
-              properties[properties.length] = prop;
-            }
-          }
-        }
-      }
-      if (obj.isUnion) {
-        type = [];
-      }
-      if (obj.type && obj.type.length) {
-        // properties from parent objects must be included into current properties list
-        obj.type.forEach(function(subType) {
-          if (!subType || typeof subType === 'string') {
-            return;
-          }
-          prop = self._readTypeProperties(subType, true);
-          if (!prop) {
-            return;
-          }
-          prop._isComputed = true;
-          if (prop instanceof Array) {
-            if (prop.length === 0) {
-              return;
-            }
-            if (obj.isUnion) {
-              type[type.length] = subType.name;
-              properties[properties.length] = prop;
-            } else {
-              properties = properties.concat(prop);
-            }
-          } else {
-            properties[properties.length] = prop;
-          }
-        });
-      }
-      if (properties.length === 0) {
-        return null;
-      }
-
-      if (obj.isUnion) {
-        obj.properties = properties;
-        obj.type = type;
-        obj._isComputed = true;
-        return obj;
-      }
-
-      if (!isRoot) {
-        if (!hasOwnProperties && properties.length === 1) {
-          var _p = properties[0];
-          delete _p.displayName;
-          delete _p.name;
-          _p = Object.assign(obj, _p);
-          _p._isComputed = true;
-          return _p;
-        }
-        obj.properties = properties;
-        if (typeof type !== 'string') {
-          obj.type = type.displayName || type.name;
-        } else {
-          obj.type = type;
-        }
-        obj._isComputed = true;
-        return obj;
-      }
-      return properties;
-    },
-
-    _hasSubproperties: function(item) {
-      return !!(item.properties && Object.getOwnPropertyNames(item.properties).length);
-    },
-
-    _computeHTML: function(hasType) {
-      if (!hasType || !this.typeProperties) {
-        this.$.content.innerHTML = '';
-        return;
-      }
-      this.debounce('body-params-table-render', function() {
-        this.$.content.innerHTML = '';
-        this.__computeHtml(this.typeProperties);
-      }.bind(this), 100);
-    },
-
-    __computeHtml: function(props, f, parent) {
-      var self = this;
-      f = f || document.createDocumentFragment();
-      props.forEach(function(item, iParent) {
-        var tr;
-        if (parent && parent.isUnion) {
-          for (var i = 0, len = item.length; i < len; i++) {
-            tr = self.__createRowForItem(item[i], parent);
-            var _t = parent.type[iParent];
-            if (typeof _t !== 'string') {
-              _t = _t.name;
-            }
-            tr.dataset.parent = _t;
-            if (iParent > 0) {
-              tr.setAttribute('hidden', true);
-            }
-            f.appendChild(tr);
-            if (self._hasSubproperties(item[i])) {
-              self.__computeHtml(item[i].properties, f, item[i]);
-            }
-          }
-        } else {
-          tr = self.__createRowForItem(item, parent);
-          f.appendChild(tr);
-          if (self._hasSubproperties(item)) {
-            self.__computeHtml(item.properties, f, item);
-          }
-        }
-      });
-      this.$.content.appendChild(f);
-    },
-
-    __createRowForItem: function(item, parent) {
-      var tr = document.createElement('tr');
-      var td1 = document.createElement('td');
-      var td2 = document.createElement('td');
-      var td3 = document.createElement('td');
-      var sp1 = document.createElement('span');
-      var sp2 = document.createElement('span');
-      tr.className = 'style-scope docs-body-parameters-table';
-      td1.className = 'style-scope docs-body-parameters-table param-name';
-      td2.className = 'style-scope docs-body-parameters-table param-type';
-      td3.className = 'style-scope docs-body-parameters-table param-desc';
-      sp1.className = 'style-scope docs-body-parameters-table display';
-      if (!item.required) {
-        sp2.setAttribute('hidden', true);
-      }
-      var itemName = '';
-      if (parent) {
-        td1.className += ' subproperty';
-        sp1.className += ' child';
-      }
-      itemName += item.name;
-      sp1.textContent = itemName;
-      sp2.textContent = '*';
-      if (item.type instanceof Array) {
-        item.type.forEach(function(type, i) {
-          if (typeof type !== 'string') {
-            type = type.name;
-          }
-          var button = document.createElement('button', 'params-table-type-button');
-          button.textContent = type;
-          button.dataset.action = 'toggle-type';
-          button.dataset.type = type;
-          button.className = 'docs-body-parameters-table';
-          if (i === 0) {
-            button.setAttribute('active', true);
-          }
-          td2.appendChild(button);
-        });
-      } else {
-        td2.textContent = item.type;
-      }
-
-      if (item.description) {
-        var marked = document.createElement('marked-element');
-        var html = document.createElement('div');
-        marked.className = 'style-scope docs-body-parameters-table';
-        marked.setAttribute('smartypants', true);
-        marked.addEventListener('marked-render-complete', this._markedRendered.bind(this));
-        html.className = 'markdown-html markdown-body style-scope docs-body-parameters-table';
-        marked.appendChild(html);
-        td3.appendChild(marked);
-        marked.markdown = item.description;
-      }
-      if (item.pattern) {
-        var pattern = this.__createCellProperty('pattern', 'Validation pattern:', item.pattern);
-        td3.appendChild(pattern);
-      }
-      if (item.example) {
-        var example = this.__createCellProperty('example', 'Example:', item.example);
-        td3.appendChild(example);
-      }
-      if (item.min || item.min === 0) {
-        var min = this.__createCellProperty('example', 'Minimum value:', item.min);
-        td3.appendChild(min);
-      }
-      if (item.max || item.max === 0) {
-        var max = this.__createCellProperty('example', 'Maximum value:', item.max);
-        td3.appendChild(max);
-      }
-
-      td1.appendChild(sp1);
-      td1.appendChild(sp2);
-      tr.appendChild(td1);
-      tr.appendChild(td2);
-      tr.appendChild(td3);
-      return tr;
-    },
-
-    __createCellProperty: function(name, label, value) {
-      var container = document.createElement('div');
-      container.className = 'style-scope docs-body-parameters-table ' + name;
-      var display = document.createElement('span');
-      var valueNode = document.createElement('span');
-      display.className = 'style-scope docs-body-parameters-table display';
-      valueNode.className = 'style-scope docs-body-parameters-table value';
-      display.textContent = label;
-      valueNode.textContent = value;
-      container.appendChild(display);
-      container.appendChild(valueNode);
-      return container;
-    },
-
-    _contentTap: function(e) {
-      e = Polymer.dom(e);
-      var target = e.localTarget;
-      if (!target || !target.dataset || !target.dataset.action) {
-        return;
-      }
-      var self = this;
-      switch (target.dataset.action) {
-        case 'toggle-type':
-          target.parentElement.childNodes.forEach((node) => {
-            if (node === target) {
-              return;
-            }
-            if (node && node.hasAttribute && node.hasAttribute('active')) {
-              node.removeAttribute('active');
-              self._toggleType(node.dataset.type, false);
-            }
-          });
-          this._toggleType(target.dataset.type, true);
-        break;
-      }
-    },
-
-    _toggleType: function(type, visible) {
+    _computeContentType: function(record) {
+      // debugger;
+      var type = record.base;
+      var isXml = false;
+      var isJson = false;
       if (!type) {
+        this._setIsJson(isJson);
+        this._setIsXml(isXml);
         return;
       }
-      Polymer.dom(this.$.content).querySelectorAll('[data-parent="' + type + '"]')
-      .forEach(function(node) {
-        if (visible) {
-          node.removeAttribute('hidden');
-        } else {
-          node.setAttribute('hidden', true);
-        }
-      });
-    },
+      var mime;
+      if (type.contentType) {
+        mime = type.contentType;
+      } else {
+        mime = type.name;
+      }
+      if (!mime) {
+        mime = 'application/json';
+      }
 
-    _markedRendered: function(e) {
-      e = Polymer.dom(e);
-      var target = e.rootTarget;
-      var p = target.querySelector('p');
-      if (!p) {
-        return;
+      if (mime.indexOf('json') !== -1) {
+        isJson = true;
+      } else if (mime.indexOf('xml') !== -1) {
+        isXml = true;
+      } else {
+        // for now, default value;
+        isJson = true;
       }
-      p.className += ' docs-body-parameters-table';
-      var div = target.querySelector('#content');
-      if (!div) {
-        return;
-      }
-      div.className += ' markdown-html markdown-body docs-body-parameters-table';
-    },
-    /**
-     * Computes boolean value if current type has list of examples.
-     *
-     * @param {Object} type Current type from `type` attribute
-     * @returns {Boolean} True if has list of examples
-     */
-    _hasExamples: function(type) {
-      return !!(type && type.examples && type.examples.length);
-    },
-    /**
-     * Computes boolean value if current type has one example.
-     *
-     * @param {Object} type Current type from `type` attribute
-     * @returns {Boolean} True if has exactly one example
-     */
-    _hasExample: function(type) {
-      return !!(type && type.structuredExample && type.structuredExample.value);
+      this._setIsJson(isJson);
+      this._setIsXml(isXml);
     }
 
   });

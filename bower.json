@@ -12,7 +12,7 @@
     "docs-headers-table.html",
     "docs-body-parameters-table.html",
     "docs-body-table.html",
-    "params-table-type-button.html"
+    "docs-json-parameters-table.html"
   ],
   "repository": {
     "type": "git",
@@ -24,7 +24,10 @@
     "paper-styles": "PolymerElements/paper-styles#^1.1.5",
     "markdown-styles": "advanced-rest-client/markdown-styles#^1.0.0",
     "paper-tabs": "PolymerElements/paper-tabs#^1.7.0",
-    "iron-pages": "PolymerElements/iron-pages#^1.0.8"
+    "iron-pages": "PolymerElements/iron-pages#^1.0.8",
+    "paper-dropdown-menu": "PolymerElements/paper-dropdown-menu#^1.4.1",
+    "paper-listbox": "polymerelements/paper-listbox#^1.1.2",
+    "paper-item": "PolymerElements/paper-item#^1.2.1"
   },
   "devDependencies": {
     "iron-component-page": "polymerelements/iron-component-page#1.0.0",
@@ -43,5 +46,5 @@
     "test",
     "tasks"
   ],
-  "version": "1.0.8"
+  "version": "1.1.1"
 }

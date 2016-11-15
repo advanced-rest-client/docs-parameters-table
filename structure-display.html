@@ -33,7 +33,11 @@ A `<pre>` element that displays highlighted text.
       is: 'structure-display',
       extends: 'pre',
       properties: {
-        display: String
+        display: String,
+        dataType: {
+          type: String,
+          value: 'js'
+        }
       },
 
       observers: [
@@ -46,7 +50,7 @@ A `<pre>` element that displays highlighted text.
           return;
         }
         this.debounce('structure-display-highlight', function() {
-          this.$.output.innerHTML = this.highlight(str, 'js');
+          this.$.output.innerHTML = this.highlight(str, this.dataType);
         }, 10);
       },
 
