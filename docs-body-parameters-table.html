@@ -19,6 +19,9 @@ the License.
 <link rel="import" href="../iron-pages/iron-pages.html">
 <link rel="import" href="../paper-tabs/paper-tabs.html">
 <link rel="import" href="../paper-tabs/paper-tab.html">
+<link rel="import" href="../paper-dropdown-menu/paper-dropdown-menu.html">
+<link rel="import" href="../paper-listbox/paper-listbox.html">
+<link rel="import" href="../paper-item/paper-item.html">
 <link rel="import" href="docs-parameters-behavior.html">
 <link rel="import" href="docs-parameters-table-shared-styles.html">
 <link rel="import" href="params-table-type-button.html">
@@ -100,12 +103,23 @@ Custom property | Description | Default
       @apply(--docs-body-parameters-table-json);
       white-space: pre-wrap;
     }
-    .param-name.subproperty::before {
+
+    .parent-prefix {
+      color: rgba(0, 0, 0, 0.54);
+    }
+
+    .parent-prefix::after {
       content: '.';
     }
+
     .param-name.subproperty {
       padding-left: 16px !important;
     }
+
+    paper-listbox paper-item {
+      cursor: pointer;
+    }
+
     </style>
     <prism-highlighter></prism-highlighter>
 
@@ -117,7 +131,7 @@ Custom property | Description | Default
     <div hidden$="[[!hasExample]]">
 
       <paper-tabs class="schemas" selected="{{selectedSchemaPage}}">
-        <paper-tab>Schema</paper-tab>
+        <paper-tab>Type</paper-tab>
         <paper-tab>Examples</paper-tab>
       </paper-tabs>
 
@@ -183,7 +197,7 @@ Custom property | Description | Default
       // True when `type` is present
       hasType: {
         type: Boolean,
-        computed: '_computeHasType(typeProperties.*)',
+        computed: '_computeHasType(type.*)',
         value: false,
         notify: true,
         reflectToAttribute: true
@@ -201,11 +215,7 @@ Custom property | Description | Default
       // JSON created from the type definition
       displayJson: {
         type: String,
-        computed: '_computeDisplayJson(typeProperties.*)'
-      },
-      // Computed properties of the type.
-      typeProperties: {
-        type: Array
+        computed: '_computeDisplayJson(type.properties.*)'
       },
 
       hasExample: {
@@ -223,31 +233,21 @@ Custom property | Description | Default
 
     observers: [
       '_autoHide(autoHide, hasType)',
-      '_checkProperties(type)',
-      '_computeHTML(hasType, typeProperties.*)'
+      '_computeHTML(hasType, type.properties.*)'
     ],
 
     listeners: {
-      'content.tap': '_contentTap'
+      // 'content.tap': '_contentTap',
+      'content.iron-select': '_typeDropdownChanged',
+      'content.iron-deselect': '_typeDropdownChanged',
     },
 
     clear: function() {
       this.set('typeProperties', []);
     },
 
-    _checkProperties: function() {
-      var t = this.type;
-      if (!t) {
-        this.clear();
-        return;
-      }
-      var props = this._computeProperties();
-      this.set('typeProperties', props);
-      this.$$('paper-tabs.schemas').notifyResize();
-    },
-
     _computeHasType: function() {
-      return !!(this.typeProperties && this.typeProperties.length);
+      return !!(this.type && this.type.properties && this.type.properties.length);
     },
 
     _autoHide: function(autoHide, hasType) {
@@ -270,7 +270,7 @@ Custom property | Description | Default
     },
 
     _computeDisplayJson: function() {
-      var properties = this.typeProperties;
+      var properties = this.type.properties;
       if (!properties || !properties.length) {
         return '';
       }
@@ -311,6 +311,11 @@ Custom property | Description | Default
           base[item.name] = {};
           base[item.name] = self.__transformObject(base[item.name],
             self.readProperties(item.properties));
+        } else if (type === 'array' && item.items && item.items[0]) {
+          base[item.name] = [];
+          base[item.name][0] = {};
+          base[item.name][0] = self.__transformObject({},
+            self.readProperties(item.items[0].properties));
         } else {
           base[item.name] = type; //item.example || type;
         }
@@ -318,247 +323,153 @@ Custom property | Description | Default
       return base;
     },
 
-    _computeProperties: function() {
-      if (!this.type) {
-        return [];
-      }
-      var copy = Object.assign({}, this.type);
-      var props = this._readTypeProperties(copy, true);
-      if (!props) {
-        return [];
-      }
-      return props;
-    },
-    /**
-     * Creates a structure of a properties recursively.
-     * Returns an array with similar structure:
-     * [{
-     *   name: xxx,
-     *   required: xxx,
-     *   type: string
-     * },{
-     *   name: xxx,
-     *   required: xxx,
-     *   type: object,
-     *   properties: [(recursive)]
-     * }]
-     *
-     * Parser's output may vary so the whole object's structure must be normalized.
-     * Types can be defined in a `.type` property. In this case it attach `.type` properties
-     * to the properties list. Types can also be defined on a property level so it must also
-     * check if the property contain a type declaration.
-     */
-    _readTypeProperties: function(obj, isRoot) {
-      if (!obj) {
-        return null;
-      }
-      if (obj._isComputed) {
-        return obj;
-      }
-      delete obj.__METADATA__;
-      var type;
-      if (obj.type) {
-        if (typeof obj.type === 'string') {
-          return obj;
-        }
-        if (obj.type.length && obj.type.length > 1) {
-          obj.isUnion = true;
-        } else {
-          type = obj.type[0];
-        }
-      }
-
-      if (type && this.baseTypes.indexOf(type) !== -1) {
-        if (type !== 'object') {
-          // TODO: Array and Union.
-          obj.type = type;
-          return obj;
-        }
-      }
-
-      var properties = [];
-      var self = this;
-      var hasOwnProperties = false;
-      if (obj.properties && Object.getOwnPropertyNames(obj.properties).length) {
-        hasOwnProperties = true;
-        for (var name in obj.properties) {
-          var item = obj.properties[name];
-          var prop;
-          if (item instanceof Array) {
-            for (var i = 0, len = item.length; i < len; i++) {
-              prop = self._readTypeProperties(item[i]);
-              prop._isComputed = true;
-              if (prop) {
-                properties[properties.length] = prop;
-              }
-            }
-          } else {
-            prop = self._readTypeProperties(item);
-            prop._isComputed = true;
-            if (prop) {
-              properties[properties.length] = prop;
-            }
-          }
-        }
-      }
-      if (obj.isUnion) {
-        type = [];
-      }
-      if (obj.type && obj.type.length) {
-        // properties from parent objects must be included into current properties list
-        obj.type.forEach(function(subType) {
-          if (!subType || typeof subType === 'string') {
-            return;
-          }
-          prop = self._readTypeProperties(subType, true);
-          if (!prop) {
-            return;
-          }
-          prop._isComputed = true;
-          if (prop instanceof Array) {
-            if (prop.length === 0) {
-              return;
-            }
-            if (obj.isUnion) {
-              type[type.length] = subType.name;
-              properties[properties.length] = prop;
-            } else {
-              properties = properties.concat(prop);
-            }
-          } else {
-            properties[properties.length] = prop;
-          }
-        });
-      }
-      if (properties.length === 0) {
-        return null;
-      }
-
-      if (obj.isUnion) {
-        obj.properties = properties;
-        obj.type = type;
-        obj._isComputed = true;
-        return obj;
-      }
-
-      if (!isRoot) {
-        if (!hasOwnProperties && properties.length === 1) {
-          var _p = properties[0];
-          delete _p.displayName;
-          delete _p.name;
-          _p = Object.assign(obj, _p);
-          _p._isComputed = true;
-          return _p;
-        }
-        obj.properties = properties;
-        if (typeof type !== 'string') {
-          obj.type = type.displayName || type.name;
-        } else {
-          obj.type = type;
-        }
-        obj._isComputed = true;
-        return obj;
-      }
-      return properties;
-    },
-
     _hasSubproperties: function(item) {
       return !!(item.properties && Object.getOwnPropertyNames(item.properties).length);
     },
 
     _computeHTML: function(hasType) {
-      if (!hasType || !this.typeProperties) {
+      if (!hasType || !this.type.properties || !this.type.properties.length) {
         this.$.content.innerHTML = '';
         return;
       }
       this.debounce('body-params-table-render', function() {
         this.$.content.innerHTML = '';
-        this.__computeHtml(this.typeProperties);
+        this.__computeHtml(this.type.properties);
       }.bind(this), 100);
     },
-
-    __computeHtml: function(props, f, parent) {
+    /**
+     * Compyte HTML value for the table.
+     * It can't be done using templates because of the nested structure of the properties.
+     *
+     * @param {Array} props Object properties from which to create each row of the table
+     * @param {DocumentFragment?} f Document fragmet to which append elements
+     * @param {Object?} parent Parent for current properties. Note that it may not be actual
+     * parent object for the properties. For example, in case of union types it will be
+     * parent that holds union and not the atual parent object for the properties.
+     * @param {Object?} immidietParent Set when `parent` is not immidiet parent of the properties.
+     */
+    __computeHtml: function(props, f, parent, immidietParent) {
       var self = this;
+      var append = !f;
       f = f || document.createDocumentFragment();
-      props.forEach(function(item, iParent) {
+      props.forEach(function(item) {
         var tr;
-        if (parent && parent.isUnion) {
-          for (var i = 0, len = item.length; i < len; i++) {
-            tr = self.__createRowForItem(item[i], parent);
-            var _t = parent.type[iParent];
-            if (typeof _t !== 'string') {
-              _t = _t.name;
-            }
-            tr.dataset.parent = _t;
-            if (iParent > 0) {
-              tr.setAttribute('hidden', true);
-            }
-            f.appendChild(tr);
-            if (self._hasSubproperties(item[i])) {
-              self.__computeHtml(item[i].properties, f, item[i]);
-            }
-          }
-        } else {
+        if (item.isUnion) {
           tr = self.__createRowForItem(item, parent);
           f.appendChild(tr);
+          var selectedTypeName;
           if (self._hasSubproperties(item)) {
             self.__computeHtml(item.properties, f, item);
+            selectedTypeName = item.properties[0].name;
+          }
+          if (selectedTypeName) {
+            try {
+              var toVisible = f.querySelectorAll('tr[data-parent="' + selectedTypeName + '"]');
+              for (var i = 0, len = toVisible.length; i < len; i++) {
+                toVisible[i].removeAttribute('hidden');
+              }
+            } catch (e) {
+              console.warn(e);
+            }
+          }
+          // var active = f.querySelector('button[is="params-table-type-button"][active]');
+          // if (active) {
+          //   var activeType = active.dataset.type;
+          //   if (activeType) {
+          //     var toVisible = f.querySelectorAll('tr[data-parent="' + activeType + '"]');
+          //     for (var i = 0, len = toVisible.length; i < len; i++) {
+          //       toVisible[i].removeAttribute('hidden');
+          //     }
+          //   }
+          // }
+          append = true; // if not then next union type find wrong active element.
+        } else {
+          var appendCurrent = !(parent && parent.isUnion && !immidietParent);
+          if (appendCurrent) {
+            tr = self.__createRowForItem(item, parent, immidietParent);
+            f.appendChild(tr);
+          }
+          if (self._hasSubproperties(item)) {
+            var parentToPass = (parent && parent.isUnion) ? parent : item;
+            self.__computeHtml(item.properties, f, parentToPass, item);
           }
         }
       });
-      this.$.content.appendChild(f);
+      if (append) {
+        this.$.content.appendChild(f);
+      }
     },
 
-    __createRowForItem: function(item, parent) {
-      var tr = document.createElement('tr');
-      var td1 = document.createElement('td');
-      var td2 = document.createElement('td');
-      var td3 = document.createElement('td');
-      var sp1 = document.createElement('span');
-      var sp2 = document.createElement('span');
+    __createRowForItem: function(item, parent, immidietParent) {
+      var ce = function(el) {
+        return document.createElement(el);
+      };
+      var tr = ce('tr');
+      var td1 = ce('td');
+      var td2 = ce('td');
+      var td3 = ce('td');
+      var sp1 = ce('span');
+
       tr.className = 'style-scope docs-body-parameters-table';
       td1.className = 'style-scope docs-body-parameters-table param-name';
       td2.className = 'style-scope docs-body-parameters-table param-type';
       td3.className = 'style-scope docs-body-parameters-table param-desc';
       sp1.className = 'style-scope docs-body-parameters-table display';
-      if (!item.required) {
-        sp2.setAttribute('hidden', true);
-      }
-      var itemName = '';
+
       if (parent) {
         td1.className += ' subproperty';
         sp1.className += ' child';
+        var spParent = ce('span');
+        var spChild = ce('span');
+        spParent.className = 'style-scope docs-body-parameters-table parent-prefix';
+        spParent.textContent = parent.displayName || parent.name;
+        spChild.textContent = item.name;
+        sp1.appendChild(spParent);
+        sp1.appendChild(spChild);
+        if (parent.isUnion && immidietParent) {
+          tr.dataset.parent = immidietParent.name;
+          tr.setAttribute('hidden', true);
+        }
+      } else {
+        sp1.textContent = item.name;
       }
-      itemName += item.name;
-      sp1.textContent = itemName;
-      sp2.textContent = '*';
-      if (item.type instanceof Array) {
-        item.type.forEach(function(type, i) {
-          if (typeof type !== 'string') {
-            type = type.name;
-          }
-          var button = document.createElement('button', 'params-table-type-button');
-          button.textContent = type;
-          button.dataset.action = 'toggle-type';
-          button.dataset.type = type;
-          button.className = 'docs-body-parameters-table';
-          if (i === 0) {
-            button.setAttribute('active', true);
-          }
-          td2.appendChild(button);
-        });
+
+      if (item.isUnion) {
+        // extract child types and insert buttons.
+        if (item.properties && item.properties.length) {
+          var html = '<paper-dropdown-menu no-label-float class="style-scope ' +
+            'docs-body-parameters-table">';
+          html += '<paper-listbox class="style-scope docs-body-parameters-table ' +
+            'dropdown-content" selected="0" data-action="toggle-type">';
+          item.properties.forEach(function(child) {
+            var childName = child.displayName || child.name;
+            // var button = document.createElement('button', 'params-table-type-button');
+            // button.textContent = childName;
+            // button.dataset.action = 'toggle-type';
+            // button.dataset.type = child.name;
+            // button.className = 'docs-body-parameters-table';
+            // if (i === 0) {
+            //   button.setAttribute('active', true);
+            // }
+            // td2.appendChild(button);
+            html += '<paper-item data-type="' + child.name +
+              '" class="style-scope docs-body-parameters-table"' +
+              '>' + childName + '</paper-item>';
+          });
+          td2.innerHTML = html;
+        }
       } else {
         td2.textContent = item.type;
       }
 
       if (item.description) {
-        var marked = document.createElement('marked-element');
-        var html = document.createElement('div');
+        var marked = ce('marked-element');
+        var htmlBody = ce('div');
         marked.className = 'style-scope docs-body-parameters-table';
         marked.setAttribute('smartypants', true);
         marked.addEventListener('marked-render-complete', this._markedRendered.bind(this));
-        html.className = 'markdown-html markdown-body style-scope docs-body-parameters-table';
-        marked.appendChild(html);
+        htmlBody.className = 'markdown-html markdown-body style-scope docs-body-parameters-table';
+        marked.appendChild(htmlBody);
         td3.appendChild(marked);
         marked.markdown = item.description;
       }
@@ -580,7 +491,13 @@ Custom property | Description | Default
       }
 
       td1.appendChild(sp1);
-      td1.appendChild(sp2);
+      if (item.required) {
+        var sp2 = ce('span');
+        sp2.textContent = '*';
+        sp2.title = sp1.title = 'Required property';
+        td1.appendChild(sp2);
+      }
+
       tr.appendChild(td1);
       tr.appendChild(td2);
       tr.appendChild(td3);
@@ -620,6 +537,18 @@ Custom property | Description | Default
             }
           });
           this._toggleType(target.dataset.type, true);
+        break;
+      }
+    },
+
+    _typeDropdownChanged: function(e) {
+      var target = e.target;
+      if (!target || !target.dataset || !target.dataset.action) {
+        return;
+      }
+      switch (target.dataset.action) {
+        case 'toggle-type':
+          this._toggleType(e.detail.item.dataset.type, e.type === 'iron-select');
         break;
       }
     },
