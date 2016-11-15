@@ -24,8 +24,9 @@ the License.
 <link rel="import" href="../paper-item/paper-item.html">
 <link rel="import" href="docs-parameters-behavior.html">
 <link rel="import" href="docs-parameters-table-shared-styles.html">
-<link rel="import" href="params-table-type-button.html">
 <link rel="import" href="structure-display.html">
+<link rel="import" href="docs-json-parameters-table.html">
+<link rel="import" href="docs-xml-parameters-table.html">
 
 <!--
 `<docs-parameters-table>` A parameters list and description table for the RAML documentation view
@@ -98,24 +99,6 @@ Custom property | Description | Default
       @apply(--docs-body-parameters-table-type-name);
     }
 
-    #output {
-      padding: 12px;
-      @apply(--docs-body-parameters-table-json);
-      white-space: pre-wrap;
-    }
-
-    .parent-prefix {
-      color: rgba(0, 0, 0, 0.54);
-    }
-
-    .parent-prefix::after {
-      content: '.';
-    }
-
-    .param-name.subproperty {
-      padding-left: 16px !important;
-    }
-
     paper-listbox paper-item {
       cursor: pointer;
     }
@@ -125,65 +108,14 @@ Custom property | Description | Default
 
     <h4>[[displayName]]</h4>
 
-    <div hidden$="[[hasExample]]">
-      <pre is="structure-display" display="[[displayJson]]" class="language-javascript"></pre>
-    </div>
-    <div hidden$="[[!hasExample]]">
-
-      <paper-tabs class="schemas" selected="{{selectedSchemaPage}}">
-        <paper-tab>Type</paper-tab>
-        <paper-tab>Examples</paper-tab>
-      </paper-tabs>
-
-      <iron-pages selected="{{selectedSchemaPage}}">
-        <pre is="structure-display" display="[[displayJson]]" class="language-javascript"></pre>
-        <div>
-          <template is="dom-if" if="[[_hasExamples(type)]]">
-            <template is="dom-repeat" items="[[type.examples]]">
-              <h5>[[item.name]]</h5>
-              <pre is="structure-display" display="[[item.value]]" class="language-javascript"></pre>
-            </template>
-          </template>
-          <template is="dom-if" if="[[_hasExample(type)]]">
-            <pre is="structure-display" display="[[type.structuredExample.value]]" class="language-javascript"></pre>
-          </template>
-        </div>
-      </iron-pages>
-    </div>
-    <table class="params-table">
-      <thead class="params-table-header">
-        <tr>
-          <th>Parameter</th>
-          <th>Type</th>
-          <th>Description</th>
-        </tr>
-      </thead>
-      <tbody id="content"></tbody>
-    </table>
+    <template is="dom-if" if="[[isJson]]">
+      <docs-json-parameters-table type="[[type]]" has-type="{{hasTypeJson}}"></docs-json-parameters-table>
+    </template>
+    <template is="dom-if" if="[[isXml]]">
+      <docs-xml-parameters-table type="[[type]]" has-type="{{hasTypeXml}}"></docs-xml-parameters-table>
+    </template>
   </template>
   <script>
-  if (typeof Object.assign !== 'function') {
-    (function() {
-      Object.assign = function(target) {
-        'use strict';
-        if (target === undefined || target === null) {
-          throw new TypeError('Cannot convert undefined or null to object');
-        }
-        var output = Object(target);
-        for (var index = 1; index < arguments.length; index++) {
-          var source = arguments[index];
-          if (source !== undefined && source !== null) {
-            for (var nextKey in source) {
-              if (source.hasOwnProperty(nextKey)) {
-                output[nextKey] = source[nextKey];
-              }
-            }
-          }
-        }
-        return output;
-      };
-    })();
-  }
   Polymer({
     is: 'docs-body-parameters-table',
 
@@ -194,60 +126,50 @@ Custom property | Description | Default
        * A RAML's type definition for the body payload.
        */
       type: Object,
-      // True when `type` is present
-      hasType: {
-        type: Boolean,
-        computed: '_computeHasType(type.*)',
-        value: false,
-        notify: true,
-        reflectToAttribute: true
-      },
-      // If set automatically hides the element which doesn't have parameteres set
-      autoHide: {
-        type: Boolean,
-        value: false
-      },
+
       // Display name of the property.
       displayName: {
         type: String,
-        computed: '_computeDisplayName(type.*)'
+        computed: '_computeDisplayName(type.contentType)'
       },
-      // JSON created from the type definition
-      displayJson: {
-        type: String,
-        computed: '_computeDisplayJson(type.properties.*)'
+      // Computed value, true if current type is a JSON type object
+      isJson: {
+        type: Object,
+        value: false,
+        readOnly: true
       },
-
-      hasExample: {
+      // Computed value, true if current type is an XML type object
+      isXml: {
+        type: Object,
+        value: false,
+        readOnly: true
+      },
+      hasTypeJson: {
+        type: Boolean,
+        vealue: false,
+        observer: '_hasValueChanged'
+      },
+      hasTypeXml: {
+        type: Boolean,
+        vealue: false,
+        observer: '_hasValueChanged'
+      },
+      // True if any content type tables has a value.
+      hasType: {
         type: Boolean,
         value: false,
-        notify: true,
-        computed: '_computeHasExample(type.structuredExample.*)'
-      },
-      // Selected page in the tabs (where examples exists for this page)
-      selectedSchemaPage: {
-        type: Number,
-        value: 0
+        readOnly: true,
+        reflectToAttribute: true
       }
     },
 
     observers: [
       '_autoHide(autoHide, hasType)',
-      '_computeHTML(hasType, type.properties.*)'
+      '_computeContentType(type.*)'
     ],
 
-    listeners: {
-      // 'content.tap': '_contentTap',
-      'content.iron-select': '_typeDropdownChanged',
-      'content.iron-deselect': '_typeDropdownChanged',
-    },
-
-    clear: function() {
-      this.set('typeProperties', []);
-    },
-
-    _computeHasType: function() {
-      return !!(this.type && this.type.properties && this.type.properties.length);
+    _hasValueChanged: function() {
+      this._setHasType(this.hasTypeJson || this.hasTypeXml);
     },
 
     _autoHide: function(autoHide, hasType) {
@@ -269,335 +191,36 @@ Custom property | Description | Default
       return type.displayName || type.name || type.type;
     },
 
-    _computeDisplayJson: function() {
-      var properties = this.type.properties;
-      if (!properties || !properties.length) {
-        return '';
-      }
-      return JSON.stringify(this.__transformObject({}, properties), null, 2);
-    },
-
-    _computeHasExample: function() {
-      // example can be an array
-      var t = this.type;
-      return !!(t && (t.structuredExample || (t.examples && t.examples.length)));
-    },
-
-    __transformObject: function(base, obj) {
-      var bt = this.baseTypes;
-      var self = this;
-      obj.forEach(function(item) {
-        let type = item.type;
-        if (type instanceof Array) {
-          if (type.length === 1) {
-            type = type[0];
-          } else {
-            // TODO: real type concatenation
-            console.info('Concatenate types!');
-            type = type[0];
-          }
-        }
-
-        if (bt.indexOf(type) === -1) {
-          // other type defined in RAML
-          if (item.properties) {
-            base[item.name] = {};
-            base[item.name] = self.__transformObject(base[item.name],
-                self.readProperties(item.properties));
-          } else {
-            base[item.name] = type;
-          }
-        } else if (type === 'object' && item.properties) {
-          base[item.name] = {};
-          base[item.name] = self.__transformObject(base[item.name],
-            self.readProperties(item.properties));
-        } else if (type === 'array' && item.items && item.items[0]) {
-          base[item.name] = [];
-          base[item.name][0] = {};
-          base[item.name][0] = self.__transformObject({},
-            self.readProperties(item.items[0].properties));
-        } else {
-          base[item.name] = type; //item.example || type;
-        }
-      });
-      return base;
-    },
-
-    _hasSubproperties: function(item) {
-      return !!(item.properties && Object.getOwnPropertyNames(item.properties).length);
-    },
-
-    _computeHTML: function(hasType) {
-      if (!hasType || !this.type.properties || !this.type.properties.length) {
-        this.$.content.innerHTML = '';
-        return;
-      }
-      this.debounce('body-params-table-render', function() {
-        this.$.content.innerHTML = '';
-        this.__computeHtml(this.type.properties);
-      }.bind(this), 100);
-    },
-    /**
-     * Compyte HTML value for the table.
-     * It can't be done using templates because of the nested structure of the properties.
-     *
-     * @param {Array} props Object properties from which to create each row of the table
-     * @param {DocumentFragment?} f Document fragmet to which append elements
-     * @param {Object?} parent Parent for current properties. Note that it may not be actual
-     * parent object for the properties. For example, in case of union types it will be
-     * parent that holds union and not the atual parent object for the properties.
-     * @param {Object?} immidietParent Set when `parent` is not immidiet parent of the properties.
-     */
-    __computeHtml: function(props, f, parent, immidietParent) {
-      var self = this;
-      var append = !f;
-      f = f || document.createDocumentFragment();
-      props.forEach(function(item) {
-        var tr;
-        if (item.isUnion) {
-          tr = self.__createRowForItem(item, parent);
-          f.appendChild(tr);
-          var selectedTypeName;
-          if (self._hasSubproperties(item)) {
-            self.__computeHtml(item.properties, f, item);
-            selectedTypeName = item.properties[0].name;
-          }
-          if (selectedTypeName) {
-            try {
-              var toVisible = f.querySelectorAll('tr[data-parent="' + selectedTypeName + '"]');
-              for (var i = 0, len = toVisible.length; i < len; i++) {
-                toVisible[i].removeAttribute('hidden');
-              }
-            } catch (e) {
-              console.warn(e);
-            }
-          }
-          // var active = f.querySelector('button[is="params-table-type-button"][active]');
-          // if (active) {
-          //   var activeType = active.dataset.type;
-          //   if (activeType) {
-          //     var toVisible = f.querySelectorAll('tr[data-parent="' + activeType + '"]');
-          //     for (var i = 0, len = toVisible.length; i < len; i++) {
-          //       toVisible[i].removeAttribute('hidden');
-          //     }
-          //   }
-          // }
-          append = true; // if not then next union type find wrong active element.
-        } else {
-          var appendCurrent = !(parent && parent.isUnion && !immidietParent);
-          if (appendCurrent) {
-            tr = self.__createRowForItem(item, parent, immidietParent);
-            f.appendChild(tr);
-          }
-          if (self._hasSubproperties(item)) {
-            var parentToPass = (parent && parent.isUnion) ? parent : item;
-            self.__computeHtml(item.properties, f, parentToPass, item);
-          }
-        }
-      });
-      if (append) {
-        this.$.content.appendChild(f);
-      }
-    },
-
-    __createRowForItem: function(item, parent, immidietParent) {
-      var ce = function(el) {
-        return document.createElement(el);
-      };
-      var tr = ce('tr');
-      var td1 = ce('td');
-      var td2 = ce('td');
-      var td3 = ce('td');
-      var sp1 = ce('span');
-
-      tr.className = 'style-scope docs-body-parameters-table';
-      td1.className = 'style-scope docs-body-parameters-table param-name';
-      td2.className = 'style-scope docs-body-parameters-table param-type';
-      td3.className = 'style-scope docs-body-parameters-table param-desc';
-      sp1.className = 'style-scope docs-body-parameters-table display';
-
-      if (parent) {
-        td1.className += ' subproperty';
-        sp1.className += ' child';
-        var spParent = ce('span');
-        var spChild = ce('span');
-        spParent.className = 'style-scope docs-body-parameters-table parent-prefix';
-        spParent.textContent = parent.displayName || parent.name;
-        spChild.textContent = item.name;
-        sp1.appendChild(spParent);
-        sp1.appendChild(spChild);
-        if (parent.isUnion && immidietParent) {
-          tr.dataset.parent = immidietParent.name;
-          tr.setAttribute('hidden', true);
-        }
-      } else {
-        sp1.textContent = item.name;
-      }
-
-      if (item.isUnion) {
-        // extract child types and insert buttons.
-        if (item.properties && item.properties.length) {
-          var html = '<paper-dropdown-menu no-label-float class="style-scope ' +
-            'docs-body-parameters-table">';
-          html += '<paper-listbox class="style-scope docs-body-parameters-table ' +
-            'dropdown-content" selected="0" data-action="toggle-type">';
-          item.properties.forEach(function(child) {
-            var childName = child.displayName || child.name;
-            // var button = document.createElement('button', 'params-table-type-button');
-            // button.textContent = childName;
-            // button.dataset.action = 'toggle-type';
-            // button.dataset.type = child.name;
-            // button.className = 'docs-body-parameters-table';
-            // if (i === 0) {
-            //   button.setAttribute('active', true);
-            // }
-            // td2.appendChild(button);
-            html += '<paper-item data-type="' + child.name +
-              '" class="style-scope docs-body-parameters-table"' +
-              '>' + childName + '</paper-item>';
-          });
-          td2.innerHTML = html;
-        }
-      } else {
-        td2.textContent = item.type;
-      }
-
-      if (item.description) {
-        var marked = ce('marked-element');
-        var htmlBody = ce('div');
-        marked.className = 'style-scope docs-body-parameters-table';
-        marked.setAttribute('smartypants', true);
-        marked.addEventListener('marked-render-complete', this._markedRendered.bind(this));
-        htmlBody.className = 'markdown-html markdown-body style-scope docs-body-parameters-table';
-        marked.appendChild(htmlBody);
-        td3.appendChild(marked);
-        marked.markdown = item.description;
-      }
-      if (item.pattern) {
-        var pattern = this.__createCellProperty('pattern', 'Validation pattern:', item.pattern);
-        td3.appendChild(pattern);
-      }
-      if (item.example) {
-        var example = this.__createCellProperty('example', 'Example:', item.example);
-        td3.appendChild(example);
-      }
-      if (item.min || item.min === 0) {
-        var min = this.__createCellProperty('example', 'Minimum value:', item.min);
-        td3.appendChild(min);
-      }
-      if (item.max || item.max === 0) {
-        var max = this.__createCellProperty('example', 'Maximum value:', item.max);
-        td3.appendChild(max);
-      }
-
-      td1.appendChild(sp1);
-      if (item.required) {
-        var sp2 = ce('span');
-        sp2.textContent = '*';
-        sp2.title = sp1.title = 'Required property';
-        td1.appendChild(sp2);
-      }
-
-      tr.appendChild(td1);
-      tr.appendChild(td2);
-      tr.appendChild(td3);
-      return tr;
-    },
-
-    __createCellProperty: function(name, label, value) {
-      var container = document.createElement('div');
-      container.className = 'style-scope docs-body-parameters-table ' + name;
-      var display = document.createElement('span');
-      var valueNode = document.createElement('span');
-      display.className = 'style-scope docs-body-parameters-table display';
-      valueNode.className = 'style-scope docs-body-parameters-table value';
-      display.textContent = label;
-      valueNode.textContent = value;
-      container.appendChild(display);
-      container.appendChild(valueNode);
-      return container;
-    },
-
-    _contentTap: function(e) {
-      e = Polymer.dom(e);
-      var target = e.localTarget;
-      if (!target || !target.dataset || !target.dataset.action) {
-        return;
-      }
-      var self = this;
-      switch (target.dataset.action) {
-        case 'toggle-type':
-          target.parentElement.childNodes.forEach((node) => {
-            if (node === target) {
-              return;
-            }
-            if (node && node.hasAttribute && node.hasAttribute('active')) {
-              node.removeAttribute('active');
-              self._toggleType(node.dataset.type, false);
-            }
-          });
-          this._toggleType(target.dataset.type, true);
-        break;
-      }
-    },
-
-    _typeDropdownChanged: function(e) {
-      var target = e.target;
-      if (!target || !target.dataset || !target.dataset.action) {
-        return;
-      }
-      switch (target.dataset.action) {
-        case 'toggle-type':
-          this._toggleType(e.detail.item.dataset.type, e.type === 'iron-select');
-        break;
-      }
-    },
-
-    _toggleType: function(type, visible) {
+    _computeContentType: function(record) {
+      // debugger;
+      var type = record.base;
+      var isXml = false;
+      var isJson = false;
       if (!type) {
+        this._setIsJson(isJson);
+        this._setIsXml(isXml);
         return;
       }
-      Polymer.dom(this.$.content).querySelectorAll('[data-parent="' + type + '"]')
-      .forEach(function(node) {
-        if (visible) {
-          node.removeAttribute('hidden');
-        } else {
-          node.setAttribute('hidden', true);
-        }
-      });
-    },
+      var mime;
+      if (type.contentType) {
+        mime = type.contentType;
+      } else {
+        mime = type.name;
+      }
+      if (!mime) {
+        mime = 'application/json';
+      }
 
-    _markedRendered: function(e) {
-      e = Polymer.dom(e);
-      var target = e.rootTarget;
-      var p = target.querySelector('p');
-      if (!p) {
-        return;
+      if (mime.indexOf('json') !== -1) {
+        isJson = true;
+      } else if (mime.indexOf('xml') !== -1) {
+        isXml = true;
+      } else {
+        // for now, default value;
+        isJson = true;
       }
-      p.className += ' docs-body-parameters-table';
-      var div = target.querySelector('#content');
-      if (!div) {
-        return;
-      }
-      div.className += ' markdown-html markdown-body docs-body-parameters-table';
-    },
-    /**
-     * Computes boolean value if current type has list of examples.
-     *
-     * @param {Object} type Current type from `type` attribute
-     * @returns {Boolean} True if has list of examples
-     */
-    _hasExamples: function(type) {
-      return !!(type && type.examples && type.examples.length);
-    },
-    /**
-     * Computes boolean value if current type has one example.
-     *
-     * @param {Object} type Current type from `type` attribute
-     * @returns {Boolean} True if has exactly one example
-     */
-    _hasExample: function(type) {
-      return !!(type && type.structuredExample && type.structuredExample.value);
+      this._setIsJson(isJson);
+      this._setIsXml(isXml);
     }
 
   });
