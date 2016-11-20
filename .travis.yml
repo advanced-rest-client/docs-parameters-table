@@ -3,19 +3,26 @@ sudo: required
 dist: trusty
 node_js: stable
 before_script:
-- npm install -g bower polylint web-component-tester
-- bower install
+- npm install --silent bower polymer-cli
+- bower install --silent
 addons:
-  firefox: '46.0'
-  apt:
-    sources:
-    - google-chrome
-    packages:
-    - google-chrome-stable
   sauce_connect: true
 script:
-- polylint
-- xvfb-run wct
+- node_modules/.bin/polymer lint docs-parameters-table.html docs-headers-table.html
+  docs-body-parameters-table.html docs-body-table.html docs-json-parameters-table.html
+- node_modules/.bin/polymer test --plugin sauce --job-name "docs-parameters-table:${TRAVIS_BRANCH}"
+  --build-number=${TRAVIS_BUILD_NUMBER}
 cache:
   directories:
   - bower_components
+  - node_modules
+branches:
+  only:
+  - stage
+  - develop
+after_success:
+- node tasks/ci.js
+env:
+  global:
+  - secure: homTkg2sYCitUxEFNqWWxbeFKt/sOSjpuI42KRKbYqdk8CzG++qFyMUL99NVK2yHGMcLotEiHIEEn8Ndt/L/afb2nWLRZUB32Rk1GeTO+1soCqiEozbTTLORqAWc0+ePKDAhL6GWspJ3pOGX/SynXhxl1qG/ewnYxD4lcX+FphSPurF9b4EN1z5f1w+Qy8fRbzERet3ZX51oXChqLPlUGHUjE73QwG2Yz+WziUcHh7YKveaTER9N6x8eECOZFN5RC8mU0jaSy4j31ag1nvDIPiisar7ojpxJjGgvyQhmRvRoLvVACqu1Usk5g0o706HOu8tFV4E2EaJ+fl40cetChDEYVCkhEZQruAQ07EvOpX6+aG7HhpXdODmJQT9iGrYB2NMd5Xa8KJdAAobQw8HZA76R3p8Mpbr1aiBOuxHituy3tb5EzagQu8WW/bBy0rA9VKZTBf+8fXYoHc51BAthTZu0MH5ttML3OaJ0SzJRbT8W7kG8dsSb8EQSweW9dTgoyhSwXIHSalrPxN3g+1iF1LWWTcwpbdKfxVg6CTOyB4pvAVaKnM8UOU/2qmf6fk2aOK6YFqisjb0JUa1L8mwlTx+fcBLOVa78ZCF27Ac92i48zz/xzp/qQJPy34z1Xqb51kvCh9f9wcVuS7w5SL3tuDS2rzngH9vKntBVrmPvOZQ=
+  - secure: aoxsEFqd5E2uxqiG5fyR5FfQpHC7fXgYotd6W8PrrY7QgsipnfvJBryckuvv42kvGnLGxOSW0OfsDFoKHNuOgYo5AE5VDD5pMyLHOa5EOqOD0Ysx5BFWQjuRYNt+/vaaxaA7mhRIhEVZi9Ucwewo0tsHbC4pl84YvRntFQ2LWBCbLiuoJtdikniqpVLGYSZrhsAR+4MPpR5FJwnheBP7eYJ7jEvcXE1lmDufNopNUVD1uisD7hNViX2pHpQO1Ijwv1Buh5l5IwqSFMWH5yDa01t82dkxHhBICagb2UZkmwVoRiYEmJY9HdBckCO9DqsOiz7PCt1gPPC8LcCuSWEf6fyu3e/N/JcH0pjMpw1xm4uA0ds9W4F+V+0MS1r3fjFUY39AUvjeXoBB9IP8xbWHmPq/91X23yJ1+38HQ6hxexCBdGocxhnUZtZ3LxnxYyXO1KTeV1OihVEkoiROkDH9DZMnYSK6bwJlWx7+GA6NIiD7+6GudAb1mZhsBXbLOSZ8lHY5xKRVdJX5wDzqBXnxUyn92snlWI1h1h/q8hZkKl2etDLlHV/Jb55uK/ndciUabiaNeXnv6KB41lNdgcDvrqTvO3WaONEg30LQRaPMREasOTSr6fui2MzPlcZj1cV05a0hFNQfTOEADupXV8/le3gNYolaPIOCZBmVRVCBf7A=

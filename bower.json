@@ -4,7 +4,10 @@
   "author": "The Advanced REST client authors",
   "keywords": [
     "web-components",
-    "polymer"
+    "polymer",
+    "raml",
+    "documentation",
+    "parameters"
   ],
   "private": true,
   "main": [
