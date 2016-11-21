@@ -1,3 +1,13 @@
+<a name="1.1.2"></a>
+## [1.1.2](https://github.com/advanced-rest-client/docs-parameters-table/compare/1.1.1...v1.1.2) (2016-11-21)
+
+
+### Update
+
+* Added new Travis configuration ([2e9cf3e816f6efcfea186bb8291ade5a63be82a3](https://github.com/advanced-rest-client/docs-parameters-table/commit/2e9cf3e816f6efcfea186bb8291ade5a63be82a3))
+
+
+
 <a name="1.1.1"></a>
 ## [1.1.1](https://github.com/advanced-rest-client/docs-parameters-table/compare/1.0.5...v1.1.1) (2016-11-15)
 
