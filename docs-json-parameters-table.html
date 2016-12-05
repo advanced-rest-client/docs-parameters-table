@@ -196,7 +196,7 @@ Custom property | Description | Default
       if (type.type === 'array') {
         return !!type.items;
       }
-      return !!(type.properties && this.type.properties.length);
+      return !!(type.properties && Object.keys(type.properties).length);
     },
 
     _computeDisplayName: function() {
@@ -213,8 +213,12 @@ Custom property | Description | Default
       }
       var properties = record.base.properties;
       var isArray = false;
-      if (!properties || !properties.length) {
+      if (!properties || !Object.keys(properties).length) {
+        if (record.base.type instanceof Array) {
+          record.base.type = record.base.type[0];
+        }
         if (record.base.type === 'array') {
+          debugger;
           properties = record.base.items[0].properties;
           isArray = true;
         } else {
@@ -236,37 +240,35 @@ Custom property | Description | Default
 
     __transformObject: function(base, obj) {
       var bt = this.baseTypes;
-      var self = this;
-      obj.forEach(function(item) {
+
+      for (var _propName in obj) {
+        var item = obj[_propName];
         let type = item.type;
         var structure;
 
         if (type instanceof Array) {
-          debugger;
-          if (type.length === 1) {
-            type = type[0];
-          } else {
-            // TODO: real type concatenation
-            console.info('Concatenate types!');
-            type = type[0];
-          }
+          type = type[0];
+          obj[_propName].type = type;
         }
 
         if (bt.indexOf(type) === -1) {
           // other type defined in RAML
           if (item.properties) {
-            structure = self.__transformObject({}, self.readProperties(item.properties));
+            structure = this.__transformObject({}, this.readProperties(item.properties));
           } else {
             structure = type;
           }
         } else if (type === 'object' && item.properties) {
-          structure = self.__transformObject({}, self.readProperties(item.properties));
+          structure = this.__transformObject({}, this.readProperties(item.properties));
         } else if (type === 'array') {
-          if (item.items instanceof Array) {
-            structure = self.__transformObject({},
-              self.readProperties(item.items[0].properties));
-          } else if (typeof item.items === 'object') {
+          if (item.items.type instanceof Array) {
+            item.items.type = item.items.type[0];
+          }
+          if (typeof item.items.type === 'string') {
             structure = [item.items.type];
+          } else if (item instanceof Object) {
+            structure = this.__transformObject({},
+              this.readProperties(item.items.type.properties));
           } else {
             structure = ['unknown type'];
           }
@@ -275,7 +277,7 @@ Custom property | Description | Default
         }
 
         base[item.name] = structure;
-      });
+      };
       return base;
     },
     /**
