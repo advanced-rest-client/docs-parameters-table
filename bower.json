@@ -2,16 +2,9 @@
   "name": "docs-parameters-table",
   "description": "Insert description here.",
   "author": "The Advanced REST client authors",
-  "keywords": [
-    "web-components",
-    "polymer"
-  ],
+  "keywords": ["web-components", "polymer", "raml", "documentation", "parameters"],
   "private": true,
-  "main": [
-    "docs-parameters-table.html",
-    "docs-headers-table.html",
-    "docs-body-parameters-table.html"
-  ],
+  "main": ["docs-parameters-table.html", "docs-headers-table.html", "docs-body-parameters-table.html", "docs-body-table.html", "docs-json-parameters-table.html"],
   "repository": {
     "type": "git",
     "url": "git@github.com:advanced-rest-client/docs-parameters-table.git"
@@ -19,7 +12,13 @@
   "dependencies": {
     "polymer": "Polymer/polymer#^1.0.0",
     "marked-element": "PolymerElements/marked-element#^1.2.0",
-    "paper-styles": "PolymerElements/paper-styles#^1.1.5"
+    "paper-styles": "PolymerElements/paper-styles#^1.1.5",
+    "markdown-styles": "advanced-rest-client/markdown-styles#^1.0.0",
+    "paper-tabs": "PolymerElements/paper-tabs#^1.7.0",
+    "iron-pages": "PolymerElements/iron-pages#^1.0.8",
+    "paper-dropdown-menu": "PolymerElements/paper-dropdown-menu#^1.4.1",
+    "paper-listbox": "polymerelements/paper-listbox#^1.1.2",
+    "paper-item": "PolymerElements/paper-item#^1.2.1"
   },
   "devDependencies": {
     "iron-component-page": "polymerelements/iron-component-page#1.0.0",
@@ -29,14 +28,9 @@
     "iron-test-helpers": "PolymerElements/iron-test-helpers#^1.0.0",
     "test-fixture": "PolymerElements/test-fixture#^1.0.0",
     "webcomponentsjs": "webcomponents/webcomponentsjs#^0.7.0",
-    "prism-element": "PolymerElements/prism-element#^1.1.1"
+    "prism-element": "PolymerElements/prism-element#^1.1.1",
+    "arc-demo-helpers": "advanced-rest-client/arc-demo-helpers#^1.0.4"
   },
-  "ignore": [
-    "**/.*",
-    "node_modules",
-    "bower_components",
-    "test",
-    "tasks"
-  ],
-  "version": "1.0.5"
+  "ignore": ["**/.*", "node_modules", "bower_components", "test", "tasks"],
+  "version": "1.1.2"
 }

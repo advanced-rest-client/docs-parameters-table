@@ -12,11 +12,21 @@ License for the specific language governing permissions and limitations under
 the License.
 -->
 <link rel="import" href="../polymer/polymer.html">
-<link rel="import" href="docs-parameters-behavior.html">
-<link rel="import" href="docs-parameters-table-shared-styles.html">
 <link rel="import" href="../marked-element/marked-element.html">
 <link rel="import" href="../prism-element/prism-theme-default.html">
 <link rel="import" href="../prism-element/prism-highlighter.html">
+<link rel="import" href="../markdown-styles/markdown-styles.html">
+<link rel="import" href="../iron-pages/iron-pages.html">
+<link rel="import" href="../paper-tabs/paper-tabs.html">
+<link rel="import" href="../paper-tabs/paper-tab.html">
+<link rel="import" href="../paper-dropdown-menu/paper-dropdown-menu.html">
+<link rel="import" href="../paper-listbox/paper-listbox.html">
+<link rel="import" href="../paper-item/paper-item.html">
+<link rel="import" href="docs-parameters-behavior.html">
+<link rel="import" href="docs-parameters-table-shared-styles.html">
+<link rel="import" href="structure-display.html">
+<link rel="import" href="docs-json-parameters-table.html">
+<link rel="import" href="docs-xml-parameters-table.html">
 
 <!--
 `<docs-parameters-table>` A parameters list and description table for the RAML documentation view
@@ -70,77 +80,40 @@ Custom property | Description | Default
 <dom-module id="docs-body-parameters-table">
   <template>
     <style include="prism-theme-default"></style>
-    <style include="docs-parameters-table-shared-styles">
+    <style include="markdown-styles"></style>
+    <style include="docs-parameters-table-shared-styles"></style>
+    <style>
+
+    :host {
+      --paper-tabs-selection-bar-color: var(--params-table-header-background-color, #00A1DF);
+      --paper-tab-ink: var(--params-table-header-background-color, #00A1DF);
+      display: none;
+    }
+
+    :host([has-type]) {
+      display: block;
+    }
+
     h4 {
       padding: 0 12px;
       @apply(--docs-body-parameters-table-type-name);
     }
 
-    #output {
-      padding: 12px;
-      @apply(--docs-body-parameters-table-json);
+    paper-listbox paper-item {
+      cursor: pointer;
     }
-    .param-name.subproperty::before {
-      content: '.';
-    }
-    .param-name.subproperty {
-      padding-left: 16px !important;
-    }
+
     </style>
     <prism-highlighter></prism-highlighter>
 
     <h4>[[displayName]]</h4>
-    <pre id="output" class="language-javascript"></pre>
 
-    <table class="params-table">
-      <thead class="params-table-header">
-        <tr>
-          <th>Parameter</th>
-          <th>Type</th>
-          <th>Description</th>
-        </tr>
-      </thead>
-      <tbody>
-        <template is="dom-if" if="[[hasType]]">
-          <template is="dom-repeat" items="[[typeProperties]]">
-            <tr>
-              <td class="param-name">[[item.name]]<span hidden$="[[!item.required]]">*</span></td>
-              <td class="param-type">[[item.type]]</td>
-              <td class="param-desc">
-                <div hidden$="[[!hasValue(item.description)]]">
-                  <marked-element markdown="[[item.description]]">
-                    <div class="markdown-html markdown-body"></div>
-                  </marked-element>
-                </div>
-                <div hidden$="[[!hasValue(item.pattern)]]" class="pattern">Validation pattern: <span>[[item.pattern]]</span></div>
-                <div hidden$="[[!hasValue(item.example)]]" class="example">Example value: <span>[[item.example]]</span></div>
-                <div hidden$="[[!hasValue(item.min)]]" class="example">Minimum value: <span>[[item.min]]</span></div>
-                <div hidden$="[[!hasValue(item.max)]]" class="example">Maximum value: <span>[[item.max]]</span></div>
-              </td>
-            </tr>
-            <template is="dom-if" if="[[_hasSubproperties(item)]]" restamp="true">
-              <template is="dom-repeat" items="[[readProperties(item.properties)]]" index-as="subIndex">
-                <tr>
-                  <td class="param-name subproperty">[[item.name]]<span hidden$="[[!item.required]]">*</span></td>
-                  <td class="param-type">[[item.type]]</td>
-                  <td class="param-desc">
-                    <div hidden$="[[!hasValue(item.description)]]">
-                      <marked-element markdown="[[item.description]]">
-                        <div class="markdown-html markdown-body"></div>
-                      </marked-element>
-                    </div>
-                    <div hidden$="[[!hasValue(item.pattern)]]" class="pattern">Validation pattern: <span>[[item.pattern]]</span></div>
-                    <div hidden$="[[!hasValue(item.example)]]" class="example">Example value: <span>[[item.example]]</span></div>
-                    <div hidden$="[[!hasValue(item.min)]]" class="example">Minimum value: <span>[[item.min]]</span></div>
-                    <div hidden$="[[!hasValue(item.max)]]" class="example">Maximum value: <span>[[item.max]]</span></div>
-                  </td>
-                </tr>
-              </template>
-            </template>
-          </template>
-        </template>
-      </tbody>
-    </table>
+    <template is="dom-if" if="[[isJson]]">
+      <docs-json-parameters-table type="[[type]]" has-type="{{hasTypeJson}}"></docs-json-parameters-table>
+    </template>
+    <template is="dom-if" if="[[isXml]]">
+      <docs-xml-parameters-table type="[[type]]" has-type="{{hasTypeXml}}"></docs-xml-parameters-table>
+    </template>
   </template>
   <script>
   Polymer({
@@ -153,50 +126,50 @@ Custom property | Description | Default
        * A RAML's type definition for the body payload.
        */
       type: Object,
-      // True when `type` is present
-      hasType: {
-        type: Boolean,
-        computed: '_computeHasType(typeProperties.*)',
-        value: false,
-        notify: true
-      },
-      // If set automatically hides the element which doesn't have parameteres set
-      autoHide: {
-        type: Boolean,
-        value: false
-      },
+
       // Display name of the property.
       displayName: {
         type: String,
-        computed: '_computeDisplayName(type.*)'
+        computed: '_computeDisplayName(type.contentType)'
       },
-      // JSON created from the type definition
-      displayJson: {
-        type: String,
-        computed: '_computeDisplayJson(typeProperties.*)'
+      // Computed value, true if current type is a JSON type object
+      isJson: {
+        type: Object,
+        value: false,
+        readOnly: true
       },
-      // Computed properties of the type.
-      typeProperties: {
-        type: Array,
-        computed: '_computeProperties(type.properties.*)'
+      // Computed value, true if current type is an XML type object
+      isXml: {
+        type: Object,
+        value: false,
+        readOnly: true
       },
-      // RAML base types
-      baseTypes: {
-        type: Array,
-        value: function() {
-          return ['object', 'array','integer', 'string','number','boolean',
-            'datetime','file', 'null','any'];
-        }
+      hasTypeJson: {
+        type: Boolean,
+        vealue: false,
+        observer: '_hasValueChanged'
+      },
+      hasTypeXml: {
+        type: Boolean,
+        vealue: false,
+        observer: '_hasValueChanged'
+      },
+      // True if any content type tables has a value.
+      hasType: {
+        type: Boolean,
+        value: false,
+        readOnly: true,
+        reflectToAttribute: true
       }
     },
 
     observers: [
       '_autoHide(autoHide, hasType)',
-      '_highlightJson(displayJson)'
+      '_computeContentType(type.*)'
     ],
 
-    _computeHasType: function() {
-      return this.typeProperties && this.typeProperties.length;
+    _hasValueChanged: function() {
+      this._setHasType(this.hasTypeJson || this.hasTypeXml);
     },
 
     _autoHide: function(autoHide, hasType) {
@@ -218,71 +191,36 @@ Custom property | Description | Default
       return type.displayName || type.name || type.type;
     },
 
-    _computeDisplayJson: function() {
-      var properties = this.typeProperties;
-      if (!properties || !properties.length) {
-        return '';
+    _computeContentType: function(record) {
+      // debugger;
+      var type = record.base;
+      var isXml = false;
+      var isJson = false;
+      if (!type) {
+        this._setIsJson(isJson);
+        this._setIsXml(isXml);
+        return;
       }
-      return JSON.stringify(this.__transformObject({}, properties), null, 2);
-    },
-
-    __transformObject: function(base, obj) {
-      var bt = this.baseTypes;
-      var self = this;
-      obj.forEach(function(item) {
-        let type = item.type;
-        if (type instanceof Array) {
-          if (type.length === 1) {
-            type = type[0];
-          } else {
-            // TODO: real type concatenation
-            type = type[0];
-          }
-        }
-
-        if (bt.indexOf(type) === -1) {
-          // other type defined in RAML
-          if (item.properties) {
-            base[item.name] = {};
-            base[item.name] = self.__transformObject(base[item.name],
-                self.readProperties(item.properties));
-          } else {
-            base[item.name] = type;
-          }
-        } else if (type === 'object' && item.properties) {
-          base[item.name] = {};
-          base[item.name] = self.__transformObject(base[item.name],
-            self.readProperties(item.properties));
-        } else {
-          base[item.name] = item.example || type;
-        }
-      });
-      return base;
-    },
-
-    _computeProperties: function() {
-      if (!this.type) {
-        return [];
+      var mime;
+      if (type.contentType) {
+        mime = type.contentType;
+      } else {
+        mime = type.name;
       }
-      var props = this.type.properties;
-      if (!props) {
-        return [];
+      if (!mime) {
+        mime = 'application/json';
       }
-      return this.readProperties(props);
-    },
 
-    _highlightJson: function(displayJson) {
-      this.async(function() {
-        this.$.output.innerHTML = this.highlight(displayJson, 'js');
-      }, 1);
-    },
-
-    highlight: function(code, lang) {
-      return this.fire('syntax-highlight', {code: code, lang: lang}).detail.code;
-    },
-
-    _hasSubproperties: function(item) {
-      return !!(item.properties && Object.getOwnPropertyNames(item.properties).length);
+      if (mime.indexOf('json') !== -1) {
+        isJson = true;
+      } else if (mime.indexOf('xml') !== -1) {
+        isXml = true;
+      } else {
+        // for now, default value;
+        isJson = true;
+      }
+      this._setIsJson(isJson);
+      this._setIsXml(isXml);
     }
 
   });

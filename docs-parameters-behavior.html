@@ -15,6 +15,29 @@ the License.
 
 <script>
 (function() {
+  if (typeof Object.assign !== 'function') {
+    (function() {
+      Object.assign = function(target) {
+        'use strict';
+        if (target === undefined || target === null) {
+          throw new TypeError('Cannot convert undefined or null to object');
+        }
+        var output = Object(target);
+        for (var index = 1; index < arguments.length; index++) {
+          var source = arguments[index];
+          if (source !== undefined && source !== null) {
+            for (var nextKey in source) {
+              if (source.hasOwnProperty(nextKey)) {
+                output[nextKey] = source[nextKey];
+              }
+            }
+          }
+        }
+        return output;
+      };
+    })();
+  }
+
   window.RamlBehaviors = window.RamlBehaviors || {};
   /**
    * Use `RamlBehaviors.DocsParametersBehavior` to implement a custom element
@@ -27,6 +50,14 @@ the License.
       autoHide: {
         type: Boolean,
         value: false
+      },
+      // RAML base types
+      baseTypes: {
+        type: Array,
+        value: function() {
+          return ['object', 'array','integer', 'string','number','boolean',
+            'datetime','file', 'null','any'];
+        }
       }
     },
     /**
@@ -81,12 +112,14 @@ the License.
       if (!obj) {
         return [];
       }
+      if (obj instanceof Array) {
+        return obj;
+      }
       var names = Object.getOwnPropertyNames(obj);
-      names = names.filter((i) => i !== '__METADATA__');
       if (!names) {
         return [];
       }
-      return names.map((i) => obj[i]);
+      return names.map(function(i) { return obj[i]; });
     }
   };
 })();
