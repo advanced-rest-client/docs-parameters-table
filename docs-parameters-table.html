@@ -45,6 +45,7 @@ Currently following properties are supported:
 - example - example value of the parameter
 - min - minimum value of the parametre when the type is numeric
 - max - maximum value of the parametre when the type is numeric
+- enum - List of possible values.
 
 ### Styling
 `<docs-parameters-table>` provides the following custom properties and mixins for styling:
@@ -99,6 +100,7 @@ Custom property | Description | Default
                 <div hidden$="[[!hasValue(item.example)]]" class="example">Example value: <span>[[item.example]]</span></div>
                 <div hidden$="[[!hasValue(item.min)]]" class="example">Minimum value: <span>[[item.min]]</span></div>
                 <div hidden$="[[!hasValue(item.max)]]" class="example">Maximum value: <span>[[item.max]]</span></div>
+                <div hidden$="[[!hasValue(item.enum)]]" class="example">Possible values: <span>[[_computeEnumValue(item.enum)]]</span></div>
               </td>
             </tr>
           </template>
@@ -161,6 +163,13 @@ Custom property | Description | Default
         value: false,
         notify: true
       },
+      // True if it has either `uriParameteres` or `queryParameteres`
+      hasParameters: {
+        type: Boolean,
+        computed: '_computeHasParameteres(hasQueryParameteres, hasUriParameteres)',
+        value: false,
+        notify: true
+      },
       // If set automatically hides the element which doesn't have parameteres set
       autoHide: {
         type: Boolean,
@@ -183,11 +192,11 @@ Custom property | Description | Default
     ],
 
     _computeHasUriParameteres: function() {
-      return this.uriParameters && Object.getOwnPropertyNames(this.uriParameters).length;
+      return !!(this.uriParameters && Object.keys(this.uriParameters).length);
     },
 
     _computeHasQueryParameteres: function() {
-      return this.queryParameters && Object.getOwnPropertyNames(this.queryParameters).length;
+      return !!(this.queryParameters && Object.keys(this.queryParameters).length);
     },
 
     _autoHide: function(autoHide, hasQueryParameteres, hasUriParameteres) {
@@ -206,6 +215,24 @@ Custom property | Description | Default
         return this.readProperties(this[record.path]);
       }
       return [];
+    },
+
+    _computeEnumValue: function(enumValue) {
+      if (!enumValue || !enumValue.length) {
+        return '';
+      }
+      enumValue = enumValue.map(function(item) {
+        if (typeof item === 'string') {
+          return item;
+        }
+        return item.displayName || item.name || item.key;
+      });
+      return enumValue.join(', ');
+    },
+
+    // Computes if any of arguments is trully
+    _computeHasParameteres: function(hasQueryParameteres, hasUriParameteres) {
+      return !!(hasQueryParameteres || hasUriParameteres);
     }
   });
   </script>

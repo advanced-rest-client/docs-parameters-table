@@ -4,14 +4,12 @@ dist: trusty
 node_js: stable
 before_script:
 - npm install --silent bower polymer-cli
-- bower install --silent
+- ./node_modules/.bin/bower install --silent
 addons:
   sauce_connect: true
 script:
-- node_modules/.bin/polymer lint docs-parameters-table.html docs-headers-table.html
-  docs-body-parameters-table.html docs-body-table.html docs-json-parameters-table.html
-- node_modules/.bin/polymer test --plugin sauce --job-name "docs-parameters-table:${TRAVIS_BRANCH}"
-  --build-number=${TRAVIS_BUILD_NUMBER}
+- ./node_modules/.bin/polymer lint docs-parameters-table.html docs-headers-table.html docs-body-parameters-table.html docs-body-table.html docs-json-parameters-table.html
+- ./node_modules/.bin/polymer test --plugin sauce --job-name "docs-parameters-table:${TRAVIS_BRANCH}" --build-number=${TRAVIS_BUILD_NUMBER}
 cache:
   directories:
   - bower_components
