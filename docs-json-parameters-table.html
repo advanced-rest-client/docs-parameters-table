@@ -176,7 +176,8 @@ Custom property | Description | Default
     },
 
     observers: [
-      '_computeHTML(hasType, type.*)'
+      '_computeHTML(hasType, type.*)',
+      '_updateTabs(hasExample)'
     ],
 
     listeners: {
@@ -188,39 +189,49 @@ Custom property | Description | Default
       if (!record.base) {
         return false;
       }
-      var type = record.base;
-      if (type.type === 'array') {
-        return !!type.items;
+      var object = record.base;
+      if (object.type === 'array') {
+        return !!object.items;
+      } else if (object.type === 'union') {
+        return !!(object.anyOf && object.anyOf.length);
+      } else if (object.type === 'json') {
+        return !!(object.content);
       }
-      return !!(type.properties && Object.keys(type.properties).length);
+      return !!(object.properties && Object.keys(object.properties).length);
     },
 
     _computeDisplayName: function() {
       var type = this.type;
       if (!type) {
-        return '';
+        return;
       }
       return type.displayName || type.key || type.type;
     },
 
     _computeDisplayJson: function(record) {
-      if (!record.base) {
+      if (!record || !record.base) {
         return;
       }
       var properties = record.base.properties;
       var isArray = false;
-      if (!properties || !Object.keys(properties).length) {
+      var hasProperties = !!(properties && Object.keys(properties).length);
+      if (!hasProperties) {
         if (record.base.type instanceof Array) {
           record.base.type = record.base.type[0];
         }
         if (record.base.type === 'array') {
           properties = record.base.items.properties;
           isArray = true;
+          hasProperties = !!(properties && Object.keys(properties).length);
+        } else if (record.base.type === 'union') {
+          // just pass to the next block.
+        } else if (record.base.type === 'json') {
+          return record.base.content;
         } else {
           return undefined;
         }
       }
-      var data = this.__transformObject({}, properties);
+      var data = hasProperties ? this.__transformObject({}, properties) : {};
       var self = this;
       if (record.base.type === 'union') {
         var ut = [];
@@ -228,7 +239,6 @@ Custom property | Description | Default
           var _props = self.__transformObject({}, item.properties, true);
           ut[ut.length] = _props;
         });
-        //TODO: Display UNION JSON data with somekind of whitcher.
         data = Object.assign(data, ut[0]);
       }
       if (isArray) {
@@ -305,15 +315,10 @@ Custom property | Description | Default
     },
 
     _computeHTML: function(hasType) {
-      if (!hasType) {
+      if (!hasType || !this.type) {
         this.$.content.innerHTML = '';
         return;
       }
-      // var properties = this._getSubproperties(this.type);
-      // if (!properties || !properties.length) {
-      //   this.$.content.innerHTML = '';
-      //   return;
-      // }
 
       this.debounce('body-params-table-render', function() {
         this.$.content.innerHTML = '';
@@ -346,6 +351,9 @@ Custom property | Description | Default
      * @param {Object?} immidietParent Set when `parent` is not immidiet parent of the properties.
      */
     __computeHtml: function(object, opts) {
+      if (!object) {
+        return;
+      }
       opts = opts || {};
       if (this.baseTypes.indexOf(object.type) !== -1 &&
         object.type !== 'object' &&
@@ -476,10 +484,10 @@ Custom property | Description | Default
 
       if (item.type === 'array') {
         var name = '';
-        if (!item.items.properties) {
-          name += '[' + item.items.type + ']';
+        if (!item.items.properties || !item.items.displayName) {
+          name += 'Array[' + item.items.type + ']';
         } else {
-          name += '[' + (item.items.displayName || 'object') + ']';
+          name += item.items.displayName + '[' + item.items.type + ']';
         }
         td2.textContent = name;
       } else {
@@ -636,6 +644,17 @@ Custom property | Description | Default
      */
     _hasExample: function(type) {
       return !!(type && type.structuredExample && type.structuredExample.value);
+    },
+    // Forces tabs redraw when tabs are rendered
+    _updateTabs: function(hasExample) {
+      if (!hasExample) {
+        return;
+      }
+      var elm = this.$$('paper-tabs');
+      if (!elm) {
+        return;
+      }
+      elm.notifyResize();
     }
 
   });

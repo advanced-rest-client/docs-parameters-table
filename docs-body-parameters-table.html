@@ -75,7 +75,7 @@ Custom property | Description | Default
 
 @group RAML Elements
 @element docs-parameters-table
-@demo demo/index.html
+@demo demo/docs-body-parameters-table.html
 -->
 <dom-module id="docs-body-parameters-table">
   <template>
@@ -87,11 +87,9 @@ Custom property | Description | Default
     :host {
       --paper-tabs-selection-bar-color: var(--params-table-header-background-color, #00A1DF);
       --paper-tab-ink: var(--params-table-header-background-color, #00A1DF);
-      display: none;
-    }
-
-    :host([has-type]) {
       display: block;
+      overflow: auto;
+      width: 100%;
     }
 
     h4 {
@@ -103,16 +101,29 @@ Custom property | Description | Default
       cursor: pointer;
     }
 
+    .body-selector {
+      margin: 0 12px;
+    }
+
     </style>
     <prism-highlighter></prism-highlighter>
 
-    <h4>[[displayName]]</h4>
+
+    <paper-dropdown-menu label="Body type" hidden$="[[!displayBodySelector]]" class="body-selector">
+      <paper-listbox class="dropdown-content" attr-for-selected="data-type" selected="{{selectedBodyType}}">
+        <template is="dom-repeat" items="[[bodyTypes]]">
+          <paper-item data-type$="[[item]]">[[item]]</paper-item>
+        </template>
+      </paper-listbox>
+    </paper-dropdown-menu>
+
+    <h4 hidden$="[[!displayName]]">Type: [[displayName]]</h4>
 
     <template is="dom-if" if="[[isJson]]">
-      <docs-json-parameters-table type="[[type]]" has-type="{{hasTypeJson}}"></docs-json-parameters-table>
+      <docs-json-parameters-table type="[[selectedBody]]" hidden$="[[!hasTypeJson]]" has-type="{{hasTypeJson}}"></docs-json-parameters-table>
     </template>
     <template is="dom-if" if="[[isXml]]">
-      <docs-xml-parameters-table type="[[type]]" has-type="{{hasTypeXml}}"></docs-xml-parameters-table>
+      <docs-xml-parameters-table type="[[selectedBody]]" has-type="{{hasTypeXml}}"></docs-xml-parameters-table>
     </template>
   </template>
   <script>
@@ -123,14 +134,17 @@ Custom property | Description | Default
 
     properties: {
       /**
-       * A RAML's type definition for the body payload.
+       * An array of the `body` part of the method part of the RAML definition.
+       * It is expecting to be an output of the RAML to JS and ransformed with
+       * the `raml2obj` library. This is available in `<raml-js-parser>`
+       * element.
        */
-      type: Object,
-
+      body: Array,
       // Display name of the property.
       displayName: {
         type: String,
-        computed: '_computeDisplayName(type.contentType)'
+        computed: '_computeDisplayName(selectedBodyType, ' +
+          'displayBodySelector, selectedBody.*)'
       },
       // Computed value, true if current type is a JSON type object
       isJson: {
@@ -146,53 +160,86 @@ Custom property | Description | Default
       },
       hasTypeJson: {
         type: Boolean,
-        vealue: false,
-        observer: '_hasValueChanged'
+        vealue: false
       },
       hasTypeXml: {
         type: Boolean,
-        vealue: false,
-        observer: '_hasValueChanged'
+        vealue: false
       },
-      // True if any content type tables has a value.
-      hasType: {
-        type: Boolean,
+      // True if body is set.
+      hasBody: {
         value: false,
+        type: Boolean,
+        computed: '_computeHasBody(body)',
+        notify: true
+      },
+      // Computed list of names of the body content types.
+      bodyTypes: {
+        type: Array,
         readOnly: true,
-        reflectToAttribute: true
+        value: function() {
+          return [];
+        }
+      },
+      /**
+       * Computed value, true if the body selector can be shown.
+       * Body selector can be shown if there is more than one body defined
+       * (many media types).
+       */
+      displayBodySelector: {
+        type: Boolean,
+        computed: '_computeDisplayBodySelector(bodyTypes.*)'
+      },
+      // A name of the selected body type. E.g. "application/json".
+      selectedBodyType: {
+        type: String,
+        notify: true
+      },
+      // Definition of the body for `selectedBodyType`
+      selectedBody: {
+        type: Object,
+        computed: '_computeSelectedBody(selectedBodyType)'
       }
     },
 
     observers: [
-      '_autoHide(autoHide, hasType)',
-      '_computeContentType(type.*)'
+      '_computeBodyTypes(body.*)',
+      '_autoHide(autoHide, hasBody)',
+      '_computeContentType(selectedBody.*)',
+      '_bodyTypesChanged(bodyTypes.*)'
     ],
 
-    _hasValueChanged: function() {
-      this._setHasType(this.hasTypeJson || this.hasTypeXml);
+    reset: function() {
+      this._setBodyTypes([]);
+      this.selectedBodyType = '';
+      this._setIsJson(false);
+      this._setIsXml(false);
     },
 
-    _autoHide: function(autoHide, hasType) {
+    _autoHide: function(autoHide, hasBody) {
       if (!autoHide) {
         return;
       }
-      if (hasType) {
+      if (hasBody) {
         this.removeAttribute('hidden');
       } else {
         this.setAttribute('hidden', true);
       }
     },
 
-    _computeDisplayName: function() {
-      var type = this.type;
-      if (!type) {
-        return '';
+    _computeDisplayName: function(selectedBodyType, displayBodySelector) {
+      var body = this.selectedBody;
+      if (!body || !selectedBodyType) {
+        return undefined;
       }
-      return type.displayName || type.name || type.type;
+      var type = body.displayName || body.name || body.type;
+      if (type === selectedBodyType && displayBodySelector) {
+        return undefined;
+      }
+      return type;
     },
 
     _computeContentType: function(record) {
-      // debugger;
       var type = record.base;
       var isXml = false;
       var isJson = false;
@@ -205,7 +252,7 @@ Custom property | Description | Default
       if (type.contentType) {
         mime = type.contentType;
       } else {
-        mime = type.name;
+        mime = type.key;
       }
       if (!mime) {
         mime = 'application/json';
@@ -221,6 +268,61 @@ Custom property | Description | Default
       }
       this._setIsJson(isJson);
       this._setIsXml(isXml);
+    },
+
+    // Computes if current boddy array has any value that can be presented.
+    _computeHasBody: function(body) {
+      return !!(body && body.length);
+    },
+
+    // Compute a list of media types for the body array
+    _computeBodyTypes: function() {
+      this.reset();
+      var body = this.body;
+      if (!body || !body.length) {
+        return;
+      }
+      var mime = body.map(function(item) {
+        return item.key;
+      });
+      this._setBodyTypes(mime);
+      // this.selectedBodyType = mime[0];
+    },
+
+    // returns true if given argument is an array and has more than 1 element.
+    _computeDisplayBodySelector: function() {
+      var size = this.bodyTypes ? this.bodyTypes.length : 0;
+      return !!(size && size > 1);
+    },
+
+    /**
+     * When the selection of body types change it will compute proper
+     * body object.
+     */
+    _computeSelectedBody: function(selectedBodyType) {
+      var body = this.body;
+      if (!selectedBodyType || !body || !body.length) {
+        return undefined;
+      }
+
+      for (var i = 0, len = body.length; i < len; i++) {
+        if (body[i].key === selectedBodyType) {
+          return body[i];
+        }
+      }
+
+      return undefined;
+    },
+    /**
+     * When the `bodyTypes` change it will set a default (first) mime as
+     * selected.
+     */
+    _bodyTypesChanged: function() {
+      var bt;
+      if (this.bodyTypes && this.bodyTypes.length) {
+        bt = this.bodyTypes[0];
+      }
+      this.set('selectedBodyType', bt);
     }
 
   });
