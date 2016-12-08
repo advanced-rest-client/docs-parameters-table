@@ -99,6 +99,7 @@ Custom property | Description | Default
                 <div hidden$="[[!hasValue(item.example)]]" class="example">Example value: <span>[[item.example]]</span></div>
                 <div hidden$="[[!hasValue(item.min)]]" class="example">Minimum value: <span>[[item.min]]</span></div>
                 <div hidden$="[[!hasValue(item.max)]]" class="example">Maximum value: <span>[[item.max]]</span></div>
+                <div hidden$="[[!hasValue(item.enum)]]" class="example">Possible values: <span>[[_computeEnumValue(item.enum)]]</span></div>
               </td>
             </tr>
           </template>
@@ -206,6 +207,19 @@ Custom property | Description | Default
         return this.readProperties(this[record.path]);
       }
       return [];
+    },
+
+    _computeEnumValue: function(enumValue) {
+      if (!enumValue || !enumValue.length) {
+        return '';
+      }
+      enumValue = enumValue.map(function(item) {
+        if (typeof item === 'string') {
+          return item;
+        }
+        return item.displayName || item.name || item.key;
+      });
+      return enumValue.join(', ');
     }
   });
   </script>

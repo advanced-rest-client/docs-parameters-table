@@ -104,7 +104,7 @@ Custom property | Description | Default
             <template is="dom-if" if="[[_hasExamples(type)]]">
               <template is="dom-repeat" items="[[type.examples]]">
                 <h5>[[item.name]]</h5>
-                <pre is="structure-display" display="[[item.value]]" class="language-xml" data-type="xml"></pre>
+                <pre is="structure-display" display="[[item]]" class="language-xml" data-type="xml"></pre>
               </template>
             </template>
             <template is="dom-if" if="[[_hasExample(type)]]">
@@ -195,7 +195,7 @@ Custom property | Description | Default
       if (!type) {
         return;
       }
-      return type[0];
+      return type;
     },
     /**
      * Compyte HTML value for the table.

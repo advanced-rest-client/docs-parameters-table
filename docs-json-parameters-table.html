@@ -64,6 +64,7 @@ Custom property | Description | Default
 `--docs-parameters-table-meta` | Mixin applied to property's metadata (example, pattern, etc) | `{}`
 `--docs-body-parameters-table-json` | Mixin applied to the JSON output | `{}`
 `--docs-body-parameters-table-type-name` | Mixin applied to the name of the type | `{}`
+`--params-table-subproperty-prefix-color` | Color of the parent property name in the subproperty list | `rgba(0, 0, 0, 0.54)`
 
 @element docs-json-parameters-table
 @demo demo/index.html
@@ -86,15 +87,11 @@ Custom property | Description | Default
     }
 
     .parent-prefix {
-      color: rgba(0, 0, 0, 0.54);
+      color: var(--params-table-subproperty-prefix-color, rgba(0, 0, 0, 0.54));
     }
 
     .parent-prefix::after {
       content: '.';
-    }
-
-    .param-name.subproperty {
-      padding-left: 16px !important;
     }
 
     paper-listbox paper-item {
@@ -115,8 +112,7 @@ Custom property | Description | Default
         <div>
           <template is="dom-if" if="[[_hasExamples(type)]]">
             <template is="dom-repeat" items="[[type.examples]]">
-              <h5>[[item.name]]</h5>
-              <pre is="structure-display" display="[[item.value]]" class="language-javascript"></pre>
+              <pre is="structure-display" display="[[item]]" class="language-javascript"></pre>
             </template>
           </template>
           <template is="dom-if" if="[[_hasExample(type)]]">
@@ -196,7 +192,7 @@ Custom property | Description | Default
       if (type.type === 'array') {
         return !!type.items;
       }
-      return !!(type.properties && this.type.properties.length);
+      return !!(type.properties && Object.keys(type.properties).length);
     },
 
     _computeDisplayName: function() {
@@ -204,7 +200,7 @@ Custom property | Description | Default
       if (!type) {
         return '';
       }
-      return type.displayName || type.name || type.type;
+      return type.displayName || type.key || type.type;
     },
 
     _computeDisplayJson: function(record) {
@@ -213,15 +209,28 @@ Custom property | Description | Default
       }
       var properties = record.base.properties;
       var isArray = false;
-      if (!properties || !properties.length) {
+      if (!properties || !Object.keys(properties).length) {
+        if (record.base.type instanceof Array) {
+          record.base.type = record.base.type[0];
+        }
         if (record.base.type === 'array') {
-          properties = record.base.items[0].properties;
+          properties = record.base.items.properties;
           isArray = true;
         } else {
           return undefined;
         }
       }
       var data = this.__transformObject({}, properties);
+      var self = this;
+      if (record.base.type === 'union') {
+        var ut = [];
+        record.base.anyOf.forEach(function(item) {
+          var _props = self.__transformObject({}, item.properties, true);
+          ut[ut.length] = _props;
+        });
+        //TODO: Display UNION JSON data with somekind of whitcher.
+        data = Object.assign(data, ut[0]);
+      }
       if (isArray) {
         data = [data];
       }
@@ -236,46 +245,43 @@ Custom property | Description | Default
 
     __transformObject: function(base, obj) {
       var bt = this.baseTypes;
-      var self = this;
-      obj.forEach(function(item) {
+
+      for (var i = 0, len = obj.length; i < len; i++) {
+        var item = obj[i];
         let type = item.type;
         var structure;
 
         if (type instanceof Array) {
-          debugger;
-          if (type.length === 1) {
-            type = type[0];
-          } else {
-            // TODO: real type concatenation
-            console.info('Concatenate types!');
-            type = type[0];
-          }
+          type = type[0];
+          obj[_propName].type = type;
         }
 
         if (bt.indexOf(type) === -1) {
           // other type defined in RAML
           if (item.properties) {
-            structure = self.__transformObject({}, self.readProperties(item.properties));
+            structure = this.__transformObject({}, this.readProperties(item.properties));
           } else {
             structure = type;
           }
         } else if (type === 'object' && item.properties) {
-          structure = self.__transformObject({}, self.readProperties(item.properties));
+          structure = this.__transformObject({}, this.readProperties(item.properties));
         } else if (type === 'array') {
-          if (item.items instanceof Array) {
-            structure = self.__transformObject({},
-              self.readProperties(item.items[0].properties));
-          } else if (typeof item.items === 'object') {
-            structure = [item.items.type];
+          if (item.items.type instanceof Array) {
+            item.items.type = item.items.type[0];
+          }
+          if (item.items.type === 'object') {
+            structure = this.__transformObject({},
+              this.readProperties(item.items.properties));
           } else {
-            structure = ['unknown type'];
+            structure = [item.items.type];
           }
         } else {
           structure = type; //item.example || type;
         }
 
-        base[item.name] = structure;
-      });
+        base[item.key] = structure;
+      };
+
       return base;
     },
     /**
@@ -289,29 +295,13 @@ Custom property | Description | Default
       if (!item) {
         return;
       }
-      var properties = item.properties;
       if (item.type === 'array') {
-        if (item.items instanceof Array) {
-          var _tmp = [];
-          item.items.forEach(function(arrItem) {
-            if (typeof arrItem === 'string') {
-              _tmp[_tmp.length] = arrItem;
-            } else if (arrItem.type) {
-              _tmp[_tmp.length] = arrItem.type;
-            }
-          });
-          properties = _tmp;
-        } else if (typeof item.items === 'string') {
-          properties = [item.items];
-        } else {
-          if (item.items && item.items.type) {
-            properties = [item.items.type];
-          }
-        }
+        return item.items.properties;
       }
-      if (properties && properties.length) {
-        return properties;
+      if (item.type === 'union') {
+        return item.properties.concat(item.anyOf);
       }
+      return item.properties;
     },
 
     _computeHTML: function(hasType) {
@@ -319,17 +309,30 @@ Custom property | Description | Default
         this.$.content.innerHTML = '';
         return;
       }
-      var properties = this._getSubproperties(this.type);
-
-      if (!properties || !properties.length) {
-        this.$.content.innerHTML = '';
-        return;
-      }
+      // var properties = this._getSubproperties(this.type);
+      // if (!properties || !properties.length) {
+      //   this.$.content.innerHTML = '';
+      //   return;
+      // }
 
       this.debounce('body-params-table-render', function() {
         this.$.content.innerHTML = '';
-        this.__computeHtml(properties);
+        this.__computeHtml(this.type);
       }.bind(this), 100);
+    },
+
+    __computeUnionTypes: function(object) {
+      var names = {};
+      if (object.anyOf && object.anyOf.length) {
+        for (var i = 0, len = object.anyOf.length; i < len; i++) {
+          for (var j = 0, pLen = object.anyOf[i].properties.length; j < pLen; j++) {
+            if (!(object.anyOf[i].properties[j].name in names)) {
+              names[object.anyOf[i].properties[j].name] = true;
+            }
+          }
+        }
+      }
+      return Object.keys(names);
     },
     /**
      * Compyte HTML value for the table.
@@ -342,59 +345,85 @@ Custom property | Description | Default
      * parent that holds union and not the atual parent object for the properties.
      * @param {Object?} immidietParent Set when `parent` is not immidiet parent of the properties.
      */
-    __computeHtml: function(props, f, parent, immidietParent) {
-      var self = this;
-      var append = !f;
-      f = f || document.createDocumentFragment();
-      props.forEach(function(item) {
-        var tr;
-        var subProps;
-        if (item.isUnion) {
-          tr = self.__createRowForItem(item, parent);
-          if (tr) {
-            f.appendChild(tr);
-          }
-          var selectedTypeName;
-          subProps = self._getSubproperties(item);
-          if (subProps) {
-            self.__computeHtml(subProps, f, item);
-            selectedTypeName = item.properties[0].name;
-          }
-          if (selectedTypeName) {
-            try {
-              var toVisible = f.querySelectorAll('tr[data-parent="' + selectedTypeName + '"]');
-              for (var i = 0, len = toVisible.length; i < len; i++) {
-                toVisible[i].removeAttribute('hidden');
-              }
-            } catch (e) {
-              console.warn(e);
-            }
-          }
-          append = true; // if not then next union type find wrong active element.
-        } else {
-          var appendCurrent = !(parent && parent.isUnion && !immidietParent);
-          subProps = self._getSubproperties(item);
-          if (subProps) {
-            item.hasChildren = true;
-          }
-          if (appendCurrent) {
-            tr = self.__createRowForItem(item, parent, immidietParent);
-            if (tr) {
-              f.appendChild(tr);
-            }
-          }
-          if (subProps) {
-            var parentToPass = (parent && parent.isUnion) ? parent : item;
-            self.__computeHtml(subProps, f, parentToPass, item);
+    __computeHtml: function(object, opts) {
+      opts = opts || {};
+      if (this.baseTypes.indexOf(object.type) !== -1 &&
+        object.type !== 'object' &&
+        object.type !== 'array') {
+        var tr = this.__createRowForItem(object, opts);
+        this.$.content.appendChild(tr);
+        return;
+      }
+      if (object.properties && object.properties.length) {
+        for (var i = 0, len = object.properties.length; i < len; i++) {
+          var property = object.properties[i];
+          this.__handleHtmlDocProperty(property, opts);
+        }
+      }
+      if (object.items && object.items.properties && object.items.properties.length) {
+        var tr = this.__createRowForItem(object, opts);
+        this.$.content.appendChild(tr);
+        var options = Object.assign({}, opts, {
+          parent: object
+        });
+        for (var i = 0, len = object.items.properties.length; i < len; i++) {
+          var property = object.items.properties[i];
+          this.__handleHtmlDocProperty(property, options);
+        }
+      }
+      if (object.type === 'union') {
+        if (!object.anyOf.length) {
+          return;
+        }
+        var tr = this.__createRowForUnion(object.anyOf.length);
+        this.$.content.appendChild(tr);
+        for (var i = 0, len = object.anyOf.length; i < len; i++) {
+          for (var j = 0, pLen = object.anyOf[i].properties.length; j < pLen; j++) {
+            var property = object.anyOf[i].properties[j];
+            var options = {
+              inUnion: true,
+              parent: opts.parent || object,
+              variantIndex: i,
+              childIndex: j
+            };
+            this.__handleHtmlDocProperty(property, options);
           }
         }
-      });
-      if (append) {
-        this.$.content.appendChild(f);
       }
     },
 
-    __createRowForItem: function(item, parent, immidietParent) {
+    __handleHtmlDocProperty: function(property, opts) {
+      opts = opts || {};
+      var hasChildren = false;
+      if (property.properties || property.items) {
+        hasChildren = true;
+      }
+      var tr = this.__createRowForItem(property, opts);
+      this.$.content.appendChild(tr);
+      if (hasChildren) {
+        var children = property.properties || property.items.properties || property.items;
+        if (children instanceof Array) {
+          for (var j = 0, cLen = children.length; j < cLen; j++) {
+            var options = Object.assign({}, opts, {
+              parent: property //opts.parent ||
+            });
+            this.__computeHtml(children[j], options);
+          }
+        } else if (typeof children === 'string') {
+          //
+        } else {
+          if (children.name !== (property.name || property.key)) {
+            var options = Object.assign({}, opts, {
+              parent: property
+            });
+            this.__computeHtml(children, options);
+          }
+        }
+      }
+    },
+
+    __createRowForItem: function(item, opts) {
+      opts = opts || {};
       if (typeof item === 'string') {
         return;
       }
@@ -407,69 +436,64 @@ Custom property | Description | Default
       var td3 = ce('td');
       var sp1 = ce('span');
 
-      tr.className = 'style-scope docs-json-parameters-table';
-      td1.className = 'style-scope docs-json-parameters-table param-name';
-      td2.className = 'style-scope docs-json-parameters-table param-type';
-      td3.className = 'style-scope docs-json-parameters-table param-desc';
-      sp1.className = 'style-scope docs-json-parameters-table display';
+      var clsPrefix = 'style-scope docs-json-parameters-table';
+      tr.className = clsPrefix;
+      td1.className = clsPrefix + ' param-name';
+      td2.className = clsPrefix + ' param-type';
+      td3.className = clsPrefix + ' param-desc';
+      sp1.className = clsPrefix + ' display';
 
-      if (parent) {
-        td1.className += ' subproperty';
-        sp1.className += ' child';
-        var spParent = ce('span');
-        var spChild = ce('span');
-        spParent.className = 'style-scope docs-json-parameters-table parent-prefix';
-        spParent.textContent = parent.displayName || parent.name;
-        spChild.textContent = item.name;
-        sp1.appendChild(spParent);
-        sp1.appendChild(spChild);
-        if (parent.isUnion && immidietParent) {
-          tr.dataset.parent = immidietParent.name;
-          tr.setAttribute('hidden', true);
+      var fillParentInfo = true;
+      if (opts.inUnion) {
+        tr.dataset.parent = opts.variantIndex;
+        tr.setAttribute('hidden', true);
+        if (opts.parent.anyOf) { //[opts.variantIndex].properties[opts.childIndex] === item
+          sp1.textContent = item.key;
+          fillParentInfo = false;
         }
-        tr.className += ' subproperty';
+      }
+
+      if (opts.parent) {
+        if (fillParentInfo) {
+          td1.className += ' subproperty';
+          sp1.className += ' child';
+          var spParent = ce('span');
+          var spChild = ce('span');
+          spParent.className = clsPrefix + ' parent-prefix';
+          spParent.textContent = opts.parent.displayName || opts.parent.name || opts.parent.key;
+          spChild.textContent = item.displayName || item.name || item.key;
+          sp1.appendChild(spParent);
+          sp1.appendChild(spChild);
+          tr.className += ' subproperty';
+        }
       } else {
-        sp1.textContent = item.name;
+        sp1.textContent = item.key;
       }
 
       if (item.hasChildren) {
         tr.className += ' has-children';
       }
 
-      if (item.isUnion) {
-        // extract child types and insert buttons.
-        if (item.properties && item.properties.length) {
-          var html = '<paper-dropdown-menu no-label-float class="style-scope ' +
-            'docs-json-parameters-table">';
-          html += '<paper-listbox class="style-scope docs-json-parameters-table ' +
-            'dropdown-content" selected="0" data-action="toggle-type">';
-          item.properties.forEach(function(child) {
-            var childName = child.displayName || child.name;
-            html += '<paper-item data-type="' + child.name +
-              '" class="style-scope docs-json-parameters-table"' +
-              '>' + childName + '</paper-item>';
-          });
-          td2.innerHTML = html;
+      if (item.type === 'array') {
+        var name = '';
+        if (!item.items.properties) {
+          name += '[' + item.items.type + ']';
+        } else {
+          name += '[' + (item.items.displayName || 'object') + ']';
         }
-      } else if (item.type === 'array') {
-        var subs = this._getSubproperties(item);
-        var name = item.name + '[';
-        if (subs) {
-          name += subs.join(' | ');
-        }
-        name += ']';
         td2.textContent = name;
       } else {
-        td2.textContent = item.type;
+        td2.textContent = item.type === 'object' ?
+          (item.displayName || item.type) : item.type;
       }
 
       if (item.description) {
         var marked = ce('marked-element');
         var htmlBody = ce('div');
-        marked.className = 'style-scope docs-json-parameters-table';
+        marked.className = clsPrefix + '';
         marked.setAttribute('smartypants', true);
         marked.addEventListener('marked-render-complete', this._markedRendered.bind(this));
-        htmlBody.className = 'markdown-html markdown-body style-scope docs-json-parameters-table';
+        htmlBody.className = clsPrefix + ' markdown-html markdown-body';
         marked.appendChild(htmlBody);
         td3.appendChild(marked);
         marked.markdown = item.description;
@@ -499,6 +523,42 @@ Custom property | Description | Default
         td1.appendChild(sp2);
       }
 
+      tr.appendChild(td1);
+      tr.appendChild(td2);
+      tr.appendChild(td3);
+      return tr;
+    },
+
+    __createRowForUnion: function(no) {
+      if (!no) {
+        return console.warn('Trying to invoke row for union but number is not set');
+      }
+      var ce = function(el) {
+        return document.createElement(el);
+      };
+      var tr = ce('tr');
+      var td1 = ce('td');
+      var td2 = ce('td');
+      var td3 = ce('td');
+      var sp1 = ce('span');
+
+      var cPrx = 'style-scope docs-json-parameters-table';
+      tr.className = cPrx;
+      td1.className = cPrx + ' param-name';
+      td2.className = cPrx + ' param-type';
+      td3.className = cPrx + ' param-desc';
+      sp1.className = cPrx + ' display';
+
+      sp1.textContent = 'Type variant';
+
+      var html = '<paper-dropdown-menu no-label-float class="' + cPrx + '">';
+      html += '<paper-listbox class="' + cPrx +
+        ' dropdown-content" selected="0" data-action="toggle-type">';
+      for (var i = 0; i < no; i++) {
+        html += '<paper-item data-type="' + i + '" class="' +
+          cPrx + '">Variant ' + (i + 1) + '</paper-item>';
+      }
+      td2.innerHTML = html;
       tr.appendChild(td1);
       tr.appendChild(td2);
       tr.appendChild(td3);
