@@ -1,3 +1,9 @@
+<a name="1.1.6"></a>
+## [1.1.6](https://github.com/advanced-rest-client/docs-parameters-table/compare/1.1.5...v1.1.6) (2016-12-09)
+
+
+
+
 <a name="1.1.5"></a>
 ## [1.1.5](https://github.com/advanced-rest-client/docs-parameters-table/compare/1.1.4...v1.1.5) (2016-12-08)
 
