@@ -60,7 +60,7 @@ Custom property | Description | Default
 
 @group RAML Elements
 @element docs-parameters-table
-@demo demo/index.html
+@demo demo/docs-headers-table.html
 -->
 <dom-module id="docs-headers-table">
   <template>
@@ -75,7 +75,7 @@ Custom property | Description | Default
       </thead>
       <tbody>
         <template is="dom-if" if="[[hasHeaders]]">
-          <template is="dom-repeat" items="[[displayHeaders]]">
+          <template is="dom-repeat" items="[[headers]]">
             <tr>
               <td class="param-name">[[item.name]]<span hidden$="[[!item.required]]">*</span></td>
               <td class="param-desc">
@@ -89,6 +89,7 @@ Custom property | Description | Default
                 <div hidden$="[[!hasValue(item.example)]]" class="example">Example value: <span>[[item.example]]</span></div>
                 <div hidden$="[[!hasValue(item.min)]]" class="example">Minimum value: <span>[[item.min]]</span></div>
                 <div hidden$="[[!hasValue(item.max)]]" class="example">Maximum value: <span>[[item.max]]</span></div>
+                <div hidden$="[[!hasValue(item.enum)]]" class="example">Possible values: <span>[[_computeEnumValue(item.enum)]]</span></div>
               </td>
             </tr>
           </template>
@@ -107,18 +108,13 @@ Custom property | Description | Default
        * The RAML's headers description object.
        * See overview for object details.
        */
-      headers: Object,
+      headers: Array,
       // True when `headers` are present
       hasHeaders: {
         type: Boolean,
         computed: '_computeHasHeaders(headers.*)',
         value: false,
         notify: true
-      },
-      // Computed headers array from the `headers` attribute
-      displayHeaders: {
-        type: Array,
-        computed: '_computeHeaders(hasHeaders)'
       }
     },
 
@@ -127,7 +123,7 @@ Custom property | Description | Default
     ],
 
     _computeHasHeaders: function() {
-      return !!(this.headers && Object.getOwnPropertyNames(this.headers).length);
+      return !!(this.headers && Object.keys(this.headers).length);
     },
 
     _autoHide: function(autoHide, hasHeaders) {
@@ -141,12 +137,17 @@ Custom property | Description | Default
       }
     },
 
-    _computeHeaders: function(hasHeaders) {
-      if (!hasHeaders) {
-        return [];
+    _computeEnumValue: function(enumValue) {
+      if (!enumValue || !enumValue.length) {
+        return '';
       }
-      var list = this.readProperties(this.headers);
-      return list;
+      enumValue = enumValue.map(function(item) {
+        if (typeof item === 'string') {
+          return item;
+        }
+        return item.displayName || item.name || item.key;
+      });
+      return enumValue.join(', ');
     }
   });
   </script>
