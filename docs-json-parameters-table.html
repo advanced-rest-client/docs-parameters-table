@@ -104,7 +104,7 @@ Custom property | Description | Default
     </div>
     <div hidden$="[[!hasExample]]">
       <paper-tabs class="schemas" selected="{{selectedSchemaPage}}">
-        <paper-tab>Type</paper-tab>
+        <paper-tab>[[_getTypeTabName(isSchema)]]</paper-tab>
         <paper-tab>Examples</paper-tab>
       </paper-tabs>
       <iron-pages selected="{{selectedSchemaPage}}">
@@ -121,7 +121,7 @@ Custom property | Description | Default
         </div>
       </iron-pages>
     </div>
-    <table class="params-table">
+    <table class="params-table" hidden$="[[isSchema]]">
       <thead class="params-table-header">
         <tr>
           <th>Parameter</th>
@@ -166,13 +166,15 @@ Custom property | Description | Default
         type: Boolean,
         value: false,
         notify: true,
-        computed: '_computeHasExample(type.structuredExample.*)'
+        computed: '_computeHasExample(type.*)'
       },
       // Selected page in the tabs (where examples exists for this page)
       selectedSchemaPage: {
         type: Number,
         value: 0
-      }
+      },
+      // Will be set to true
+      isSchema: Boolean
     },
 
     observers: [
@@ -187,9 +189,15 @@ Custom property | Description | Default
 
     _computeHasType: function(record) {
       if (!record.base) {
+        this.isSchema = false;
         return false;
       }
       var object = record.base;
+      if (object.schema) {
+        this.isSchema = true;
+        return !!object.schemaContent;
+      }
+      this.isSchema = false;
       if (object.type === 'array') {
         return !!object.items;
       } else if (object.type === 'union') {
@@ -212,6 +220,12 @@ Custom property | Description | Default
       if (!record || !record.base) {
         return;
       }
+
+      if (record.base.schema) {
+
+        return record.base.schemaContent;
+      }
+
       var properties = record.base.properties;
       var isArray = false;
       var hasProperties = !!(properties && Object.keys(properties).length);
@@ -250,6 +264,9 @@ Custom property | Description | Default
     _computeHasExample: function() {
       // example can be an array
       var t = this.type;
+      if (!t.examples && t.example) {
+        t.examples = [t.example];
+      }
       return !!(t && (t.structuredExample || (t.examples && t.examples.length)));
     },
 
@@ -655,6 +672,10 @@ Custom property | Description | Default
         return;
       }
       elm.notifyResize();
+    },
+    // Computes tab name, `Type` if not schema and `Schema` otherise.
+    _getTypeTabName: function(isSchema) {
+      return isSchema ? 'Schema' : 'Type';
     }
 
   });

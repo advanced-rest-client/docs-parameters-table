@@ -27,7 +27,7 @@ the License.
 <link rel="import" href="structure-display.html">
 <link rel="import" href="docs-json-parameters-table.html">
 <link rel="import" href="docs-xml-parameters-table.html">
-
+<link rel="import" href="docs-form-parameters-table.html">
 <!--
 `<docs-parameters-table>` A parameters list and description table for the RAML documentation view
 
@@ -125,6 +125,10 @@ Custom property | Description | Default
     <template is="dom-if" if="[[isXml]]">
       <docs-xml-parameters-table type="[[selectedBody]]" has-type="{{hasTypeXml}}"></docs-xml-parameters-table>
     </template>
+
+    <template is="dom-if" if="[[isFormUrlEncoded]]">
+      <docs-form-parameters-table type="[[selectedBody]]" has-type="{{hasForm}}"><docs-form-parameters-table>
+    </template>
   </template>
   <script>
   Polymer({
@@ -158,11 +162,20 @@ Custom property | Description | Default
         value: false,
         readOnly: true
       },
+      isFormUrlEncoded: {
+        type: Object,
+        value: false,
+        readOnly: true
+      },
       hasTypeJson: {
         type: Boolean,
         vealue: false
       },
       hasTypeXml: {
+        type: Boolean,
+        vealue: false
+      },
+      hasForm: {
         type: Boolean,
         vealue: false
       },
@@ -243,9 +256,11 @@ Custom property | Description | Default
       var type = record.base;
       var isXml = false;
       var isJson = false;
+      var isFormUrlEncoded = false;
       if (!type) {
         this._setIsJson(isJson);
         this._setIsXml(isXml);
+        this._setIsFormUrlEncoded(isFormUrlEncoded);
         return;
       }
       var mime;
@@ -262,12 +277,15 @@ Custom property | Description | Default
         isJson = true;
       } else if (mime.indexOf('xml') !== -1) {
         isXml = true;
+      } else if (mime.indexOf('x-www-form-urlencoded') !== -1) {
+        isFormUrlEncoded = true;
       } else {
         // for now, default value;
         isJson = true;
       }
       this._setIsJson(isJson);
       this._setIsXml(isXml);
+      this._setIsFormUrlEncoded(isFormUrlEncoded);
     },
 
     // Computes if current boddy array has any value that can be presented.

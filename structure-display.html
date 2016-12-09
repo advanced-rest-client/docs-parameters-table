@@ -47,8 +47,10 @@ A `<pre>` element that displays highlighted text.
       _highlightSchema: function(str) {
         if (!str) {
           this.$.output.innerHTML = '';
+          this.setAttribute('hidden', true);
           return;
         }
+        this.removeAttribute('hidden');
         this.debounce('structure-display-highlight', function() {
           this.$.output.innerHTML = this.highlight(str, this.dataType);
         }, 10);

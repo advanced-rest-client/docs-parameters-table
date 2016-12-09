@@ -120,6 +120,19 @@ the License.
         return [];
       }
       return names.map(function(i) { return obj[i]; });
+    },
+
+    _computeEnumValue: function(enumValue) {
+      if (!enumValue || !enumValue.length) {
+        return '';
+      }
+      enumValue = enumValue.map(function(item) {
+        if (typeof item === 'string') {
+          return item;
+        }
+        return item.displayName || item.name || item.key;
+      });
+      return enumValue.join(', ');
     }
   };
 })();
