@@ -62,7 +62,6 @@ Custom property | Description | Default
 `--params-table-row-color` | Font color of table's each row |  `#fff`
 `--docs-parameters-table-cell` | Mixin applied to each cell | `{}`
 `--docs-parameters-table-meta` | Mixin applied to property's metadata (example, pattern, etc) | `{}`
-`--docs-body-parameters-table-json` | Mixin applied to the JSON output | `{}`
 `--docs-body-parameters-table-type-name` | Mixin applied to the name of the type | `{}`
 `--params-table-subproperty-prefix-color` | Color of the parent property name in the subproperty list | `rgba(0, 0, 0, 0.54)`
 `--no-info-message` | A mixin applied to the "missing type" paragraph. | `{}`
@@ -83,12 +82,6 @@ Use `paper-tabs`, `paper-tab` and `structure-display` mixins to style this eleme
       --paper-tab-ink: var(--params-table-header-background-color, #00A1DF);
     }
 
-    #output {
-      padding: 12px;
-      @apply(--docs-body-parameters-table-json);
-      white-space: pre-wrap;
-    }
-
     .parent-prefix {
       color: var(--params-table-subproperty-prefix-color, rgba(0, 0, 0, 0.54));
     }
@@ -101,17 +94,12 @@ Use `paper-tabs`, `paper-tab` and `structure-display` mixins to style this eleme
       cursor: pointer;
     }
 
-    #content,
-    .params-table {
+    #content {
       display: none;
     }
 
     :host([has-type]) #content {
       display: block;
-    }
-
-    :host([has-type]) .params-table {
-      display: table;
     }
 
     :host([has-type]) .no-type {
@@ -152,17 +140,19 @@ Use `paper-tabs`, `paper-tab` and `structure-display` mixins to style this eleme
           </div>
         </iron-pages>
       </template>
+      <table class="params-table" hidden$="[[isSchema]]">
+        <thead class="params-table-header">
+          <tr>
+            <th>Parameter</th>
+            <th>Type</th>
+            <th>Description</th>
+          </tr>
+        </thead>
+        <tbody id="tableContent"></tbody>
+      </table>
     </div>
-    <table class="params-table" hidden$="[[isSchema]]">
-      <thead class="params-table-header">
-        <tr>
-          <th>Parameter</th>
-          <th>Type</th>
-          <th>Description</th>
-        </tr>
-      </thead>
-      <tbody id="content"></tbody>
-    </table>
+
+
 
   </template>
   <script>
@@ -213,7 +203,7 @@ Use `paper-tabs`, `paper-tab` and `structure-display` mixins to style this eleme
 
     observers: [
       '_computeHTML(hasType, type.*)',
-      '_updateTabs(hasExample)'
+      '_updateTabs(hasExamples)'
     ],
 
     listeners: {
@@ -374,12 +364,12 @@ Use `paper-tabs`, `paper-tab` and `structure-display` mixins to style this eleme
 
     _computeHTML: function(hasType) {
       if (!hasType || !this.type) {
-        this.$.content.innerHTML = '';
+        this.$.tableContent.innerHTML = '';
         return;
       }
 
       this.debounce('body-params-table-render', function() {
-        this.$.content.innerHTML = '';
+        this.$.tableContent.innerHTML = '';
         this.__computeHtml(this.type);
       }.bind(this), 100);
     },
@@ -422,7 +412,7 @@ Use `paper-tabs`, `paper-tab` and `structure-display` mixins to style this eleme
         object.type !== 'object' &&
         object.type !== 'array') {
         tr = this.__createRowForItem(object, opts);
-        this.$.content.appendChild(tr);
+        this.$.tableContent.appendChild(tr);
         return;
       }
       if (object.properties && object.properties.length) {
@@ -434,7 +424,7 @@ Use `paper-tabs`, `paper-tab` and `structure-display` mixins to style this eleme
 
       if (object.items && object.items.properties && object.items.properties.length) {
         tr = this.__createRowForItem(object, opts);
-        this.$.content.appendChild(tr);
+        this.$.tableContent.appendChild(tr);
         options = Object.assign({}, opts, {
           parent: object
         });
@@ -448,7 +438,7 @@ Use `paper-tabs`, `paper-tab` and `structure-display` mixins to style this eleme
           return;
         }
         tr = this.__createRowForUnion(object.anyOf.length);
-        this.$.content.appendChild(tr);
+        this.$.tableContent.appendChild(tr);
         for (i = 0, len = object.anyOf.length; i < len; i++) {
           for (var j = 0, pLen = object.anyOf[i].properties.length; j < pLen; j++) {
             property = object.anyOf[i].properties[j];
@@ -472,7 +462,7 @@ Use `paper-tabs`, `paper-tab` and `structure-display` mixins to style this eleme
       }
       var options;
       var tr = this.__createRowForItem(property, opts);
-      this.$.content.appendChild(tr);
+      this.$.tableContent.appendChild(tr);
       if (hasChildren) {
         var children = property.properties || property.items.properties || property.items;
         if (children instanceof Array) {
@@ -681,7 +671,7 @@ Use `paper-tabs`, `paper-tab` and `structure-display` mixins to style this eleme
       if (!type) {
         return;
       }
-      Polymer.dom(this.$.content).querySelectorAll('[data-parent="' + type + '"]')
+      Polymer.dom(this.$.tableContent).querySelectorAll('[data-parent="' + type + '"]')
         .forEach(function(node) {
           if (visible) {
             node.removeAttribute('hidden');
@@ -705,27 +695,9 @@ Use `paper-tabs`, `paper-tab` and `structure-display` mixins to style this eleme
       }
       div.className += ' markdown-html markdown-body docs-json-parameters-table';
     },
-    /**
-     * Computes boolean value if current type has list of examples.
-     *
-     * @param {Object} type Current type from `type` attribute
-     * @returns {Boolean} True if has list of examples
-     */
-    _hasExamples: function(type) {
-      return !!(type && type.examples && type.examples.length);
-    },
-    /**
-     * Computes boolean value if current type has one example.
-     *
-     * @param {Object} type Current type from `type` attribute
-     * @returns {Boolean} True if has exactly one example
-     */
-    _hasExample: function(type) {
-      return !!(type && type.structuredExample && type.structuredExample.value);
-    },
     // Forces tabs redraw when tabs are rendered
-    _updateTabs: function(hasExample) {
-      if (!hasExample) {
+    _updateTabs: function(hasExamples) {
+      if (!hasExamples) {
         return;
       }
       var elm = this.$$('paper-tabs');
