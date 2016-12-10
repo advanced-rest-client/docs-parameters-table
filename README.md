@@ -29,6 +29,7 @@ Currently following properties are supported:
 - example - example value of the parameter
 - min - minimum value of the parametre when the type is numeric
 - max - maximum value of the parametre when the type is numeric
+- enum - List of possible values.
 
 ### Styling
 `<docs-parameters-table>` provides the following custom properties and mixins for styling:
@@ -180,4 +181,5 @@ Custom property | Description | Default
 `--docs-parameters-table-meta` | Mixin applied to property's metadata (example, pattern, etc) | `{}`
 `--docs-body-parameters-table-json` | Mixin applied to the JSON output | `{}`
 `--docs-body-parameters-table-type-name` | Mixin applied to the name of the type | `{}`
+`--params-table-subproperty-prefix-color` | Color of the parent property name in the subproperty list | `rgba(0, 0, 0, 0.54)`
 
