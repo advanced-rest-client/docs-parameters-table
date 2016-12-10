@@ -65,9 +65,12 @@ Custom property | Description | Default
 `--docs-body-parameters-table-json` | Mixin applied to the JSON output | `{}`
 `--docs-body-parameters-table-type-name` | Mixin applied to the name of the type | `{}`
 `--params-table-subproperty-prefix-color` | Color of the parent property name in the subproperty list | `rgba(0, 0, 0, 0.54)`
+`--no-info-message` | A mixin applied to the "missing type" paragraph. | `{}`
+
+Use `paper-tabs`, `paper-tab` and `structure-display` mixins to style this element.
 
 @element docs-json-parameters-table
-@demo demo/index.html
+@demo demo/docs-body-parameters-table.html
 -->
 <dom-module id="docs-json-parameters-table">
   <template>
@@ -75,7 +78,7 @@ Custom property | Description | Default
     <style include="markdown-styles"></style>
     <style include="docs-parameters-table-shared-styles"></style>
     <style>
-     :host {
+    :host {
       --paper-tabs-selection-bar-color: var(--params-table-header-background-color, #00A1DF);
       --paper-tab-ink: var(--params-table-header-background-color, #00A1DF);
     }
@@ -97,31 +100,60 @@ Custom property | Description | Default
     paper-listbox paper-item {
       cursor: pointer;
     }
+
+    #content,
+    .params-table {
+      display: none;
+    }
+
+    :host([has-type]) #content {
+      display: block;
+    }
+
+    :host([has-type]) .params-table {
+      display: table;
+    }
+
+    :host([has-type]) .no-type {
+      display: none;
+    }
+
+    .no-type {
+      @apply(--no-info-message);
+    }
+
     </style>
     <prism-highlighter></prism-highlighter>
-    <div hidden$="[[hasExample]]">
-      <pre is="structure-display" display="[[displayJson]]" class="language-javascript"></pre>
-    </div>
-    <div hidden$="[[!hasExample]]">
-      <paper-tabs class="schemas" selected="{{selectedSchemaPage}}">
-        <paper-tab>Type</paper-tab>
-        <paper-tab>Examples</paper-tab>
-      </paper-tabs>
-      <iron-pages selected="{{selectedSchemaPage}}">
-        <pre is="structure-display" display="[[displayJson]]" class="language-javascript"></pre>
+
+    <p class="no-type">
+      This object doesn't have a type description.
+    </p>
+
+    <div id="content">
+      <template is="dom-if" if="[[!hasExamples]]" restamp="true">
         <div>
-          <template is="dom-if" if="[[_hasExamples(type)]]">
-            <template is="dom-repeat" items="[[type.examples]]">
-              <pre is="structure-display" display="[[item]]" class="language-javascript"></pre>
-            </template>
-          </template>
-          <template is="dom-if" if="[[_hasExample(type)]]">
-            <pre is="structure-display" display="[[type.structuredExample.value]]" class="language-javascript"></pre>
-          </template>
+          <pre is="structure-display" display="[[displayJson]]" class="language-javascript" auto-hide></pre>
         </div>
-      </iron-pages>
+      </template>
+      <template is="dom-if" if="[[hasExamples]]" restamp="true">
+        <paper-tabs class="schemas" selected="{{selectedSchemaPage}}">
+          <paper-tab>[[_getTypeTabName(isSchema)]]</paper-tab>
+          <paper-tab>Examples</paper-tab>
+        </paper-tabs>
+        <iron-pages selected="{{selectedSchemaPage}}">
+          <div class="schema">
+            <h5 hidden$="[[!type.schema]]">Schema: [[type.schema]]</h5>
+            <pre is="structure-display" display="[[displayJson]]" class="language-javascript" auto-hide></pre>
+          </div>
+          <div class="examples">
+            <template is="dom-repeat" items="[[examples]]">
+              <pre is="structure-display" display="[[item]]" class="language-javascript" auto-hide></pre>
+            </template>
+          </div>
+        </iron-pages>
+      </template>
     </div>
-    <table class="params-table">
+    <table class="params-table" hidden$="[[isSchema]]">
       <thead class="params-table-header">
         <tr>
           <th>Parameter</th>
@@ -131,6 +163,7 @@ Custom property | Description | Default
       </thead>
       <tbody id="content"></tbody>
     </table>
+
   </template>
   <script>
   Polymer({
@@ -151,28 +184,31 @@ Custom property | Description | Default
         notify: true,
         reflectToAttribute: true
       },
-      // Display name of the property.
-      displayName: {
-        type: String,
-        computed: '_computeDisplayName(type.*)'
-      },
+      // // Display name of the property.
+      // displayName: {
+      //   type: String,
+      //   computed: '_computeDisplayName(type.*)'
+      // },
       // JSON created from the type definition
       displayJson: {
         type: String,
         computed: '_computeDisplayJson(type.*)'
       },
-
-      hasExample: {
-        type: Boolean,
-        value: false,
-        notify: true,
-        computed: '_computeHasExample(type.structuredExample.*)'
+      /**
+       * A list of examples in the definition.
+       * This is a computed value for both `example` and `examples` properties.
+       */
+      examples: {
+        type: Array,
+        computed: '_computeExamples(type.*)'
       },
       // Selected page in the tabs (where examples exists for this page)
       selectedSchemaPage: {
         type: Number,
         value: 0
-      }
+      },
+      // Will be set to true
+      isSchema: Boolean
     },
 
     observers: [
@@ -187,48 +223,66 @@ Custom property | Description | Default
 
     _computeHasType: function(record) {
       if (!record.base) {
+        this.isSchema = false;
         return false;
       }
       var object = record.base;
+      if (object.schema) {
+        this.isSchema = true;
+        return !!object.schemaContent;
+      }
+      this.isSchema = false;
       if (object.type === 'array') {
         return !!object.items;
       } else if (object.type === 'union') {
         return !!(object.anyOf && object.anyOf.length);
       } else if (object.type === 'json') {
+        this.isSchema = true;
         return !!(object.content);
       }
       return !!(object.properties && Object.keys(object.properties).length);
     },
 
-    _computeDisplayName: function() {
-      var type = this.type;
-      if (!type) {
-        return;
-      }
-      return type.displayName || type.key || type.type;
-    },
+    // _computeDisplayName: function() {
+    //   var type = this.type;
+    //   if (!type) {
+    //     return;
+    //   }
+    //   return type.displayName || type.key || type.type;
+    // },
 
     _computeDisplayJson: function(record) {
       if (!record || !record.base) {
         return;
       }
+
+      if (record.base.schema) {
+        return record.base.schemaContent;
+      }
+      if (record.base.type instanceof Array) {
+        record.base.type = record.base.type[0];
+      }
+      if (record.base.type === 'json') {
+        return record.base.content;
+      }
+
       var properties = record.base.properties;
       var isArray = false;
       var hasProperties = !!(properties && Object.keys(properties).length);
       if (!hasProperties) {
-        if (record.base.type instanceof Array) {
-          record.base.type = record.base.type[0];
-        }
         if (record.base.type === 'array') {
           properties = record.base.items.properties;
           isArray = true;
           hasProperties = !!(properties && Object.keys(properties).length);
         } else if (record.base.type === 'union') {
           // just pass to the next block.
-        } else if (record.base.type === 'json') {
-          return record.base.content;
         } else {
           return undefined;
+        }
+      } else {
+        if (record.base.type === 'array') {
+          console.warn('Hey! Check out this case!');
+          debugger;
         }
       }
       var data = hasProperties ? this.__transformObject({}, properties) : {};
@@ -250,7 +304,13 @@ Custom property | Description | Default
     _computeHasExample: function() {
       // example can be an array
       var t = this.type;
-      return !!(t && (t.structuredExample || (t.examples && t.examples.length)));
+      if (!t) {
+        return false;
+      }
+      if (!t.examples && t.example) {
+        t.examples = [t.example];
+      }
+      return !!(t.structuredExample || (t.examples && t.examples.length));
     },
 
     __transformObject: function(base, obj) {
@@ -263,9 +323,8 @@ Custom property | Description | Default
 
         if (type instanceof Array) {
           type = type[0];
-          obj[_propName].type = type;
+          obj.type = type;
         }
-
         if (bt.indexOf(type) === -1) {
           // other type defined in RAML
           if (item.properties) {
@@ -280,8 +339,8 @@ Custom property | Description | Default
             item.items.type = item.items.type[0];
           }
           if (item.items.type === 'object') {
-            structure = this.__transformObject({},
-              this.readProperties(item.items.properties));
+            structure = [this.__transformObject({},
+              this.readProperties(item.items.properties))];
           } else {
             structure = [item.items.type];
           }
@@ -290,8 +349,7 @@ Custom property | Description | Default
         }
 
         base[item.key] = structure;
-      };
-
+      }
       return base;
     },
     /**
@@ -355,27 +413,33 @@ Custom property | Description | Default
         return;
       }
       opts = opts || {};
+      var tr;
+      var i;
+      var len;
+      var property;
+      var options;
       if (this.baseTypes.indexOf(object.type) !== -1 &&
         object.type !== 'object' &&
         object.type !== 'array') {
-        var tr = this.__createRowForItem(object, opts);
+        tr = this.__createRowForItem(object, opts);
         this.$.content.appendChild(tr);
         return;
       }
       if (object.properties && object.properties.length) {
-        for (var i = 0, len = object.properties.length; i < len; i++) {
-          var property = object.properties[i];
+        for (i = 0, len = object.properties.length; i < len; i++) {
+          property = object.properties[i];
           this.__handleHtmlDocProperty(property, opts);
         }
       }
+
       if (object.items && object.items.properties && object.items.properties.length) {
-        var tr = this.__createRowForItem(object, opts);
+        tr = this.__createRowForItem(object, opts);
         this.$.content.appendChild(tr);
-        var options = Object.assign({}, opts, {
+        options = Object.assign({}, opts, {
           parent: object
         });
-        for (var i = 0, len = object.items.properties.length; i < len; i++) {
-          var property = object.items.properties[i];
+        for (i = 0, len = object.items.properties.length; i < len; i++) {
+          property = object.items.properties[i];
           this.__handleHtmlDocProperty(property, options);
         }
       }
@@ -383,12 +447,12 @@ Custom property | Description | Default
         if (!object.anyOf.length) {
           return;
         }
-        var tr = this.__createRowForUnion(object.anyOf.length);
+        tr = this.__createRowForUnion(object.anyOf.length);
         this.$.content.appendChild(tr);
-        for (var i = 0, len = object.anyOf.length; i < len; i++) {
+        for (i = 0, len = object.anyOf.length; i < len; i++) {
           for (var j = 0, pLen = object.anyOf[i].properties.length; j < pLen; j++) {
-            var property = object.anyOf[i].properties[j];
-            var options = {
+            property = object.anyOf[i].properties[j];
+            options = {
               inUnion: true,
               parent: opts.parent || object,
               variantIndex: i,
@@ -406,23 +470,29 @@ Custom property | Description | Default
       if (property.properties || property.items) {
         hasChildren = true;
       }
+      var options;
       var tr = this.__createRowForItem(property, opts);
       this.$.content.appendChild(tr);
       if (hasChildren) {
         var children = property.properties || property.items.properties || property.items;
         if (children instanceof Array) {
           for (var j = 0, cLen = children.length; j < cLen; j++) {
-            var options = Object.assign({}, opts, {
-              parent: property //opts.parent ||
+            options = Object.assign({}, opts, {
+              parent: property,
+              hasChildren: hasChildren
             });
             this.__computeHtml(children[j], options);
           }
         } else if (typeof children === 'string') {
           //
         } else {
+          if (children.type === 'any' && !children.enum) {
+            return;
+          }
           if (children.name !== (property.name || property.key)) {
-            var options = Object.assign({}, opts, {
-              parent: property
+            options = Object.assign({}, opts, {
+              parent: property,
+              hasChildren: hasChildren
             });
             this.__computeHtml(children, options);
           }
@@ -478,7 +548,7 @@ Custom property | Description | Default
         sp1.textContent = item.key;
       }
 
-      if (item.hasChildren) {
+      if (opts.hasChildren) {
         tr.className += ' has-children';
       }
 
@@ -490,6 +560,8 @@ Custom property | Description | Default
           name += item.items.displayName + '[' + item.items.type + ']';
         }
         td2.textContent = name;
+      } else if (item.type === 'any' && item.enum) {
+        td2.textContent = 'Enum';
       } else {
         td2.textContent = item.type === 'object' ?
           (item.displayName || item.type) : item.type;
@@ -515,12 +587,18 @@ Custom property | Description | Default
         td3.appendChild(example);
       }
       if (item.min || item.min === 0) {
-        var min = this.__createCellProperty('example', 'Minimum value:', item.min);
+        var min = this.__createCellProperty('min', 'Minimum value:', item.min);
         td3.appendChild(min);
       }
       if (item.max || item.max === 0) {
-        var max = this.__createCellProperty('example', 'Maximum value:', item.max);
+        var max = this.__createCellProperty('max', 'Maximum value:', item.max);
         td3.appendChild(max);
+      }
+
+      if (item.enum && item.enum.length) {
+        var enumValue = this.__createCellProperty('enum', 'Possible values:',
+          this._computeEnumValue(item.enum));
+        td3.appendChild(enumValue);
       }
 
       td1.appendChild(sp1);
@@ -655,6 +733,10 @@ Custom property | Description | Default
         return;
       }
       elm.notifyResize();
+    },
+    // Computes tab name, `Type` if not schema and `Schema` otherise.
+    _getTypeTabName: function(isSchema) {
+      return isSchema ? 'Schema' : 'Type';
     }
 
   });

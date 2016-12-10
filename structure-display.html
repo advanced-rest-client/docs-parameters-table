@@ -21,10 +21,19 @@ A `<pre>` element that displays highlighted text.
 ```
 <pre is="[[structure-display]]" display="[[json]]"></pre>
 ```
+
+## Theming
+Custom property | Description | Default
+----------------|-------------|----------
+`--code-block` | Mixin applied to the code block. | `{}`
 -->
 <dom-module id="structure-display">
   <template strip-whitespace>
-    <style include="prism-theme-default"></style>
+    <style include="prism-theme-default">
+    #output {
+      @apply(--code-block);
+    }
+    </style>
     <prism-highlighter></prism-highlighter>
     <div id="output"></div>
   </template>
@@ -33,18 +42,56 @@ A `<pre>` element that displays highlighted text.
       is: 'structure-display',
       extends: 'pre',
       properties: {
+        // A content to parse, highlight and display.
         display: String,
+        // Data type to pass to the highlight function. js, xml etc.
         dataType: {
           type: String,
           value: 'js'
-        }
+        },
+        // If set automatically hides the element if the `display` is empty
+        autoHide: {
+          type: Boolean,
+          value: false
+        },
+        // Set to true when the element has been initialized.
+        _ready: Boolean
       },
 
       observers: [
-        '_highlightSchema(display)'
+        '_highlightSchema(display)',
+        '_autoHideChanged(autoHide, display)'
       ],
 
+      ready: function() {
+        this._ready = true;
+        // This callbacks are be called before the element ready event is fired.
+        // So they must be called again.
+        this._highlightSchema(this.display);
+      },
+
+      _autoHideChanged: function(state, display) {
+        if (state) {
+          if (!display) {
+            if (!this.hasAttribute('hidden')) {
+              this.setAttribute('hidden', true);
+            }
+          } else {
+            if (this.hasAttribute('hidden')) {
+              this.removeAttribute('hidden');
+            }
+          }
+        } else {
+          if (this.hasAttribute('hidden')) {
+            this.removeAttribute('hidden');
+          }
+        }
+      },
+
       _highlightSchema: function(str) {
+        if (!this._ready) {
+          return;
+        }
         if (!str) {
           this.$.output.innerHTML = '';
           return;

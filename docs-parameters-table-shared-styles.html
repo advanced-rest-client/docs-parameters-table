@@ -103,10 +103,17 @@ Custom property | Description | Default
     }
 
     .param-desc .pattern,
-    .param-desc .example {
+    .param-desc .example,
+    .param-desc .enum,
+    .param-desc .min,
+    .param-desc .max {
       color: rgba(0, 0, 0, 0.54);
       margin: 8px 0;
       @apply(--docs-parameters-table-meta);
+    }
+
+    .display ~ .value {
+      margin-left: 8px;
     }
 
     td.param-name,

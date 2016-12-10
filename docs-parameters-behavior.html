@@ -58,7 +58,25 @@ the License.
           return ['object', 'array','integer', 'string','number','boolean',
             'datetime','file', 'null','any'];
         }
-      }
+      },
+      /**
+       * A list of examples in the definition.
+       * This is a computed value for both `example` and `examples` properties.
+       *
+       * This is not computed automatically. Set the type object change observer. See the
+       * `_computeExamples()` function for more information.
+       *
+       * If you see this documentation it means that the element that implements this behavior is
+       * not using examples and it's not relevant for this element.
+       */
+      examples: Array,
+      // Computed value if current type has examples.
+      hasExamples: {
+        type: Boolean,
+        value: false,
+        notify: true,
+        computed: '_computeHasExamples(examples.*)'
+      },
     },
     /**
      * Check if passed object is not empty.
@@ -120,6 +138,59 @@ the License.
         return [];
       }
       return names.map(function(i) { return obj[i]; });
+    },
+
+    _computeEnumValue: function(enumValue) {
+      if (!enumValue || !enumValue.length) {
+        return '';
+      }
+      enumValue = enumValue.map(function(item) {
+        if (typeof item === 'string') {
+          if (item === '') {
+            return '""';
+          }
+          return item;
+        }
+        return item.displayName || item.name || item.key;
+      });
+      return enumValue.join(', ');
+    },
+
+    /**
+     * Computes list of examples.
+     * This function to be used with object sub-properties observer:
+     * ```
+     * examples: {
+     *   type: Array,
+     *   computed: '_computeExamples(type.*)'
+     * }
+     * ```
+     * or in the observers list.
+     */
+    _computeExamples: function(record) {
+      var object = record.base;
+      if (!object) {
+        return undefined;
+      }
+      if (object.examples && object.examples.length) {
+        return object.examples;
+      }
+      if (object.example) {
+        if (typeof object.example === 'string') {
+          return [object.example];
+        } else {
+          return [JSON.stringify(object.example, null, 2)];
+        }
+      }
+      return undefined;
+    },
+    // Computes boolean value when the `examples` property change.
+    _computeHasExamples: function(record) {
+      var object = record.base;
+      if (!object) {
+        return false;
+      }
+      return !!object.length;
     }
   };
 })();
