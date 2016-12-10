@@ -18,6 +18,7 @@ the License.
 <link rel="import" href="../markdown-styles/markdown-styles.html">
 <link rel="import" href="../paper-tabs/paper-tabs.html">
 <link rel="import" href="../paper-tabs/paper-tab.html">
+<link rel="import" href="../iron-pages/iron-pages.html">
 <link rel="import" href="docs-parameters-behavior.html">
 <link rel="import" href="docs-parameters-table-shared-styles.html">
 <link rel="import" href="structure-display.html">
@@ -35,23 +36,13 @@ the License.
 
 Custom property | Description | Default
 ----------------|-------------|----------
-`--docs-parameters-table` | Mixin applied to all parameter table elements | `{}`
-`--docs-parameters-url-table` | Mixin applied to this elements | `{}`
-`--params-table-header-background-color` | Background color of table header | `#00A1DF`
-`--params-table-header-color` | Font color of table header | `rgba(255, 255, 255, 0.87)`
-`--params-table-subheader-background-color` | Background color of table subheader | `rgba(0, 161, 223, 0.24)`
-`--params-table-subheader-color` | Font color of table subheader | `rgba(0, 0, 0, 0.87)`
-`--params-table-row-border-color` | Border color of table rows | `rgba(0, 161, 223, 1)`
-`--params-table-row-subproperty-border-color` | Border color of table row which is a description of child property. | `rgba(0, 161, 223, 0.24)`
-`--params-table-row-background-color` | Background color of table's each row |  `#fff`
-`--params-table-row-color` | Font color of table's each row |  `#fff`
-`--docs-parameters-table-cell` | Mixin applied to each cell | `{}`
-`--docs-parameters-table-meta` | Mixin applied to property's metadata (example, pattern, etc) | `{}`
-`--docs-body-parameters-table-json` | Mixin applied to the JSON output | `{}`
-`--docs-body-parameters-table-type-name` | Mixin applied to the name of the type | `{}`
+`--docs-xml-parameters-table` | Mixin applied to this elements | `{}`
+`--no-info-message` | A mixin applied to the "missing type" paragraph. | `{}`
 
-@element docs-json-parameters-table
-@demo demo/index.html
+Use `paper-tabs`, `paper-tab` and `structure-display` mixins to style this element.
+
+@element docs-xml-parameters-table
+@demo demo/docs-body-parameters-table.html
 -->
 <dom-module id="docs-xml-parameters-table">
   <template>
@@ -59,72 +50,54 @@ Custom property | Description | Default
     <style include="markdown-styles"></style>
     <style include="docs-parameters-table-shared-styles"></style>
     <style>
-     :host {
-      --paper-tabs-selection-bar-color: var(--params-table-header-background-color, #00A1DF);
-      --paper-tab-ink: var(--params-table-header-background-color, #00A1DF);
+    :host {
+      display: block;
     }
 
-    #output {
-      padding: 12px;
-      @apply(--docs-body-parameters-table-json);
-      white-space: pre-wrap;
+    #content {
+      display: none;
     }
 
-    .parent-prefix {
-      color: rgba(0, 0, 0, 0.54);
+    :host([has-type]) #content {
+      display: block;
     }
 
-    .parent-prefix::after {
-      content: '.';
+    :host([has-type]) .no-type {
+      display: none;
     }
 
-    .param-name.subproperty {
-      padding-left: 16px !important;
-    }
-
-    paper-listbox paper-item {
-      cursor: pointer;
+    .no-type {
+      @apply(--no-info-message);
     }
     </style>
     <prism-highlighter></prism-highlighter>
-    <template is="dom-if" if="[[!hasExample]]">
-      <div>
-        <pre is="structure-display" display="[[_getSchema(type.type)]]" class="language-xml" data-type="xml"></pre>
-      </div>
-    </template>
-    <template is="dom-if" if="[[hasExample]]">
-      <div>
+    <p class="no-type">
+      This object doesn't have a type description.
+    </p>
+    <div id="content">
+      <template is="dom-if" if="[[!hasExamples]]" restamp="true">
+        <div>
+          <pre is="structure-display" display="[[schemaDisplay]]" class="language-xml" data-type="xml" auto-hide></pre>
+        </div>
+      </template>
+      <template is="dom-if" if="[[hasExamples]]" restamp="true">
         <paper-tabs class="schemas" selected="{{selectedSchemaPage}}">
           <paper-tab>Schema</paper-tab>
           <paper-tab>Examples</paper-tab>
         </paper-tabs>
         <iron-pages selected="{{selectedSchemaPage}}">
-          <pre is="structure-display" display="[[_getSchema(type.type)]]" class="language-xml" data-type="xml"></pre>
-          <div>
-            <template is="dom-if" if="[[_hasExamples(type)]]">
-              <template is="dom-repeat" items="[[type.examples]]">
-                <h5>[[item.name]]</h5>
-                <pre is="structure-display" display="[[item]]" class="language-xml" data-type="xml"></pre>
-              </template>
-            </template>
-            <template is="dom-if" if="[[_hasExample(type)]]">
-              <pre is="structure-display" display="[[type.structuredExample.value]]" class="language-xml" data-type="xml"></pre>
+          <div class="schema">
+            <h5 hidden$="[[!type.schema]]">Schema: [[type.schema]]</h5>
+            <pre is="structure-display" display="[[schemaDisplay]]" class="language-xml" data-type="xml" auto-hide></pre>
+          </div>
+          <div class="examples">
+            <template is="dom-repeat" items="[[examples]]">
+              <pre is="structure-display" display="[[item]]" class="language-xml" data-type="xml" auto-hide></pre>
             </template>
           </div>
         </iron-pages>
-      </div>
+    </div>
     </template>
-
-    <!-- <table class="params-table">
-      <thead class="params-table-header">
-        <tr>
-          <th>Parameter</th>
-          <th>Value type</th>
-          <th>Attributes</th>
-        </tr>
-      </thead>
-      <tbody id="content"></tbody>
-    </table> -->
   </template>
   <script>
   Polymer({
@@ -137,273 +110,51 @@ Custom property | Description | Default
        * A RAML's type definition for the body payload.
        */
       type: Object,
+      // A schema to display. Computed value from provided `type` object.
+      schemaDisplay: {
+        type: String,
+        computed: '_computeDisplay(type.*)'
+      },
       // True when `type` is present
       hasType: {
         type: Boolean,
-        computed: '_computeHasType(type.type.*)',
+        computed: '_computeHasType(schemaDisplay)',
         value: false,
         notify: true,
         reflectToAttribute: true
       },
-      // Display name of the property.
-      displayName: {
-        type: String,
-        computed: '_computeDisplayName(type.*)'
-      },
-
-      hasExample: {
-        type: Boolean,
-        value: false,
-        notify: true,
-        computed: '_computeHasExample(type.structuredExample.*)'
+      /**
+       * A list of examples in the definition.
+       * This is a computed value for both `example` and `examples` properties.
+       */
+      examples: {
+        type: Array,
+        computed: '_computeExamples(type.*)'
       },
       // Selected page in the tabs (where examples exists for this page)
       selectedSchemaPage: {
         type: Number,
         value: 0
-      },
-
-      displayXml: String
-    },
-
-    // observers: [
-    //   '_computeHTML(hasType, type.type.*)'
-    // ],
-
-    _computeHasType: function(record) {
-      if (!record.base) {
-        return false;
-      }
-      return !!(record.base && record.base.length);
-    },
-
-    _computeDisplayName: function() {
-      var type = this.type;
-      if (!type) {
-        return '';
-      }
-      return type.displayName || type.name;
-    },
-
-    _computeHasExample: function() {
-      // example can be an array
-      var t = this.type;
-      return !!(t && (t.structuredExample || (t.examples && t.examples.length)));
-    },
-
-    _getSchema: function(type) {
-      if (!type) {
-        return;
-      }
-      return type;
-    },
-    /**
-     * Compyte HTML value for the table.
-     * It can't be done using templates because of the nested structure of the properties.
-     *
-     * @param {Array} props Object properties from which to create each row of the table
-     * @param {DocumentFragment?} f Document fragmet to which append elements
-     * @param {Object?} parent Parent for current properties. Note that it may not be actual
-     * parent object for the properties. For example, in case of union types it will be
-     * parent that holds union and not the atual parent object for the properties.
-     * @param {Object?} immidietParent Set when `parent` is not immidiet parent of the properties.
-     */
-    __computeHtml: function(props, f, parent, immidietParent) {
-      var self = this;
-      var append = !f;
-      f = f || document.createDocumentFragment();
-      props.forEach(function(item) {
-        var tr;
-        var subProps;
-        if (item.isUnion) {
-          tr = self.__createRowForItem(item, parent);
-          if (tr) {
-            f.appendChild(tr);
-          }
-          var selectedTypeName;
-          subProps = self._getSubproperties(item);
-          if (subProps) {
-            self.__computeHtml(subProps, f, item);
-            selectedTypeName = item.properties[0].name;
-          }
-          if (selectedTypeName) {
-            try {
-              var toVisible = f.querySelectorAll('tr[data-parent="' + selectedTypeName + '"]');
-              for (var i = 0, len = toVisible.length; i < len; i++) {
-                toVisible[i].removeAttribute('hidden');
-              }
-            } catch (e) {
-              console.warn(e);
-            }
-          }
-          append = true; // if not then next union type find wrong active element.
-        } else {
-          var appendCurrent = !(parent && parent.isUnion && !immidietParent);
-          subProps = self._getSubproperties(item);
-          if (subProps) {
-            item.hasChildren = true;
-          }
-          if (appendCurrent) {
-            tr = self.__createRowForItem(item, parent, immidietParent);
-            if (tr) {
-              f.appendChild(tr);
-            }
-          }
-          if (subProps) {
-            var parentToPass = (parent && parent.isUnion) ? parent : item;
-            self.__computeHtml(subProps, f, parentToPass, item);
-          }
-        }
-      });
-      if (append) {
-        this.$.content.appendChild(f);
       }
     },
-
-    __createRowForItem: function(item, parent, immidietParent) {
-      if (typeof item === 'string') {
-        return;
-      }
-      var ce = function(el) {
-        return document.createElement(el);
-      };
-      var tr = ce('tr');
-      var td1 = ce('td');
-      var td2 = ce('td');
-      var td3 = ce('td');
-      var sp1 = ce('span');
-
-      tr.className = 'style-scope docs-json-parameters-table';
-      td1.className = 'style-scope docs-json-parameters-table param-name';
-      td2.className = 'style-scope docs-json-parameters-table param-type';
-      td3.className = 'style-scope docs-json-parameters-table param-desc';
-      sp1.className = 'style-scope docs-json-parameters-table display';
-
-      if (parent) {
-        td1.className += ' subproperty';
-        sp1.className += ' child';
-        var spParent = ce('span');
-        var spChild = ce('span');
-        spParent.className = 'style-scope docs-json-parameters-table parent-prefix';
-        spParent.textContent = parent.displayName || parent.name;
-        spChild.textContent = item.name;
-        sp1.appendChild(spParent);
-        sp1.appendChild(spChild);
-        if (parent.isUnion && immidietParent) {
-          tr.dataset.parent = immidietParent.name;
-          tr.setAttribute('hidden', true);
-        }
-        tr.className += ' subproperty';
-      } else {
-        sp1.textContent = item.name;
-      }
-
-      if (item.hasChildren) {
-        tr.className += ' has-children';
-      }
-
-      if (item.isUnion) {
-        // extract child types and insert buttons.
-        if (item.properties && item.properties.length) {
-          var html = '<paper-dropdown-menu no-label-float class="style-scope ' +
-            'docs-json-parameters-table">';
-          html += '<paper-listbox class="style-scope docs-json-parameters-table ' +
-            'dropdown-content" selected="0" data-action="toggle-type">';
-          item.properties.forEach(function(child) {
-            var childName = child.displayName || child.name;
-            html += '<paper-item data-type="' + child.name +
-              '" class="style-scope docs-json-parameters-table"' +
-              '>' + childName + '</paper-item>';
-          });
-          td2.innerHTML = html;
-        }
-      } else if (item.type === 'array') {
-        var subs = this._getSubproperties(item);
-        var name = item.name + '[';
-        if (subs) {
-          name += subs.join(' | ');
-        }
-        name += ']';
-        td2.textContent = name;
-      } else {
-        td2.textContent = item.type;
-      }
-
-      if (item.description) {
-        var marked = ce('marked-element');
-        var htmlBody = ce('div');
-        marked.className = 'style-scope docs-json-parameters-table';
-        marked.setAttribute('smartypants', true);
-        marked.addEventListener('marked-render-complete', this._markedRendered.bind(this));
-        htmlBody.className = 'markdown-html markdown-body style-scope docs-json-parameters-table';
-        marked.appendChild(htmlBody);
-        td3.appendChild(marked);
-        marked.markdown = item.description;
-      }
-      if (item.pattern) {
-        var pattern = this.__createCellProperty('pattern', 'Validation pattern:', item.pattern);
-        td3.appendChild(pattern);
-      }
-      if (item.example) {
-        var example = this.__createCellProperty('example', 'Example:', item.example);
-        td3.appendChild(example);
-      }
-      if (item.min || item.min === 0) {
-        var min = this.__createCellProperty('example', 'Minimum value:', item.min);
-        td3.appendChild(min);
-      }
-      if (item.max || item.max === 0) {
-        var max = this.__createCellProperty('example', 'Maximum value:', item.max);
-        td3.appendChild(max);
-      }
-
-      td1.appendChild(sp1);
-      if (item.required) {
-        var sp2 = ce('span');
-        sp2.textContent = '*';
-        sp2.title = sp1.title = 'Required property';
-        td1.appendChild(sp2);
-      }
-
-      tr.appendChild(td1);
-      tr.appendChild(td2);
-      tr.appendChild(td3);
-      return tr;
+    // Computed boolean value if the `type` object has XML relevant information.
+    _computeHasType: function(display) {
+      return !!display;
     },
-
-    __createCellProperty: function(name, label, value) {
-      var container = document.createElement('div');
-      container.className = 'style-scope docs-json-parameters-table ' + name;
-      var display = document.createElement('span');
-      var valueNode = document.createElement('span');
-      display.className = 'style-scope docs-json-parameters-table display';
-      valueNode.className = 'style-scope docs-json-parameters-table value';
-      display.textContent = label;
-      valueNode.textContent = value;
-      container.appendChild(display);
-      container.appendChild(valueNode);
-      return container;
-    },
-
-    /**
-     * Computes boolean value if current type has list of examples.
-     *
-     * @param {Object} type Current type from `type` attribute
-     * @returns {Boolean} True if has list of examples
-     */
-    _hasExamples: function(type) {
-      return !!(type && type.examples && type.examples.length);
-    },
-    /**
-     * Computes boolean value if current type has one example.
-     *
-     * @param {Object} type Current type from `type` attribute
-     * @returns {Boolean} True if has exactly one example
-     */
-    _hasExample: function(type) {
-      return !!(type && type.structuredExample && type.structuredExample.value);
+    // Computes the schema content to display.
+    _computeDisplay: function(record) {
+      var object = record.base;
+      if (!object) {
+        return undefined;
+      }
+      if (object.schema && object.schemaContent) {
+        return object.schemaContent;
+      }
+      if (object.type && typeof object.type === 'string') {
+        return object.type;
+      }
+      return undefined;
     }
-
   });
   </script>
 </dom-module>

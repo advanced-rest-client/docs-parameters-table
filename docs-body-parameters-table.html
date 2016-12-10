@@ -120,7 +120,7 @@ Custom property | Description | Default
     <h4 hidden$="[[!displayName]]">Type: [[displayName]]</h4>
 
     <template is="dom-if" if="[[isJson]]">
-      <docs-json-parameters-table type="[[selectedBody]]" hidden$="[[!hasTypeJson]]" has-type="{{hasTypeJson}}"></docs-json-parameters-table>
+      <docs-json-parameters-table type="[[selectedBody]]" has-type="{{hasTypeJson}}"></docs-json-parameters-table>
     </template>
     <template is="dom-if" if="[[isXml]]">
       <docs-xml-parameters-table type="[[selectedBody]]" has-type="{{hasTypeXml}}"></docs-xml-parameters-table>
@@ -243,11 +243,11 @@ Custom property | Description | Default
     _computeDisplayName: function(selectedBodyType, displayBodySelector) {
       var body = this.selectedBody;
       if (!body || !selectedBodyType) {
-        return undefined;
+        return '';
       }
       var type = body.displayName || body.name || body.type;
       if (type === selectedBodyType && displayBodySelector) {
-        return undefined;
+        return '';
       }
       return type;
     },

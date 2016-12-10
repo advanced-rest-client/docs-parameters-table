@@ -44,7 +44,6 @@ Custom property | Description | Default
 `--docs-parameters-table-meta` | Mixin applied to property's metadata (example, pattern, etc) | `{}`
 `--docs-body-parameters-table-json` | Mixin applied to the JSON output | `{}`
 `--docs-body-parameters-table-type-name` | Mixin applied to the name of the type | `{}`
-`--params-table-subproperty-prefix-color` | Color of the parent property name in the subproperty list | `rgba(0, 0, 0, 0.54)`
 
 @element docs-json-parameters-table
 @demo demo/index.html
@@ -56,26 +55,7 @@ Custom property | Description | Default
     <style include="docs-parameters-table-shared-styles"></style>
     <style>
      :host {
-      --paper-tabs-selection-bar-color: var(--params-table-header-background-color, #00A1DF);
-      --paper-tab-ink: var(--params-table-header-background-color, #00A1DF);
-    }
-
-    #output {
-      padding: 12px;
-      @apply(--docs-body-parameters-table-json);
-      white-space: pre-wrap;
-    }
-
-    .parent-prefix {
-      color: var(--params-table-subproperty-prefix-color, rgba(0, 0, 0, 0.54));
-    }
-
-    .parent-prefix::after {
-      content: '.';
-    }
-
-    paper-listbox paper-item {
-      cursor: pointer;
+      display: block;
     }
     </style>
     <template is="dom-if" if="[[hasParams]]">
@@ -88,11 +68,11 @@ Custom property | Description | Default
           </tr>
         </thead>
         <tbody>
-          <template is="dom-repeat" items="[[type.formParameters]]">
+          <template is="dom-repeat" items="[[readProperties(type.formParameters)]]">
             <tr>
               <td class="param-name">[[item.name]]<span hidden$="[[!item.required]]">*</span></td>
+              <td class="param-type">[[item.type]]</td>
               <td class="param-desc">
-                <b>[[item.type]]</b>
                 <div hidden$="[[!hasValue(item.description)]]">
                   <marked-element markdown="[[item.description]]">
                     <div class="markdown-html markdown-body"></div>
@@ -100,8 +80,9 @@ Custom property | Description | Default
                 </div>
                 <div hidden$="[[!hasValue(item.pattern)]]" class="pattern">Validation pattern: <span>[[item.pattern]]</span></div>
                 <div hidden$="[[!hasValue(item.example)]]" class="example">Example value: <span>[[item.example]]</span></div>
-                <div hidden$="[[!hasValue(item.max)]]" class="example">Maximum value: <span>[[item.max]]</span></div>
-                <div hidden$="[[!hasValue(item.enum)]]" class="example">Possible values: <span>[[_computeEnumValue(item.enum)]]</span></div>
+                <div hidden$="[[!hasValue(item.min)]]" class="min">Minimum value: <span>[[item.min]]</span></div>
+                <div hidden$="[[!hasValue(item.max)]]" class="max">Maximum value: <span>[[item.max]]</span></div>
+                <div hidden$="[[!hasValue(item.enum)]]" class="enum">Possible values: <span>[[_computeEnumValue(item.enum)]]</span></div>
               </td>
             </tr>
           </template>
