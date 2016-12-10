@@ -269,11 +269,6 @@ Use `paper-tabs`, `paper-tab` and `structure-display` mixins to style this eleme
         } else {
           return undefined;
         }
-      } else {
-        if (record.base.type === 'array') {
-          console.warn('Hey! Check out this case!');
-          debugger;
-        }
       }
       var data = hasProperties ? this.__transformObject({}, properties) : {};
       var self = this;
@@ -529,7 +524,7 @@ Use `paper-tabs`, `paper-tab` and `structure-display` mixins to style this eleme
           var spChild = ce('span');
           spParent.className = clsPrefix + ' parent-prefix';
           spParent.textContent = opts.parent.displayName || opts.parent.name || opts.parent.key;
-          spChild.textContent = item.displayName || item.name || item.key;
+          spChild.textContent = item.key || item.name || item.displayName;
           sp1.appendChild(spParent);
           sp1.appendChild(spChild);
           tr.className += ' subproperty';
