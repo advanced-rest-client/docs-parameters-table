@@ -12,7 +12,8 @@ License for the specific language governing permissions and limitations under
 the License.
 -->
 <link rel="import" href="../polymer/polymer.html">
-<link rel="import" href="../prism-element/prism-theme-default.html">
+<!-- <link rel="import" href="../prism-element/prism-theme-default.html"> -->
+<link rel="import" href="../markdown-styles/markdown-styles.html">
 <link rel="import" href="../prism-element/prism-highlighter.html">
 <!--
 A `<pre>` element that displays highlighted text.
@@ -29,13 +30,17 @@ Custom property | Description | Default
 -->
 <dom-module id="structure-display">
   <template strip-whitespace>
-    <style include="prism-theme-default">
+    <style include="markdown-styles"></style>
+    <style>
+    :host {
+      background-color: var(--code-background-color, #f5f2f0) !important;
+    }
     #output {
       @apply(--code-block);
     }
     </style>
     <prism-highlighter></prism-highlighter>
-    <div id="output"></div>
+    <div id="output" class="markdown-html"></div>
   </template>
   <script>
     Polymer({
@@ -64,6 +69,7 @@ Custom property | Description | Default
       ],
 
       ready: function() {
+        this.classList.add('markdown-html');
         this._ready = true;
         // This callbacks are be called before the element ready event is fired.
         // So they must be called again.

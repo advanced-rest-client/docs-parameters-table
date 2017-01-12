@@ -1,3 +1,13 @@
+<a name="1.1.9"></a>
+## [1.1.9](https://github.com/advanced-rest-client/docs-parameters-table/compare/1.1.8...v1.1.9) (2017-01-12)
+
+
+### Update
+
+* Updated styles to match theming ([155832f669bdb9b951fec1b195964865d87b391b](https://github.com/advanced-rest-client/docs-parameters-table/commit/155832f669bdb9b951fec1b195964865d87b391b))
+
+
+
 <a name="1.1.8"></a>
 ## [1.1.8](https://github.com/advanced-rest-client/docs-parameters-table/compare/1.1.7...v1.1.8) (2016-12-10)
 
