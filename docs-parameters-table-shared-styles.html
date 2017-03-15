@@ -54,12 +54,20 @@ Custom property | Description | Default
       @apply(--docs-parameters-url-table);
     }
 
-    .params-table-header tr {
+    .params-table-header tr,
+    .narrow-title {
       vertical-align: middle;
-      height: 36px;
       background-color: var(--params-table-header-background-color, #00A1DF);
       color: var(--params-table-header-color, rgba(255, 255, 255, 0.87));
       @apply(--docs-parameters-table-header);
+    }
+
+    .params-table-header tr {
+      height: 36px;
+    }
+
+    .narrow-title {
+      display: none;
     }
 
     tr.params-table-header.subheader {
@@ -153,6 +161,13 @@ Custom property | Description | Default
 
     :host([narrow]) td.param-desc {
       display: block;
+    }
+
+    :host([narrow]) .narrow-title {
+      display: block;
+      padding: 12px;
+      margin: 0;
+      font-size: 16px;
     }
     </style>
   </template>

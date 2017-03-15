@@ -145,7 +145,7 @@ Custom property | Description | Default
 
     <div class="type-title">
       <h4><span hidden$="[[!displayName]]">Type: [[displayName]]</span></h4>
-      <paper-icon-button class$="toggle-button[[_computeToggleClass(structureDisplayOpened)]]" icon="arc:expand-more" on-tap="toggleOpened" title="Toggle structure display"></paper-icon-button>
+      <paper-icon-button class$="toggle-button[[_computeToggleClass(structureDisplayOpened)]]" icon="arc:expand-more" on-tap="toggleOpened" title="Toggle structure display" hidden$="[[isFormUrlEncoded]]"></paper-icon-button>
     </div>
 
     <template is="dom-if" if="[[isJson]]">
