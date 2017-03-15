@@ -25,6 +25,7 @@ the License.
 <link rel="import" href="../paper-item/paper-item.html">
 <link rel="import" href="../paper-icon-button/paper-icon-button.html">
 <link rel="import" href="../arc-icons/arc-icons.html">
+<link rel="import" href="../iron-media-query/iron-media-query.html">
 <link rel="import" href="docs-parameters-behavior.html">
 <link rel="import" href="docs-parameters-table-shared-styles.html">
 <link rel="import" href="structure-display.html">
@@ -148,14 +149,17 @@ Custom property | Description | Default
     </div>
 
     <template is="dom-if" if="[[isJson]]">
-      <docs-json-parameters-table type="[[selectedBody]]" has-type="{{hasTypeJson}}" structure-display-opened="[[structureDisplayOpened]]"></docs-json-parameters-table>
+      <docs-json-parameters-table type="[[selectedBody]]" has-type="{{hasTypeJson}}" structure-display-opened="[[structureDisplayOpened]]" narrow="[[narrow]]"></docs-json-parameters-table>
     </template>
     <template is="dom-if" if="[[isXml]]">
-      <docs-xml-parameters-table type="[[selectedBody]]" has-type="{{hasTypeXml}}" structure-display-opened="[[structureDisplayOpened]]"></docs-xml-parameters-table>
+      <docs-xml-parameters-table type="[[selectedBody]]" has-type="{{hasTypeXml}}" structure-display-opened="[[structureDisplayOpened]]" narrow="[[narrow]]"></docs-xml-parameters-table>
     </template>
     <template is="dom-if" if="[[isFormUrlEncoded]]">
-      <docs-form-parameters-table type="[[selectedBody]]" has-type="{{hasForm}}" structure-display-opened="[[structureDisplayOpened]]"><docs-form-parameters-table>
+      <docs-form-parameters-table type="[[selectedBody]]" has-type="{{hasForm}}" structure-display-opened="[[structureDisplayOpened]]" narrow="[[narrow]]"><docs-form-parameters-table>
     </template>
+
+    <iron-media-query query="max-width: 640px" query-matches="{{narrow}}"></iron-media-query>
+
   </template>
   <script>
   Polymer({
@@ -244,7 +248,9 @@ Custom property | Description | Default
       structureDisplayOpened: {
         type: Boolean,
         value: true
-      }
+      },
+      // If true then the narrow layout is applied.
+      narrow: Boolean
     },
 
     observers: [

@@ -131,6 +131,29 @@ Custom property | Description | Default
       margin-bottom: 0;
       padding-bottom: 0;
     }
+
+    :host([narrow]) .params-table {
+      display: block;
+    }
+
+    :host([narrow]) .params-table-header {
+      display: none;
+    }
+
+    :host([narrow]) tbody,
+    :host([narrow]) tr {
+      display: block;
+      width: 100%;
+    }
+
+    :host([narrow]) td.param-name,
+    :host([narrow]) td.param-type {
+      display: inline-block;
+    }
+
+    :host([narrow]) td.param-desc {
+      display: block;
+    }
     </style>
   </template>
 </dom-module>
