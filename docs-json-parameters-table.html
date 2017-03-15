@@ -16,6 +16,7 @@ the License.
 <link rel="import" href="../prism-element/prism-theme-default.html">
 <link rel="import" href="../prism-element/prism-highlighter.html">
 <link rel="import" href="../iron-pages/iron-pages.html">
+<link rel="import" href="../iron-collapse/iron-collapse.html">
 <link rel="import" href="../paper-tabs/paper-tabs.html">
 <link rel="import" href="../paper-tabs/paper-tab.html">
 <link rel="import" href="../paper-dropdown-menu/paper-dropdown-menu.html">
@@ -117,26 +118,32 @@ Use `paper-tabs`, `paper-tab` and `structure-display` mixins to style this eleme
 
     <div id="content">
       <template is="dom-if" if="[[!hasExamples]]" restamp="true">
-        <div>
-          <pre is="structure-display" display="[[displayJson]]" class="language-javascript" auto-hide></pre>
-        </div>
-      </template>
-      <template is="dom-if" if="[[hasExamples]]" restamp="true">
-        <paper-tabs class="schemas" selected="{{selectedSchemaPage}}">
-          <paper-tab>[[_getTypeTabName(isSchema)]]</paper-tab>
-          <paper-tab>Examples</paper-tab>
-        </paper-tabs>
-        <iron-pages selected="{{selectedSchemaPage}}">
-          <div class="schema">
-            <h5 hidden$="[[!type.schema]]">Schema: [[type.schema]]</h5>
+        <iron-collapse opened="[[structureDisplayOpened]]">
+          <div>
             <pre is="structure-display" display="[[displayJson]]" class="language-javascript" auto-hide></pre>
           </div>
-          <div class="examples">
-            <template is="dom-repeat" items="[[examples]]">
-              <pre is="structure-display" display="[[item]]" class="language-javascript" auto-hide></pre>
-            </template>
+        </iron-collapse>
+      </template>
+      <template is="dom-if" if="[[hasExamples]]" restamp="true">
+        <iron-collapse opened="[[structureDisplayOpened]]">
+          <div>
+            <paper-tabs class="schemas" selected="{{selectedSchemaPage}}">
+              <paper-tab>[[_getTypeTabName(isSchema)]]</paper-tab>
+              <paper-tab>Examples</paper-tab>
+            </paper-tabs>
+            <iron-pages selected="{{selectedSchemaPage}}">
+              <div class="schema">
+                <h5 hidden$="[[!type.schema]]">Schema: [[type.schema]]</h5>
+                <pre is="structure-display" display="[[displayJson]]" class="language-javascript" auto-hide></pre>
+              </div>
+              <div class="examples">
+                <template is="dom-repeat" items="[[examples]]">
+                  <pre is="structure-display" display="[[item]]" class="language-javascript" auto-hide></pre>
+                </template>
+              </div>
+            </iron-pages>
           </div>
-        </iron-pages>
+        </iron-collapse>
       </template>
       <table class="params-table" hidden$="[[isSchema]]">
         <thead class="params-table-header">
@@ -146,6 +153,7 @@ Use `paper-tabs`, `paper-tab` and `structure-display` mixins to style this eleme
             <th>Description</th>
           </tr>
         </thead>
+        <h5 class="narrow-title">Properties</h5>
         <tbody id="tableContent"></tbody>
       </table>
     </div>
@@ -193,7 +201,18 @@ Use `paper-tabs`, `paper-tab` and `structure-display` mixins to style this eleme
         value: 0
       },
       // Will be set to true
-      isSchema: Boolean
+      isSchema: Boolean,
+      // If true then the schema / sxamples section is displayed.
+      structureDisplayOpened: {
+        type: Boolean,
+        value: true
+      },
+
+      // If true then the narrow layout is applied.
+      narrow: {
+        type: Boolean,
+        reflectToAttribute: true
+      }
     },
 
     observers: [

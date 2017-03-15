@@ -17,11 +17,15 @@ the License.
 <link rel="import" href="../prism-element/prism-highlighter.html">
 <link rel="import" href="../markdown-styles/markdown-styles.html">
 <link rel="import" href="../iron-pages/iron-pages.html">
+<link rel="import" href="../iron-flex-layout/iron-flex-layout.html">
 <link rel="import" href="../paper-tabs/paper-tabs.html">
 <link rel="import" href="../paper-tabs/paper-tab.html">
 <link rel="import" href="../paper-dropdown-menu/paper-dropdown-menu.html">
 <link rel="import" href="../paper-listbox/paper-listbox.html">
 <link rel="import" href="../paper-item/paper-item.html">
+<link rel="import" href="../paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../arc-icons/arc-icons.html">
+<link rel="import" href="../iron-media-query/iron-media-query.html">
 <link rel="import" href="docs-parameters-behavior.html">
 <link rel="import" href="docs-parameters-table-shared-styles.html">
 <link rel="import" href="structure-display.html">
@@ -105,6 +109,28 @@ Custom property | Description | Default
       margin: 0 12px;
     }
 
+    .type-title {
+      @apply(--layout-horizontal);
+      @apply(--layout-center);
+    }
+
+    .type-title h4 {
+      @apply(--layout-flex);
+    }
+
+    .toggle-button {
+      color: var(--docs-body-parameters-table-toggle-icon-color, rgba(0, 0, 0, 0.54));
+      transform: rotateZ(0deg);
+      transition: color 0.25s linear, transform 0.3s linear;
+    }
+
+    .toggle-button.opened {
+      transform: rotateZ(-180deg);
+    }
+
+    .toggle-button:hover {
+      color: var(--docs-body-parameters-toggle-icon-hover-color, rgba(0, 0, 0, 0.78));
+    }
     </style>
     <prism-highlighter></prism-highlighter>
 
@@ -117,18 +143,23 @@ Custom property | Description | Default
       </paper-listbox>
     </paper-dropdown-menu>
 
-    <h4 hidden$="[[!displayName]]">Type: [[displayName]]</h4>
+    <div class="type-title">
+      <h4><span hidden$="[[!displayName]]">Type: [[displayName]]</span></h4>
+      <paper-icon-button class$="toggle-button[[_computeToggleClass(structureDisplayOpened)]]" icon="arc:expand-more" on-tap="toggleOpened" title="Toggle structure display" hidden$="[[isFormUrlEncoded]]"></paper-icon-button>
+    </div>
 
     <template is="dom-if" if="[[isJson]]">
-      <docs-json-parameters-table type="[[selectedBody]]" has-type="{{hasTypeJson}}"></docs-json-parameters-table>
+      <docs-json-parameters-table type="[[selectedBody]]" has-type="{{hasTypeJson}}" structure-display-opened="[[structureDisplayOpened]]" narrow="[[narrow]]"></docs-json-parameters-table>
     </template>
     <template is="dom-if" if="[[isXml]]">
-      <docs-xml-parameters-table type="[[selectedBody]]" has-type="{{hasTypeXml}}"></docs-xml-parameters-table>
+      <docs-xml-parameters-table type="[[selectedBody]]" has-type="{{hasTypeXml}}" structure-display-opened="[[structureDisplayOpened]]" narrow="[[narrow]]"></docs-xml-parameters-table>
+    </template>
+    <template is="dom-if" if="[[isFormUrlEncoded]]">
+      <docs-form-parameters-table type="[[selectedBody]]" has-type="{{hasForm}}" structure-display-opened="[[structureDisplayOpened]]" narrow="[[narrow]]"><docs-form-parameters-table>
     </template>
 
-    <template is="dom-if" if="[[isFormUrlEncoded]]">
-      <docs-form-parameters-table type="[[selectedBody]]" has-type="{{hasForm}}"><docs-form-parameters-table>
-    </template>
+    <iron-media-query query="max-width: 640px" query-matches="{{narrow}}"></iron-media-query>
+
   </template>
   <script>
   Polymer({
@@ -212,7 +243,14 @@ Custom property | Description | Default
       selectedBody: {
         type: Object,
         computed: '_computeSelectedBody(selectedBodyType)'
-      }
+      },
+      // If true then the schema / sxamples section is displayed.
+      structureDisplayOpened: {
+        type: Boolean,
+        value: true
+      },
+      // If true then the narrow layout is applied.
+      narrow: Boolean
     },
 
     observers: [
@@ -341,6 +379,19 @@ Custom property | Description | Default
         bt = this.bodyTypes[0];
       }
       this.set('selectedBodyType', bt);
+    },
+
+    // Toggles type
+    toggleOpened: function() {
+      this.structureDisplayOpened = !this.structureDisplayOpened;
+    },
+    // Computes toggle button class name
+    _computeToggleClass: function(toggleOpened) {
+      var clazz = '';
+      if (toggleOpened) {
+        clazz += ' opened';
+      }
+      return clazz;
     }
 
   });

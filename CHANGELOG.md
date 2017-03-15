@@ -1,3 +1,18 @@
+<a name="1.1.11"></a>
+## [1.1.11](https://github.com/advanced-rest-client/docs-parameters-table/compare/1.1.9...v1.1.11) (2017-03-15)
+
+
+### Update
+
+* Added schema collapse ([da1cb4dff9ee72714db4129fcb96cc81fee99c6f](https://github.com/advanced-rest-client/docs-parameters-table/commit/da1cb4dff9ee72714db4129fcb96cc81fee99c6f))
+* Added table mobile view ([81d618a39436076ec54bf160af6ff018bcbf11ce](https://github.com/advanced-rest-client/docs-parameters-table/commit/81d618a39436076ec54bf160af6ff018bcbf11ce))
+* removed ES6 keyworkd and replaced it witl >var< ([5cb624db81ba804ea1d999977de5d2bbf02cc948](https://github.com/advanced-rest-client/docs-parameters-table/commit/5cb624db81ba804ea1d999977de5d2bbf02cc948))
+* Switched ES level for linter ([abf12c78f456d328fed427e732769f0906c9519f](https://github.com/advanced-rest-client/docs-parameters-table/commit/abf12c78f456d328fed427e732769f0906c9519f))
+* Updated browsers list for Sauce ([8e8bab3bbb20c7b5ad09dc623a79a2fb7199e9f6](https://github.com/advanced-rest-client/docs-parameters-table/commit/8e8bab3bbb20c7b5ad09dc623a79a2fb7199e9f6))
+* Updated travis configuration to connect to sauce ([781ad77293841fe3370528fe246fa5e4c5d7b0e6](https://github.com/advanced-rest-client/docs-parameters-table/commit/781ad77293841fe3370528fe246fa5e4c5d7b0e6))
+
+
+
 <a name="1.1.10"></a>
 ## [1.1.10](https://github.com/advanced-rest-client/docs-parameters-table/compare/1.1.9...v1.1.10) (2017-03-15)
 

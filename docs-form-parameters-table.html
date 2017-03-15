@@ -67,6 +67,7 @@ Custom property | Description | Default
             <th>Description</th>
           </tr>
         </thead>
+        <h5 class="narrow-title">Properties</h5>
         <tbody>
           <template is="dom-repeat" items="[[readProperties(type.formParameters)]]">
             <tr>
@@ -108,12 +109,14 @@ Custom property | Description | Default
         value: false,
         notify: true,
         reflectToAttribute: true
+      },
+
+      // If true then the narrow layout is applied.
+      narrow: {
+        type: Boolean,
+        reflectToAttribute: true
       }
     },
-
-    observers: [
-
-    ],
 
     _computeHasParams: function(record) {
       if (!record.base) {

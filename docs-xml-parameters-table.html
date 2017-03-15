@@ -19,6 +19,7 @@ the License.
 <link rel="import" href="../paper-tabs/paper-tabs.html">
 <link rel="import" href="../paper-tabs/paper-tab.html">
 <link rel="import" href="../iron-pages/iron-pages.html">
+<link rel="import" href="../iron-collapse/iron-collapse.html">
 <link rel="import" href="docs-parameters-behavior.html">
 <link rel="import" href="docs-parameters-table-shared-styles.html">
 <link rel="import" href="structure-display.html">
@@ -76,28 +77,34 @@ Use `paper-tabs`, `paper-tab` and `structure-display` mixins to style this eleme
     </p>
     <div id="content">
       <template is="dom-if" if="[[!hasExamples]]" restamp="true">
-        <div>
-          <pre is="structure-display" display="[[schemaDisplay]]" class="language-xml" data-type="xml" auto-hide></pre>
-        </div>
-      </template>
-      <template is="dom-if" if="[[hasExamples]]" restamp="true">
-        <paper-tabs class="schemas" selected="{{selectedSchemaPage}}">
-          <paper-tab>Schema</paper-tab>
-          <paper-tab>Examples</paper-tab>
-        </paper-tabs>
-        <iron-pages selected="{{selectedSchemaPage}}">
-          <div class="schema">
-            <h5 hidden$="[[!type.schema]]">Schema: [[type.schema]]</h5>
+        <iron-collapse opened="[[structureDisplayOpened]]">
+          <div>
             <pre is="structure-display" display="[[schemaDisplay]]" class="language-xml" data-type="xml" auto-hide></pre>
           </div>
-          <div class="examples">
-            <template is="dom-repeat" items="[[examples]]">
-              <pre is="structure-display" display="[[item]]" class="language-xml" data-type="xml" auto-hide></pre>
-            </template>
+        </iron-collapse>
+      </template>
+      <template is="dom-if" if="[[hasExamples]]" restamp="true">
+        <iron-collapse opened="[[structureDisplayOpened]]">
+          <div>
+            <paper-tabs class="schemas" selected="{{selectedSchemaPage}}">
+              <paper-tab>Schema</paper-tab>
+              <paper-tab>Examples</paper-tab>
+            </paper-tabs>
+            <iron-pages selected="{{selectedSchemaPage}}">
+              <div class="schema">
+                <h5 hidden$="[[!type.schema]]">Schema: [[type.schema]]</h5>
+                <pre is="structure-display" display="[[schemaDisplay]]" class="language-xml" data-type="xml" auto-hide></pre>
+              </div>
+              <div class="examples">
+                <template is="dom-repeat" items="[[examples]]">
+                  <pre is="structure-display" display="[[item]]" class="language-xml" data-type="xml" auto-hide></pre>
+                </template>
+              </div>
+            </iron-pages>
           </div>
-        </iron-pages>
+        </iron-collapse>
+      </template>
     </div>
-    </template>
   </template>
   <script>
   Polymer({
@@ -135,6 +142,12 @@ Use `paper-tabs`, `paper-tab` and `structure-display` mixins to style this eleme
       selectedSchemaPage: {
         type: Number,
         value: 0
+      },
+
+      // If true then the narrow layout is applied.
+      narrow: {
+        type: Boolean,
+        reflectToAttribute: true
       }
     },
     // Computed boolean value if the `type` object has XML relevant information.
