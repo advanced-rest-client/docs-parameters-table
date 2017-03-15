@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/advanced-rest-client/docs-parameters-table.svg?branch=master)](https://travis-ci.org/advanced-rest-client/docs-parameters-table)  [![Dependency Status](https://dependencyci.com/github/advanced-rest-client/docs-parameters-table/badge)](https://dependencyci.com/github/advanced-rest-client/docs-parameters-table)  
+[![Build Status](https://travis-ci.org/advanced-rest-client/docs-parameters-table.svg?branch=stage)](https://travis-ci.org/advanced-rest-client/docs-parameters-table)  
 
 # docs-parameters-table
 
