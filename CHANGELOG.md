@@ -1,3 +1,17 @@
+<a name="1.1.14"></a>
+## [1.1.14](https://github.com/advanced-rest-client/docs-parameters-table/compare/1.1.11...v1.1.14) (2017-04-07)
+
+
+### Fix
+
+* Fixed narrow layout for the docs-parameters-table ([9af5101a7fdc84812b4af720885374476f3be7e2](https://github.com/advanced-rest-client/docs-parameters-table/commit/9af5101a7fdc84812b4af720885374476f3be7e2))
+
+### Update
+
+* JSON table will not display type definition even if it has example only. Also, added a JSON table view ([7fc915b008ab0f0c10ebf027cc70d63743f921fc](https://github.com/advanced-rest-client/docs-parameters-table/commit/7fc915b008ab0f0c10ebf027cc70d63743f921fc))
+
+
+
 <a name="1.1.13"></a>
 ## [1.1.13](https://github.com/advanced-rest-client/docs-parameters-table/compare/1.1.11...v1.1.13) (2017-04-07)
 
