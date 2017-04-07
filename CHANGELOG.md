@@ -1,3 +1,19 @@
+<a name="1.1.13"></a>
+## [1.1.13](https://github.com/advanced-rest-client/docs-parameters-table/compare/1.1.11...v1.1.13) (2017-04-07)
+
+
+### Fix
+
+* Fixed narrow layout for the docs-parameters-table ([9af5101a7fdc84812b4af720885374476f3be7e2](https://github.com/advanced-rest-client/docs-parameters-table/commit/9af5101a7fdc84812b4af720885374476f3be7e2))
+
+
+
+<a name="1.1.12"></a>
+## [1.1.12](https://github.com/advanced-rest-client/docs-parameters-table/compare/1.1.11...v1.1.12) (2017-04-07)
+
+
+
+
 <a name="1.1.11"></a>
 ## [1.1.11](https://github.com/advanced-rest-client/docs-parameters-table/compare/1.1.9...v1.1.11) (2017-03-15)
 
