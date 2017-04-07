@@ -25,6 +25,7 @@ the License.
 <link rel="import" href="docs-parameters-behavior.html">
 <link rel="import" href="docs-parameters-table-shared-styles.html">
 <link rel="import" href="structure-display.html">
+<link rel="import" href="example-display.html">
 <!--
 `<docs-json-parameters-table>` displays a documentation view for JSON structured body.
 
@@ -93,18 +94,6 @@ Use `paper-tabs`, `paper-tab` and `structure-display` mixins to style this eleme
       cursor: pointer;
     }
 
-    #content {
-      display: none;
-    }
-
-    :host([has-type]) #content {
-      display: block;
-    }
-
-    :host([has-type]) .no-type {
-      display: none;
-    }
-
     .no-type {
       @apply(--no-info-message);
     }
@@ -112,19 +101,28 @@ Use `paper-tabs`, `paper-tab` and `structure-display` mixins to style this eleme
     </style>
     <prism-highlighter></prism-highlighter>
 
-    <p class="no-type">
+    <p class="no-type" hidden$="[[!_computeIsTypeVisible(hasExamples, hasType)]]">
       This object doesn't have a type description.
     </p>
 
-    <div id="content">
-      <template is="dom-if" if="[[!hasExamples]]" restamp="true">
+    <div id="content" hidden$="[[_computeIsTypeVisible(hasExamples, hasType)]]">
+      <template is="dom-if" if="[[_displayTypeOnly(hasType, hasExamples)]]" restamp="true">
         <iron-collapse opened="[[structureDisplayOpened]]">
           <div>
             <pre is="structure-display" display="[[displayJson]]" class="language-javascript" auto-hide></pre>
           </div>
         </iron-collapse>
       </template>
-      <template is="dom-if" if="[[hasExamples]]" restamp="true">
+      <template is="dom-if" if="[[_displayExampleOnly(hasType, hasExamples)]]" restamp="true">
+        <iron-collapse opened="[[structureDisplayOpened]]">
+          <div class="examples">
+            <template is="dom-repeat" items="[[examples]]">
+              <example-display is-json content="[[item]]"></example-display>
+            </template>
+          </div>
+        </iron-collapse>
+      </template>
+      <template is="dom-if" if="[[_displayTypeAndExample(hasType, hasExamples)]]" restamp="true">
         <iron-collapse opened="[[structureDisplayOpened]]">
           <div>
             <paper-tabs class="schemas" selected="{{selectedSchemaPage}}">
@@ -138,14 +136,14 @@ Use `paper-tabs`, `paper-tab` and `structure-display` mixins to style this eleme
               </div>
               <div class="examples">
                 <template is="dom-repeat" items="[[examples]]">
-                  <pre is="structure-display" display="[[item]]" class="language-javascript" auto-hide></pre>
+                  <example-display is-json content="[[item]]"></example-display>
                 </template>
               </div>
             </iron-pages>
           </div>
         </iron-collapse>
       </template>
-      <table class="params-table" hidden$="[[isSchema]]">
+      <table class="params-table" hidden$="[[_parametersTableHidden(isSchema, hasType)]]">
         <thead class="params-table-header">
           <tr>
             <th>Parameter</th>
@@ -174,8 +172,7 @@ Use `paper-tabs`, `paper-tab` and `structure-display` mixins to style this eleme
         type: Boolean,
         computed: '_computeHasType(type.*)',
         value: false,
-        notify: true,
-        reflectToAttribute: true
+        notify: true
       },
       // // Display name of the property.
       // displayName: {
@@ -244,7 +241,11 @@ Use `paper-tabs`, `paper-tab` and `structure-display` mixins to style this eleme
         this.isSchema = true;
         return !!(object.content);
       }
-      return !!(object.properties && Object.keys(object.properties).length);
+      var hasType = !!(object.properties && Object.keys(object.properties).length);
+      // if (!hasType && object.examples && object.examples.length) {
+      //   return true;
+      // }
+      return hasType;
     },
 
     // _computeDisplayName: function() {
@@ -273,6 +274,12 @@ Use `paper-tabs`, `paper-tab` and `structure-display` mixins to style this eleme
       var properties = record.base.properties;
       var isArray = false;
       var hasProperties = !!(properties && Object.keys(properties).length);
+
+      // if (!hasProperties && record.base.examples &&
+      //   record.base.examples.length) {
+      //   return record.base.examples[0];
+      // }
+
       if (!hasProperties) {
         if (record.base.type === 'array') {
           properties = record.base.items.properties;
@@ -373,12 +380,11 @@ Use `paper-tabs`, `paper-tab` and `structure-display` mixins to style this eleme
 
     _computeHTML: function(hasType) {
       if (!hasType || !this.type) {
-        this.$.tableContent.innerHTML = '';
         return;
       }
-
+      this.$$('#tableContent').innerHTML = '';
       this.debounce('body-params-table-render', function() {
-        this.$.tableContent.innerHTML = '';
+        this.$$('#tableContent').innerHTML = '';
         this.__computeHtml(this.type);
       }.bind(this), 100);
     },
@@ -417,11 +423,12 @@ Use `paper-tabs`, `paper-tab` and `structure-display` mixins to style this eleme
       var len;
       var property;
       var options;
+      var  tableContent = this.$$('#tableContent');
       if (this.baseTypes.indexOf(object.type) !== -1 &&
         object.type !== 'object' &&
         object.type !== 'array') {
         tr = this.__createRowForItem(object, opts);
-        this.$.tableContent.appendChild(tr);
+        tableContent.appendChild(tr);
         return;
       }
       if (object.properties && object.properties.length) {
@@ -433,7 +440,7 @@ Use `paper-tabs`, `paper-tab` and `structure-display` mixins to style this eleme
 
       if (object.items && object.items.properties && object.items.properties.length) {
         tr = this.__createRowForItem(object, opts);
-        this.$.tableContent.appendChild(tr);
+        tableContent.appendChild(tr);
         options = Object.assign({}, opts, {
           parent: object
         });
@@ -447,7 +454,7 @@ Use `paper-tabs`, `paper-tab` and `structure-display` mixins to style this eleme
           return;
         }
         tr = this.__createRowForUnion(object.anyOf.length);
-        this.$.tableContent.appendChild(tr);
+        tableContent.appendChild(tr);
         for (i = 0, len = object.anyOf.length; i < len; i++) {
           for (var j = 0, pLen = object.anyOf[i].properties.length; j < pLen; j++) {
             property = object.anyOf[i].properties[j];
@@ -471,7 +478,7 @@ Use `paper-tabs`, `paper-tab` and `structure-display` mixins to style this eleme
       }
       var options;
       var tr = this.__createRowForItem(property, opts);
-      this.$.tableContent.appendChild(tr);
+      this.$$('#tableContent').appendChild(tr);
       if (hasChildren) {
         var children = property.properties || property.items.properties || property.items;
         if (children instanceof Array) {
@@ -680,7 +687,7 @@ Use `paper-tabs`, `paper-tab` and `structure-display` mixins to style this eleme
       if (!type) {
         return;
       }
-      Polymer.dom(this.$.tableContent).querySelectorAll('[data-parent="' + type + '"]')
+      Polymer.dom(this.$$('#tableContent')).querySelectorAll('[data-parent="' + type + '"]')
         .forEach(function(node) {
           if (visible) {
             node.removeAttribute('hidden');
@@ -718,6 +725,30 @@ Use `paper-tabs`, `paper-tab` and `structure-display` mixins to style this eleme
     // Computes tab name, `Type` if not schema and `Schema` otherise.
     _getTypeTabName: function(isSchema) {
       return isSchema ? 'Schema' : 'Type';
+    },
+
+    // Computes visibility of the type description.
+    _computeIsTypeVisible: function(hasExamples, hasType) {
+      return !(hasExamples || hasType);
+    },
+
+    _displayExampleOnly: function(hasType, hasExamples) {
+      return !hasType && hasExamples;
+    },
+
+    _displayTypeOnly: function(hasType, hasExamples) {
+      return hasType && !hasExamples;
+    },
+
+    _displayTypeAndExample: function(hasType, hasExamples) {
+      return hasType && hasExamples;
+    },
+
+    _parametersTableHidden: function(isSchema, hasType) {
+      if (isSchema) {
+        return true;
+      }
+      return !hasType;
     }
 
   });
