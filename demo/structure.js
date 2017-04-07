@@ -192,77 +192,38 @@ window.personType = {
     }
   }
 };
-window.headersDef = {
-  'X-Paginated': {
-    'name': 'X-Paginated',
-    'displayName': 'X-Paginated',
-    'type': [
-      'string'
-    ],
-    'example': 'true',
+window.headersDef = [
+  {
+    'name': 'X-Upload-Content-Type',
+    'displayName': 'X-Upload-Content-Type',
+    'type': 'string',
     'required': true,
-    'description': 'Required for paginated resources. It\'s value is always true.',
-    '__METADATA__': {
-      'primitiveValuesMeta': {
-        'displayName': {
-          'calculated': true
-        }
-      }
-    },
-    'structuredExample': {
-      'value': 'true',
-      'strict': true,
-      'name': null,
-      'structuredValue': 'true'
-    }
+    'description': 'Set to the media MIME type of the upload data to be transferred in subsequent requests.\nDon\'t use it if `uploadType` queryParameter is set.\n',
+    'examples': [
+      'image/jpeg'
+    ],
+    'key': 'X-Upload-Content-Type'
   },
-  'authorization': {
-    'name': 'authorization',
-    'displayName': 'authorization',
-    'type': [
-      'string'
-    ],
+  {
+    'name': 'X-Upload-Content-Length',
+    'displayName': 'X-Upload-Content-Length',
+    'type': 'integer',
     'required': true,
-    'description': 'Used to send a valid OAuth 2 access token. Do not use with the ' +
-      '"access_token" query string parameter.',
-    '__METADATA__': {
-      'primitiveValuesMeta': {
-        'displayName': {
-          'calculated': true
-        }
-      }
-    },
-    'structuredExample': {
-      'value': 'true',
-      'strict': true,
-      'name': null,
-      'structuredValue': 'true'
-    }
+    'description': 'Set to the number of bytes of upload data to be transferred in subsequent requests.  If the length is unknown at the time of this request, you can omit this header.',
+    'examples': [
+      '8000000'
+    ],
+    'key': 'X-Upload-Content-Length'
   },
-  'clientId': {
-    'name': 'clientId',
-    'displayName': 'clientId',
-    'type': [
-      'string'
-    ],
-    'example': 'id-from-console-project-number@domain.com',
-    'required': true,
-    'description': 'Project ID that can be obtained from developer console.',
-    '__METADATA__': {
-      'primitiveValuesMeta': {
-        'displayName': {
-          'calculated': true
-        }
-      }
-    },
-    'structuredExample': {
-      'value': 'true',
-      'strict': true,
-      'name': null,
-      'structuredValue': 'true'
-    }
+  {
+    'name': 'Authorization',
+    'displayName': 'Authorization',
+    'type': 'string',
+    'required': false,
+    'description': 'Used to send a valid OAuth 2 access token. Don\'t use it with `access_token` query parameter.\n',
+    'key': 'Authorization'
   }
-};
+];
 window.uriParameters = {
   fileId: {
     description: 'The ID for the file in question.',
