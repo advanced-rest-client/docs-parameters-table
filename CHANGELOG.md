@@ -1,3 +1,19 @@
+<a name="1.1.16"></a>
+## [1.1.16](https://github.com/advanced-rest-client/docs-parameters-table/compare/1.1.14...v1.1.16) (2017-04-12)
+
+
+### Update
+
+* Added support for sticky JSON table view ([3eb322d22fb4f7ebe6b4572fdaca1d58aa4b9bee](https://github.com/advanced-rest-client/docs-parameters-table/commit/3eb322d22fb4f7ebe6b4572fdaca1d58aa4b9bee))
+
+
+
+<a name="1.1.15"></a>
+## [1.1.15](https://github.com/advanced-rest-client/docs-parameters-table/compare/1.1.14...v1.1.15) (2017-04-12)
+
+
+
+
 <a name="1.1.14"></a>
 ## [1.1.14](https://github.com/advanced-rest-client/docs-parameters-table/compare/1.1.11...v1.1.14) (2017-04-07)
 
