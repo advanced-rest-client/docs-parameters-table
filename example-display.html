@@ -28,14 +28,21 @@ An element to display an example item.
 -->
 <dom-module id="example-display">
   <template strip-whitespace>
+    <style>
+    *[hidden] {
+      display: none;
+    }
+    </style>
     <div class="example-actions">
       <paper-icon-button icon="arc:content-copy" title="Copy example to clipboard" on-tap="_copyToClipboard"></paper-icon-button>
       <template is="dom-if" if="[[isJson]]">
         <paper-icon-button icon="arc:view-column" title="Toggle table view" active="[[table]]" toggles on-tap="toggleTable"></paper-icon-button>
       </template>
     </div>
-    <pre is="structure-display" display="[[content]]" class="language-javascript" auto-hide hidden$="[[table]]"></pre>
-    <template is="dom-if" if="[[table]]" restamp="true">
+    <template is="dom-if" if="[[!table]]">
+      <pre is="structure-display" display="[[content]]" class="language-javascript" auto-hide></pre>
+    </template>
+    <template is="dom-if" if="[[_computeDisplayTable(isJson, table)]]">
       <json-table json="[[content]]"></json-table>
     </template>
     <clipboard-copy content="[[content]]"></clipboard-copy>
@@ -43,19 +50,39 @@ An element to display an example item.
   <script>
     Polymer({
       is: 'example-display',
+      /**
+       * Fired when the `table` property change to inform other elements to switch
+       * corresponding view as well.
+       *
+       * @event json-table-state-changed
+       * @param {Boolean} enabled If true then the view is enabled.
+       */
       properties: {
         // A content to display.
         content: String,
         // If true it will add control to display JSON in table view.
-        isJson: Boolean,
+        isJson: {
+          type: Boolean,
+          observer: '_isJsonChanged'
+        },
         /**
          * If true it will display a table view instead of JSON code.
          * `isJson` must be set to use this option.
          */
         table: {
           type: Boolean,
-          value: false
+          observer: '_tableChanged'
         }
+      },
+
+      attached: function() {
+        this.listen(window, 'storage', '_onStorageChanged');
+        this.listen(window, 'json-table-state-changed', '_onJsonTableStateChanged');
+      },
+
+      detached: function() {
+        this.unlisten(window, 'storage', '_onStorageChanged');
+        this.unlisten(window, 'json-table-state-changed', '_onJsonTableStateChanged');
       },
 
       /**
@@ -79,6 +106,85 @@ An element to display an example item.
       // Toggles the JSON table view
       toggleTable: function() {
         this.table = !this.table;
+      },
+      /**
+       * Handler for the isJson property change.
+       * Sets the `table` property depending on current state saved in local storage.
+       */
+      _isJsonChanged: function(isJson) {
+        if (!isJson) {
+          return;
+        }
+        var isTable = this._localStorageValueToBoolean(localStorage.jsonTableEnabled);
+        if (this.table !== isTable) {
+          this.table = isTable;
+        }
+      },
+      // Handler to the `table` change, fires corresponding event and sets local storage.
+      _tableChanged: function(state) {
+        if (state === undefined) {
+          return;
+        }
+        if (localStorage.jsonTableEnabled !== String(state)) {
+          window.localStorage.setItem('jsonTableEnabled', state);
+        }
+        this.fire('json-table-state-changed', {
+          enabled: state
+        });
+      },
+      /**
+       * Updates the value of the `isJsonTable` property when the corresponding localStorage
+       * property change.
+       */
+      _onStorageChanged: function(e) {
+        if (e.key !== 'jsonTableEnabled') {
+          return;
+        }
+        if (!e.newValue) {
+          return;
+        }
+        var v = this._localStorageValueToBoolean(e.newValue);
+        if (this.table !== v) {
+          this.table = v;
+        }
+      },
+      /**
+       * Reads the local value (always a string) as a boolean value.
+       *
+       * @param {String} value The value read from the local storage.
+       * @return {Boolean} Boolean value read from the value.
+       */
+      _localStorageValueToBoolean: function(value) {
+        if (!value) {
+          return false;
+        }
+        if (value === 'true') {
+          value = true;
+        } else {
+          value = false;
+        }
+        return value;
+      },
+      /**
+       * Handler to the incomming `json-table-state-changed` event.
+       * Sets the `table` property if it is different.
+       */
+      _onJsonTableStateChanged: function(e) {
+        if (e.target === this) {
+          return;
+        }
+        var enabled = e.detail.enabled;
+        if (enabled !== this.table) {
+          this.table = enabled;
+        }
+      },
+      /**
+       * Computes if the table can be displayed.
+       * The `table` property can be set even if the `is-json` is not. It's because it can be set
+       * by event listener. Both arguments must be true to display the table.
+       */
+      _computeDisplayTable: function(isJson, table) {
+        return isJson && table;
       }
     });
   </script>
