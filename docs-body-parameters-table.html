@@ -76,6 +76,8 @@ Custom property | Description | Default
 `--docs-parameters-table-meta` | Mixin applied to property's metadata (example, pattern, etc) | `{}`
 `--docs-body-parameters-table-json` | Mixin applied to the JSON output | `{}`
 `--docs-body-parameters-table-type-name` | Mixin applied to the name of the type | `{}`
+`--toggle-button` | Mixin applied to toggle button | `{}`
+`--toggle-button-hover` | Mixin applied to the :hover state of toggle button | `{}`
 
 @group RAML Elements
 @element docs-parameters-table
@@ -122,6 +124,7 @@ Custom property | Description | Default
       color: var(--docs-body-parameters-table-toggle-icon-color, rgba(0, 0, 0, 0.54));
       transform: rotateZ(0deg);
       transition: color 0.25s linear, transform 0.3s linear;
+      @apply(--toggle-button);
     }
 
     .toggle-button.opened {
@@ -130,6 +133,7 @@ Custom property | Description | Default
 
     .toggle-button:hover {
       color: var(--docs-body-parameters-toggle-icon-hover-color, rgba(0, 0, 0, 0.78));
+      @apply(--toggle-button-hover);
     }
     </style>
     <prism-highlighter></prism-highlighter>
