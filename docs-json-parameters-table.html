@@ -412,7 +412,6 @@ Use `paper-tabs`, `paper-tab` and `structure-display` mixins to style this eleme
 
       if (object.items && object.items.properties && object.items.properties.length) {
         var isEmptyTable = tableContent.firstChild === null;
-        debugger;
         if (isEmptyTable) {
           tr = this.__createArrayHeaderRow(object, opts);
           var currentCopy = Object.assign({}, object);
