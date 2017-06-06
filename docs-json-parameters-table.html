@@ -242,19 +242,8 @@ Use `paper-tabs`, `paper-tab` and `structure-display` mixins to style this eleme
         return !!(object.content);
       }
       var hasType = !!(object.properties && Object.keys(object.properties).length);
-      // if (!hasType && object.examples && object.examples.length) {
-      //   return true;
-      // }
       return hasType;
     },
-
-    // _computeDisplayName: function() {
-    //   var type = this.type;
-    //   if (!type) {
-    //     return;
-    //   }
-    //   return type.displayName || type.key || type.type;
-    // },
 
     _computeDisplayJson: function(record) {
       if (!record || !record.base) {
@@ -274,11 +263,6 @@ Use `paper-tabs`, `paper-tab` and `structure-display` mixins to style this eleme
       var properties = record.base.properties;
       var isArray = false;
       var hasProperties = !!(properties && Object.keys(properties).length);
-
-      // if (!hasProperties && record.base.examples &&
-      //   record.base.examples.length) {
-      //   return record.base.examples[0];
-      // }
 
       if (!hasProperties) {
         if (record.base.type === 'array') {
@@ -344,7 +328,9 @@ Use `paper-tabs`, `paper-tab` and `structure-display` mixins to style this eleme
           if (item.items.type instanceof Array) {
             item.items.type = item.items.type[0];
           }
-          if (item.items.type === 'object') {
+          if (typeof item.items === 'string') {
+            structure = [item.items];
+          } else if (item.items.type === 'object') {
             structure = [this.__transformObject({},
               this.readProperties(item.items.properties))];
           } else {
