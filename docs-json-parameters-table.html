@@ -344,25 +344,6 @@ Use `paper-tabs`, `paper-tab` and `structure-display` mixins to style this eleme
       }
       return base;
     },
-    /**
-     * Returns object's properties or, in case of array type, item item's properties.
-     * Note that this function return `undefined` if properties array is empty.
-     *
-     * @param {Object} item Object to check for the properties.
-     * @return {Array|undefined} Array of properties or undefined if there's no properties.
-     */
-    _getSubproperties: function(item) {
-      if (!item) {
-        return;
-      }
-      if (item.type === 'array') {
-        return item.items.properties;
-      }
-      if (item.type === 'union') {
-        return item.properties.concat(item.anyOf);
-      }
-      return item.properties;
-    },
 
     _computeHTML: function(hasType) {
       if (!hasType || !this.type) {
