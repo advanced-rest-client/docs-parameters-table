@@ -1,3 +1,22 @@
+<a name="1.1.17"></a>
+## [1.1.17](https://github.com/advanced-rest-client/docs-parameters-table/compare/1.1.16...v1.1.17) (2017-06-06)
+
+
+### Fix
+
+* Fixed array type definition when array type uses primitives ([9940b34e1da537c8989b6301273aa6988803eaf1](https://github.com/advanced-rest-client/docs-parameters-table/commit/9940b34e1da537c8989b6301273aa6988803eaf1))
+
+### Fixed
+
+* Fixed array structure properties display ([48e20f24e841b8b3646a32c79a229477b6f95b94](https://github.com/advanced-rest-client/docs-parameters-table/commit/48e20f24e841b8b3646a32c79a229477b6f95b94))
+
+### Update
+
+* Removed debugger statement ([5cd31642aa0c44100c41ffb38efeba19164a70ff](https://github.com/advanced-rest-client/docs-parameters-table/commit/5cd31642aa0c44100c41ffb38efeba19164a70ff))
+* Removed unused function ([045ace68ba9e83861c8fd430c41bda5ecfe2d4a6](https://github.com/advanced-rest-client/docs-parameters-table/commit/045ace68ba9e83861c8fd430c41bda5ecfe2d4a6))
+
+
+
 <a name="1.1.16"></a>
 ## [1.1.16](https://github.com/advanced-rest-client/docs-parameters-table/compare/1.1.14...v1.1.16) (2017-04-12)
 
