@@ -157,6 +157,10 @@ Use `paper-tabs`, `paper-tab` and `structure-display` mixins to style this eleme
     </div>
   </template>
   <script>
+  (function() {
+  var ce = function(el) {
+    return document.createElement(el);
+  };
   Polymer({
     is: 'docs-json-parameters-table',
 
@@ -242,19 +246,8 @@ Use `paper-tabs`, `paper-tab` and `structure-display` mixins to style this eleme
         return !!(object.content);
       }
       var hasType = !!(object.properties && Object.keys(object.properties).length);
-      // if (!hasType && object.examples && object.examples.length) {
-      //   return true;
-      // }
       return hasType;
     },
-
-    // _computeDisplayName: function() {
-    //   var type = this.type;
-    //   if (!type) {
-    //     return;
-    //   }
-    //   return type.displayName || type.key || type.type;
-    // },
 
     _computeDisplayJson: function(record) {
       if (!record || !record.base) {
@@ -274,11 +267,6 @@ Use `paper-tabs`, `paper-tab` and `structure-display` mixins to style this eleme
       var properties = record.base.properties;
       var isArray = false;
       var hasProperties = !!(properties && Object.keys(properties).length);
-
-      // if (!hasProperties && record.base.examples &&
-      //   record.base.examples.length) {
-      //   return record.base.examples[0];
-      // }
 
       if (!hasProperties) {
         if (record.base.type === 'array') {
@@ -344,7 +332,9 @@ Use `paper-tabs`, `paper-tab` and `structure-display` mixins to style this eleme
           if (item.items.type instanceof Array) {
             item.items.type = item.items.type[0];
           }
-          if (item.items.type === 'object') {
+          if (typeof item.items === 'string') {
+            structure = [item.items];
+          } else if (item.items.type === 'object') {
             structure = [this.__transformObject({},
               this.readProperties(item.items.properties))];
           } else {
@@ -358,31 +348,12 @@ Use `paper-tabs`, `paper-tab` and `structure-display` mixins to style this eleme
       }
       return base;
     },
-    /**
-     * Returns object's properties or, in case of array type, item item's properties.
-     * Note that this function return `undefined` if properties array is empty.
-     *
-     * @param {Object} item Object to check for the properties.
-     * @return {Array|undefined} Array of properties or undefined if there's no properties.
-     */
-    _getSubproperties: function(item) {
-      if (!item) {
-        return;
-      }
-      if (item.type === 'array') {
-        return item.items.properties;
-      }
-      if (item.type === 'union') {
-        return item.properties.concat(item.anyOf);
-      }
-      return item.properties;
-    },
 
     _computeHTML: function(hasType) {
       if (!hasType || !this.type) {
         return;
       }
-      this.$$('#tableContent').innerHTML = '';
+      // this.$$('#tableContent').innerHTML = '';
       this.debounce('body-params-table-render', function() {
         this.$$('#tableContent').innerHTML = '';
         this.__computeHtml(this.type);
@@ -431,6 +402,7 @@ Use `paper-tabs`, `paper-tab` and `structure-display` mixins to style this eleme
         tableContent.appendChild(tr);
         return;
       }
+
       if (object.properties && object.properties.length) {
         for (i = 0, len = object.properties.length; i < len; i++) {
           property = object.properties[i];
@@ -439,11 +411,23 @@ Use `paper-tabs`, `paper-tab` and `structure-display` mixins to style this eleme
       }
 
       if (object.items && object.items.properties && object.items.properties.length) {
-        tr = this.__createRowForItem(object, opts);
+        var isEmptyTable = tableContent.firstChild === null;
+        debugger;
+        if (isEmptyTable) {
+          tr = this.__createArrayHeaderRow(object, opts);
+          var currentCopy = Object.assign({}, object);
+          currentCopy.displayName = 'item';
+          options = Object.assign({}, opts, {
+            parent: currentCopy
+          });
+        } else {
+          tr = this.__createRowForItem(object, opts);
+          options = Object.assign({}, opts, {
+            parent: object
+          });
+        }
         tableContent.appendChild(tr);
-        options = Object.assign({}, opts, {
-          parent: object
-        });
+
         for (i = 0, len = object.items.properties.length; i < len; i++) {
           property = object.items.properties[i];
           this.__handleHtmlDocProperty(property, options);
@@ -511,9 +495,7 @@ Use `paper-tabs`, `paper-tab` and `structure-display` mixins to style this eleme
       if (typeof item === 'string') {
         return;
       }
-      var ce = function(el) {
-        return document.createElement(el);
-      };
+
       var tr = ce('tr');
       var td1 = ce('td');
       var td2 = ce('td');
@@ -560,8 +542,10 @@ Use `paper-tabs`, `paper-tab` and `structure-display` mixins to style this eleme
 
       if (item.type === 'array') {
         var name = '';
-        if (!item.items.properties || !item.items.displayName) {
-          name += 'Array[' + item.items.type + ']';
+        if (typeof item.items === 'string') {
+          name += 'Array[' + item.items + ']';
+        } else if (!item.items.properties || !item.items.displayName) {
+          name += 'Array[' + (item.items.type || 'any') + ']';
         } else {
           name += item.items.displayName + '[' + item.items.type + ']';
         }
@@ -621,13 +605,35 @@ Use `paper-tabs`, `paper-tab` and `structure-display` mixins to style this eleme
       return tr;
     },
 
+    __createArrayHeaderRow: function(item, opts) {
+      var tr = ce('tr');
+      var td = ce('td');
+
+      var clsPrefix = 'style-scope docs-json-parameters-table';
+      tr.className = clsPrefix;
+      td.className = clsPrefix + ' param-type';
+
+      var type;
+      if (typeof item.items === 'string') {
+        type = item.items;
+      } else if (item.items.type) {
+        type = item.items.type;
+      } else {
+        type = 'any';
+      }
+      var message = 'Array of ';
+      message += type || 'any';
+      message += ' items';
+      td.textContent = message;
+      td.colSpan = 3;
+      tr.appendChild(td);
+      return tr;
+    },
+
     __createRowForUnion: function(no) {
       if (!no) {
         return console.warn('Trying to invoke row for union but number is not set');
       }
-      var ce = function(el) {
-        return document.createElement(el);
-      };
       var tr = ce('tr');
       var td1 = ce('td');
       var td2 = ce('td');
@@ -658,10 +664,10 @@ Use `paper-tabs`, `paper-tab` and `structure-display` mixins to style this eleme
     },
 
     __createCellProperty: function(name, label, value) {
-      var container = document.createElement('div');
+      var container = ce('div');
       container.className = 'style-scope docs-json-parameters-table ' + name;
-      var display = document.createElement('span');
-      var valueNode = document.createElement('span');
+      var display = ce('span');
+      var valueNode = ce('span');
       display.className = 'style-scope docs-json-parameters-table display';
       valueNode.className = 'style-scope docs-json-parameters-table value';
       display.textContent = label;
@@ -750,7 +756,7 @@ Use `paper-tabs`, `paper-tab` and `structure-display` mixins to style this eleme
       }
       return !hasType;
     }
-
   });
+  })();
   </script>
 </dom-module>
