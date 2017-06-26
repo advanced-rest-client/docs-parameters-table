@@ -36,12 +36,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   </head>
   <body unresolved>
     <template is="dom-bind" id="app">
-      <raml-demo-page selected-object="{{selected}}" is-method="{{isMethod}}">
+      <raml-demo-page selected-object="{{selected}}" is-method="{{isMethod}}" narrow="{{narrow}}">
         <paper-item data-url$="[[testRaml]]">Test case</paper-item>
-        <h1>The docs-body-parameters-table element</h1>
+        <h1>The docs-headers-table element</h1>
         <div main>
           <template is="dom-if" if="[[isMethod]]" restamp="true">
-            <docs-headers-table auto-hide has-headers="{{hasHeaders}}" headers="[[selected.headers]]"></docs-headers-table>
+            <docs-headers-table auto-hide has-headers="{{hasHeaders}}" headers="[[selected.headers]]" narrow="[[narrow]]"></docs-headers-table>
             <p hidden$="[[hasHeaders]]">Selected method does not have the <b>headers</b> property.</p>
           </template>
           <p hidden$="[[isMethod]]">Select a method</p>
