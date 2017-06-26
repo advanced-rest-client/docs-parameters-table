@@ -73,7 +73,6 @@ Custom property | Description | Default
   <template>
     <style include="markdown-styles"></style>
     <style include="docs-parameters-table-shared-styles"></style>
-
     <table class="params-table">
       <thead class="params-table-header">
         <tr>
@@ -243,11 +242,6 @@ Custom property | Description | Default
       displayQueryParameters: {
         type: Array,
         computed: '_computeProperty(queryParameters)'
-      },
-      // If true then the narrow layout is applied.
-      narrow: {
-        type: Boolean,
-        reflectToAttribute: true
       }
     },
 

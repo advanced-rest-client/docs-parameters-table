@@ -54,6 +54,11 @@ the License.
         notify: true,
         computed: '_computeHasExamples(examples.*)'
       },
+      // If true then the narrow layout is applied.
+      narrow: {
+        type: Boolean,
+        reflectToAttribute: true
+      }
     },
     /**
      * Check if passed object is not empty.
