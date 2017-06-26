@@ -14,7 +14,7 @@ the License.
 <link rel="import" href="../polymer/polymer.html">
 <link rel="import" href="../arc-polyfills/arc-polyfills.html">
 <script>
-
+(function() {
   window.RamlBehaviors = window.RamlBehaviors || {};
   /**
    * Use `RamlBehaviors.DocsParametersBehavior` to implement a custom element
@@ -121,6 +121,9 @@ the License.
       if (!enumValue || !enumValue.length) {
         return '';
       }
+      if (typeof enumValue === 'string') {
+        return enumValue;
+      }
       enumValue = enumValue.map(function(item) {
         if (typeof item === 'string') {
           if (item === '') {
@@ -168,6 +171,42 @@ the License.
         return false;
       }
       return !!object.length;
+    },
+    // Checks if the item has a maximum or max property.
+    _hasMaximum: function(item) {
+      return !!(item && (item.max || item.maximum));
+    },
+    // returns item's maximum or max property.
+    _getMaximum: function(item) {
+      return item && (item.max || item.maximum);
+    },
+    // Checks if the item has a maximum or max property.
+    _hasMinimum: function(item) {
+      return !!(item && (item.min || item.minimum));
+    },
+    // returns item's maximum or max property.
+    _getMinimum: function(item) {
+      return item && (item.min || item.minimum);
+    },
+    // Checks if the item has a maximum or max property.
+    _hasExamples: function(item) {
+      return !!(item && item.examples && item.examples.length);
+    },
+    // returns item's maximum or max property.
+    _getExamples: function(item) {
+      if (!this._hasExamples(item)) {
+        return;
+      }
+      return item.examples.map(function(item) {
+        if (typeof item === 'string') {
+          return item;
+        }
+        return item.value;
+      }).join('\n');
+    },
+    // Returns true if `displayName` is set and it's different that `name`
+    _hasDisplayName: function(item) {
+      return !!(item && item.displayName && item.displayName !== item.name);
     }
   };
 })();

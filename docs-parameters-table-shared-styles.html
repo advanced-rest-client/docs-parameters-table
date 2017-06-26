@@ -30,6 +30,9 @@ Custom property | Description | Default
 `--params-table-row-color` | Font color of table's each row |  `#fff`
 `--docs-parameters-table-cell` | Mixin applied to each cell | `{}`
 `--docs-parameters-table-meta` | Mixin applied to property's metadata (example, pattern, etc) | `{}`
+`--params-table-meta-color` | Color of the meta data property | `rgba(0, 0, 0, 0.64)`
+`--params-table-meta-value-font-weight` | Metadata property value font weight | `500`
+`--params-table-meta-required-color` | Color of the "required" and "enum" property label | `rgba(0, 0, 0, 0.64)`
 
 -->
 <dom-module id="docs-parameters-table-shared-styles">
@@ -114,10 +117,20 @@ Custom property | Description | Default
     .param-desc .example,
     .param-desc .enum,
     .param-desc .min,
-    .param-desc .max {
-      color: rgba(0, 0, 0, 0.54);
-      margin: 8px 0;
+    .param-desc .max,
+    .param-desc .default  {
+      color: var(--params-table-meta-color, rgba(0, 0, 0, 0.64));
+      margin: 0px 0 12px 20px;
       @apply(--docs-parameters-table-meta);
+    }
+
+    .param-desc .pattern span,
+    .param-desc .example span,
+    .param-desc .enum span,
+    .param-desc .min span,
+    .param-desc .max span,
+    .param-desc .default span  {
+      font-weight: var(--params-table-meta-value-font-weight, 500);
     }
 
     .display ~ .value {
@@ -168,6 +181,23 @@ Custom property | Description | Default
       padding: 12px;
       margin: 0;
       font-size: 16px;
+    }
+
+    .property-display-name {
+      margin: 0 0 8px 0;
+      padding: 0;
+      font-weight: 500;
+    }
+
+    .required-label,
+    .enum-label {
+      display: block;
+      font-weight: 400;
+      color: var(--params-table-meta-required-color, rgba(0, 0, 0, 0.64));
+    }
+
+    marked-element {
+      margin-bottom: 20px;
     }
     </style>
   </template>

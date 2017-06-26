@@ -12,11 +12,11 @@ License for the specific language governing permissions and limitations under
 the License.
 -->
 <link rel="import" href="../polymer/polymer.html">
-<link rel="import" href="docs-parameters-behavior.html">
-<link rel="import" href="docs-parameters-table-shared-styles.html">
 <link rel="import" href="../marked-element/marked-element.html">
 <link rel="import" href="../prism-element/prism-theme-default.html">
 <link rel="import" href="../markdown-styles/markdown-styles.html">
+<link rel="import" href="docs-parameters-behavior.html">
+<link rel="import" href="docs-parameters-table-shared-styles.html">
 <!--
 `<docs-parameters-table>` A parameters list and description table for the RAML documentation view
 
@@ -73,6 +73,7 @@ Custom property | Description | Default
   <template>
     <style include="markdown-styles"></style>
     <style include="docs-parameters-table-shared-styles"></style>
+
     <table class="params-table">
       <thead class="params-table-header">
         <tr>
@@ -89,19 +90,45 @@ Custom property | Description | Default
           </tr>
           <template is="dom-repeat" items="[[displayUriParameters]]">
             <tr>
-              <td class="param-name">[[item.name]]<span hidden$="[[!item.required]]">*</span></td>
-              <td class="param-type">[[item.type]]</td>
+              <td class="param-name">
+                <span>[[item.name]]</span>
+                <template is="dom-if" if="[[item.required]]">
+                  <span class="required-label">(required)</span>
+                </template>
+              </td>
+              <td class="param-type">
+                <span>[[item.type]]</span>
+                <template is="dom-if" if="[[hasValue(item.enum)]]">
+                  <span class="enum-label">(enum)</span>
+                </template>
+              </td>
               <td class="param-desc">
-                <div hidden$="[[!hasValue(item.description)]]">
+                <template is="dom-if" if="[[_hasDisplayName(item)]]">
+                  <p class="property-display-name">[[item.displayName]]</p>
+                </template>
+                <template is="dom-if" if="[[item.description]]">
                   <marked-element markdown="[[item.description]]">
                     <div class="markdown-html markdown-body"></div>
                   </marked-element>
-                </div>
-                <div hidden$="[[!hasValue(item.pattern)]]" class="pattern">Validation pattern: <span>[[item.pattern]]</span></div>
-                <div hidden$="[[!hasValue(item.example)]]" class="example">Example value: <span>[[item.example]]</span></div>
-                <div hidden$="[[!hasValue(item.min)]]" class="example">Minimum value: <span>[[item.min]]</span></div>
-                <div hidden$="[[!hasValue(item.max)]]" class="example">Maximum value: <span>[[item.max]]</span></div>
-                <div hidden$="[[!hasValue(item.enum)]]" class="example">Possible values: <span>[[_computeEnumValue(item.enum)]]</span></div>
+                </template>
+                <template is="dom-if" if="[[item.default]]">
+                  <div class="meta-property default">Default value: <span>[[item.default]]</span></div>
+                </template>
+                <template is="dom-if" if="[[_hasExamples(item)]]">
+                  <div class="meta-property example">Example value: <span>[[_getExamples(item)]]</span></div>
+                </template>
+                <template is="dom-if" if="[[item.pattern]]">
+                  <div class="meta-property pattern">Validation pattern: <span>[[item.pattern]]</span></div>
+                </template>
+                <template is="dom-if" if="[[_hasMinimum(item)]]">
+                  <div class="meta-property min">Minimum value: <span>[[_getMinimum(item)]]</span></div>
+                </template>
+                <template is="dom-if" if="[[_hasMaximum(item)]]">
+                  <div class="meta-property max">Maximum value: <span>[[_getMaximum(item)]]</span></div>
+                </template>
+                <template is="dom-if" if="[[hasValue(item.enum)]]">
+                  <div class="meta-property example">Possible values: <span>[[_computeEnumValue(item.enum)]]</span></div>
+                </template>
               </td>
             </tr>
           </template>
@@ -112,20 +139,51 @@ Custom property | Description | Default
           </tr>
           <template is="dom-repeat" items="[[displayQueryParameters]]">
             <tr class="query-param">
-              <td class="param-name">[[item.name]]<span hidden$="[[!item.required]]">*</span></td>
-              <td class="param-type">[[item.type]]</td>
+              <td class="param-name">
+                <span>[[item.name]]</span>
+                <template is="dom-if" if="[[item.required]]">
+                  <span class="required-label">(required)</span>
+                </template>
+              </td>
+              <td class="param-type">
+                <span>[[item.type]]</span>
+                <template is="dom-if" if="[[hasValue(item.enum)]]">
+                  <span class="enum-label">(enum)</span>
+                </template>
+              </td>
               <td class="param-desc">
-                <div hidden$="[[!hasValue(item.description)]]" data-property-doc-markdown$="[[index]]">
-                  <div hidden$="[[!hasValue(item.description)]]">
-                    <marked-element markdown="[[item.description]]">
-                      <div class="markdown-html markdown-body"></div>
-                    </marked-element>
-                  </div>
-                </div>
-                <div hidden$="[[!hasValue(item.pattern)]]" class="pattern">Validation pattern: <span>[[item.pattern]]</span></div>
-                <div hidden$="[[!hasValue(item.example)]]" class="example">Example value: <span>[[item.example]]</span></div>
-                <div hidden$="[[!hasValue(item.min)]]" class="example">Minimum value: <span>[[item.min]]</span></div>
-                <div hidden$="[[!hasValue(item.max)]]" class="example">Maximum value: <span>[[item.max]]</span></div>
+                <template is="dom-if" if="[[_hasDisplayName(item)]]">
+                  <p class="property-display-name">[[item.displayName]]</p>
+                </template>
+                <template is="dom-if" if="[[item.description]]">
+                  <marked-element markdown="[[item.description]]">
+                    <div class="markdown-html markdown-body"></div>
+                  </marked-element>
+                </template>
+                <template is="dom-if" if="[[item.default]]">
+                  <div class="default">Default value: <span>[[item.default]]</span></div>
+                </template>
+                <template is="dom-if" if="[[_hasExamples(item)]]">
+                  <div class="example">Example value: <span>[[_getExamples(item)]]</span></div>
+                </template>
+                <template is="dom-if" if="[[item.pattern]]">
+                  <div class="pattern">Validation pattern: <span>[[item.pattern]]</span></div>
+                </template>
+                <template is="dom-if" if="[[_hasMinimum(item)]]">
+                  <div class="min">Minimum value: <span>[[_getMinimum(item)]]</span></div>
+                </template>
+                <template is="dom-if" if="[[_hasMaximum(item)]]">
+                  <div class="max">Maximum value: <span>[[_getMaximum(item)]]</span></div>
+                </template>
+                <template is="dom-if" if="[[item.minLength]]">
+                  <div class="min">Minimum length: <span>[[item.minLength]]</span></div>
+                </template>
+                <template is="dom-if" if="[[item.maxLength]]">
+                  <div class="max">Maximum length: <span>[[item.maxLength]]</span></div>
+                </template>
+                <template is="dom-if" if="[[hasValue(item.enum)]]">
+                  <div class="example">Possible values: <span>[[_computeEnumValue(item.enum)]]</span></div>
+                </template>
               </td>
             </tr>
           </template>
@@ -179,12 +237,12 @@ Custom property | Description | Default
       // Computed uriParameters array
       displayUriParameters: {
         type: Array,
-        computed: '_computeProperty(uriParameters.*)'
+        computed: '_computeProperty(uriParameters)'
       },
       // Computed uriParameters array
       displayQueryParameters: {
         type: Array,
-        computed: '_computeProperty(queryParameters.*)'
+        computed: '_computeProperty(queryParameters)'
       },
       // If true then the narrow layout is applied.
       narrow: {
@@ -209,31 +267,15 @@ Custom property | Description | Default
       if (!autoHide) {
         return;
       }
-      if (hasQueryParameteres || hasUriParameteres) {
-        this.removeAttribute('hidden');
-      } else {
-        this.setAttribute('hidden', true);
-      }
+      var state = !(hasQueryParameteres || hasUriParameteres);
+      this.toggleAttribute('hidden', state);
     },
 
-    _computeProperty: function(record) {
-      if (record.path in this) {
-        return this.readProperties(this[record.path]);
+    _computeProperty: function(value) {
+      if (!value) {
+        return value;
       }
-      return [];
-    },
-
-    _computeEnumValue: function(enumValue) {
-      if (!enumValue || !enumValue.length) {
-        return '';
-      }
-      enumValue = enumValue.map(function(item) {
-        if (typeof item === 'string') {
-          return item;
-        }
-        return item.displayName || item.name || item.key;
-      });
-      return enumValue.join(', ');
+      return this.readProperties(value);
     },
 
     // Computes if any of arguments is trully
