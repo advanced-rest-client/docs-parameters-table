@@ -12,6 +12,20 @@ baseUriParameters:
     type: integer
     default: 80
 
+annotationTypes:
+  annotationTest: nil
+  deprecated: string
+  clearanceLevel:
+    properties:
+      level:
+        enum: [ low, medium, high ]
+        required: true
+      signature:
+        pattern: "\\d{3}-\\w{12}"
+        required: true
+      id:
+        type: integer
+        description: Id of the supervisor
 /test:
   get:
     queryParameters:
@@ -21,6 +35,8 @@ baseUriParameters:
         required:    true
         example:     1
       per_page:
+        (deprecated): |
+          This value will be replaced with `pageLimit` query parameter
         description: Specify the amount of items that will be retrieved per page
         type:        integer
         minimum:     10
@@ -29,7 +45,7 @@ baseUriParameters:
         example:     50
         displayName: Per page
       type:
-        description: Specify the amount of items that will be retrieved per page
+        description: Specify the type of the item.
         type:        string
         enum:       [type 1, type 2, type 3]
         required: false
@@ -38,7 +54,11 @@ baseUriParameters:
         maxLength: 6
         default:     type 1
         example:     type 2
-        displayName: Per page
+        displayName: Type
+        (clearanceLevel):
+          level: high
+          signature: 230-ghtwvfrs1itr
+          id: 123
       other:
         type: boolean
         default: true

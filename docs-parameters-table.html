@@ -17,6 +17,7 @@ the License.
 <link rel="import" href="../markdown-styles/markdown-styles.html">
 <link rel="import" href="docs-parameters-behavior.html">
 <link rel="import" href="docs-parameters-table-shared-styles.html">
+<link rel="import" href="annotations-display.html">
 <!--
 `<docs-parameters-table>` A parameters list and description table for the RAML documentation view
 
@@ -128,6 +129,9 @@ Custom property | Description | Default
                 <template is="dom-if" if="[[hasValue(item.enum)]]">
                   <div class="meta-property example">Possible values: <span>[[_computeEnumValue(item.enum)]]</span></div>
                 </template>
+                <template is="dom-if" if="[[hasValue(item.annotations)]]">
+                  <annotations-display annotations="[[item.annotations]]"></annotations-display>
+                </template>
               </td>
             </tr>
           </template>
@@ -182,6 +186,9 @@ Custom property | Description | Default
                 </template>
                 <template is="dom-if" if="[[hasValue(item.enum)]]">
                   <div class="example">Possible values: <span>[[_computeEnumValue(item.enum)]]</span></div>
+                </template>
+                <template is="dom-if" if="[[hasValue(item.annotations)]]">
+                  <annotations-display annotations="[[item.annotations]]"></annotations-display>
                 </template>
               </td>
             </tr>
