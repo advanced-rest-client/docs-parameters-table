@@ -35,7 +35,8 @@
     "arc-icons": "advanced-rest-client/arc-icons#^1.0.18",
     "iron-media-query": "PolymerElements/iron-media-query#^1.0.8",
     "clipboard-copy": "advanced-rest-client/clipboard-copy#^0.1.1",
-    "json-table": "advanced-rest-client/json-table#^0.1.7"
+    "json-table": "advanced-rest-client/json-table#^0.1.7",
+    "arc-polyfills": "advanced-rest-client/arc-polyfills#^0.1.8"
   },
   "devDependencies": {
     "iron-component-page": "polymerelements/iron-component-page#1.0.0",
