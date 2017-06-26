@@ -110,7 +110,7 @@ the License.
       if (obj instanceof Array) {
         return obj;
       }
-      var names = Object.getOwnPropertyNames(obj);
+      var names = Object.keys(obj);
       if (!names) {
         return [];
       }
@@ -174,18 +174,37 @@ the License.
     },
     // Checks if the item has a maximum or max property.
     _hasMaximum: function(item) {
-      return !!(item && (item.max || item.maximum));
+      return !!(item && (item.max || item.maximum || item.max === 0 ||
+        item.maximum === 0));
     },
     // returns item's maximum or max property.
     _getMaximum: function(item) {
-      return item && (item.max || item.maximum);
+      if (!item) {
+        return;
+      }
+      if (!!item.max || item.max === 0) {
+        return item.max;
+      }
+      if (!!item.maximum || item.maximum === 0) {
+        return item.maximum;
+      }
     },
     // Checks if the item has a maximum or max property.
     _hasMinimum: function(item) {
-      return !!(item && (item.min || item.minimum));
+      return !!(item && (item.min || item.minimum || item.min === 0 ||
+        item.minimum === 0));
     },
     // returns item's maximum or max property.
     _getMinimum: function(item) {
+      if (!item) {
+        return;
+      }
+      if (!!item.min || item.min === 0) {
+        return item.min;
+      }
+      if (!!item.minimum || item.minimum === 0) {
+        return item.minimum;
+      }
       return item && (item.min || item.minimum);
     },
     // Checks if the item has a maximum or max property.
