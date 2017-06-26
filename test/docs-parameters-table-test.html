@@ -1,0 +1,150 @@
+<!doctype html>
+<!--
+@license
+Copyright (c) 2015 The Polymer Project Authors. All rights reserved.
+This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
+The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
+The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
+Code distributed by Google as part of the polymer project is also
+subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
+-->
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes">
+
+    <script src="../../webcomponentsjs/webcomponents-lite.js"></script>
+    <script src="../../web-component-tester/browser.js"></script>
+    <script src="../../iron-test-helpers/test-helpers.js"></script>
+    <script src="../../iron-test-helpers/mock-interactions.js"></script>
+    <link rel="import" href="../../raml-js-parser/raml-js-parser.html">
+    <link rel="import" href="../../raml-json-enhance/raml-json-enhance.html">
+    <link rel="import" href="../docs-parameters-table.html">
+  </head>
+  <body>
+
+    <test-fixture id="basic">
+      <template>
+        <docs-parameters-table></docs-parameters-table>
+      </template>
+    </test-fixture>
+
+    <test-fixture id="parser">
+      <template>
+        <raml-js-parser json></raml-js-parser>
+      </template>
+    </test-fixture>
+
+    <test-fixture id="enhancer">
+      <template>
+        <raml-json-enhance></raml-json-enhance>
+      </template>
+    </test-fixture>
+
+    <script>
+
+
+    /* global fixture, assert, TestHelpers */
+    suite('basic', function() {
+      var raml;
+      var element;
+      suiteSetup(function(done) {
+        this.timeout(120000);
+        var baseUrl = location.href.substr(0, location.href.lastIndexOf('/') + 1);
+        var parser = fixture('parser');
+        var enhancer = fixture('enhancer');
+        enhancer.addEventListener('raml-json-enhance-ready', function(e) {
+          raml = e.detail.json;
+          done();
+        });
+        parser.loadApi(baseUrl + 'docs-parameters-table.raml')
+        .then(function(data) {
+          enhancer.json = data.json.specification;
+        })
+        .catch(function(e) {
+          done(new Error('Parser error: ' + (e.message || 'Some error happened...')));
+        });
+      });
+
+      setup(function() {
+        element = fixture('basic');
+        element.queryParameters = raml.resources[0].methods[0].queryParameters;
+        element.uriParameters = raml.resources[0].methods[0].allUriParameters;
+        TestHelpers.forceXIfStamp(element);
+      });
+
+      test('Computes hasUriParameteres', function() {
+        assert.isTrue(element.hasUriParameteres);
+      });
+
+      test('Computes hasQueryParameteres', function() {
+        assert.isTrue(element.hasQueryParameteres);
+      });
+
+      test('Computes hasParameters', function() {
+        assert.isTrue(element.hasParameters);
+      });
+
+      test('Computes displayUriParameters', function() {
+        assert.typeOf(element.displayUriParameters, 'array');
+      });
+
+      test('Computes displayQueryParameters', function() {
+        assert.typeOf(element.displayQueryParameters, 'array');
+      });
+
+      test('The displayUriParameters has proper structure', function() {
+        var item = element.displayUriParameters[0];
+        var compare = {
+          displayName: 'Domain name / ip address',
+          type: 'string',
+          default: 'localhost',
+          name: 'host',
+          key: 'host',
+          required: true
+        };
+        assert.deepEqual(item, compare);
+      });
+
+      test('The displayQueryParameters has proper structure', function() {
+        var item = element.displayQueryParameters[2];
+        var compare = {
+          description: 'Specify the amount of items that will be retrieved per page',
+          type: 'string',
+          enum: ['type 1', 'type 2', 'type 3'],
+          required: false,
+          pattern: 'type\\s\\d',
+          minLength: 5,
+          maxLength: 6,
+          default: 'type 1',
+          examples: ['type 2'],
+          displayName: 'Per page',
+          key: 'type',
+          name: 'type'
+        };
+        assert.deepEqual(item, compare);
+      });
+
+      test('Should render uri parameteres', function() {
+        var header = Polymer.dom(element.root).querySelector('.params-table-header.path');
+        assert.isOk(header);
+      });
+
+      test('Should render query parameteres', function() {
+        var header = Polymer.dom(element.root).querySelector('.params-table-header.query');
+        assert.isOk(header);
+      });
+
+      test('Computes hasParameters without queryParameters', function() {
+        element.queryParameters = undefined;
+        assert.isTrue(element.hasParameters);
+      });
+
+      test('Computes hasParameters without uriParameters', function() {
+        element.uriParameters = undefined;
+        assert.isTrue(element.hasParameters);
+      });
+    });
+    </script>
+  </body>
+</html>
