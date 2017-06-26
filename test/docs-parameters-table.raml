@@ -1,0 +1,49 @@
+#%RAML 1.0
+title: Example API
+version: v1
+baseUri: https://{host}:{port}
+baseUriParameters:
+  host:
+    displayName: Domain name / ip address
+    type: string
+    default: localhost
+  port:
+    displayName: Port
+    type: integer
+    default: 80
+
+/test:
+  get:
+    queryParameters:
+      page:
+        description: Specify the page that you want to retrieve
+        type:        integer
+        required:    true
+        example:     1
+      per_page:
+        description: Specify the amount of items that will be retrieved per page
+        type:        integer
+        minimum:     10
+        maximum:     200
+        default:     30
+        example:     50
+        displayName: Per page
+      type:
+        description: Specify the amount of items that will be retrieved per page
+        type:        string
+        enum:       [type 1, type 2, type 3]
+        required: false
+        pattern: type\s\d
+        minLength: 5
+        maxLength: 6
+        default:     type 1
+        example:     type 2
+        displayName: Per page
+      other:
+        type: boolean
+        default: true
+        example: false
+        description: Either `true` or `fals`. You choose.
+      aDate:
+        displayName: A date
+        type: date-only

@@ -39,8 +39,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     </style>
   </head>
   <body unresolved>
-    <template is="dom-bind">
+    <template is="dom-bind" id="app">
       <raml-demo-page selected-object="{{selected}}" is-method="{{isMethod}}">
+        <paper-item data-url$="[[testRaml]]">Test case</paper-item>
         <h1>The docs-parameters-table element</h1>
         <div main>
           <template is="dom-if" if="[[isMethod]]" restamp="true">
@@ -50,6 +51,16 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           <p hidden$="[[isMethod]]">Select a method</p>
         </div>
       </raml-demo-page>
+      <script>
+      (function(scope) {
+        var path = location.pathname;
+        if (~path.indexOf('.html')) {
+          path = path.substr(0, path.lastIndexOf('/') + 1);
+        }
+        scope.testRaml = location.protocol + '//' + location.host +
+          path.replace('demo', 'test') + 'docs-parameters-table.raml';
+      })(document.getElementById('app'));
+      </script>
     </template>
   </body>
 </html>
