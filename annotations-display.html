@@ -1,0 +1,171 @@
+<!--
+@license
+Copyright 2016 The Advanced REST client authors
+Licensed under the Apache License, Version 2.0 (the "License"); you may not
+use this file except in compliance with the License. You may obtain a copy of
+the License at
+http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+License for the specific language governing permissions and limitations under
+the License.
+-->
+<link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="../marked-element/marked-element.html">
+<link rel="import" href="../prism-element/prism-theme-default.html">
+<link rel="import" href="../markdown-styles/markdown-styles.html">
+<link rel="import" href="../arc-polyfills/arc-polyfills.html">
+<link rel="import" href="../iron-flex-layout/iron-flex-layout.html">
+<!--
+
+### Styling
+The `<annotations-display>` element display list of annotations added to a
+property.
+
+It creates its own model out of RAML definition.
+
+Currently this element support annotations that it's values are either string,
+nil
+
+Custom property | Description | Default
+----------------|-------------|----------
+
+@group RAML Elements
+@element annotations-display
+-->
+<dom-module id="annotations-display">
+  <template>
+    <style include="markdown-styles"></style>
+    <style>
+    :host {
+      font-family: inherit;
+      font-size: inherit;
+      color: inherit;
+      display: block;
+      @apply(--annotations-display);
+    }
+
+    .annotation {
+      @apply(--layout-horizontal);
+    }
+
+    .annotation-name {
+      margin-right: 8px;
+      @apply(--annotations-display-name);
+    }
+
+    ul {
+      margin: 0;
+      padding-left: 24px;
+      @apply(--annotations-display-list);
+    }
+
+    li > .value-name {
+      margin-right: 8px;
+      @apply(--annotations-display-list-name);
+    }
+
+    li > .value-content {
+      font-weight: var(--annotations-display-list-value-font-weight, 500);
+      @apply(--annotations-display-list-value);
+    }
+    </style>
+    <template is="dom-repeat" items="[[_model]]">
+      <div class="annotation">
+        <div class="annotation-name">[[item.name]]<template is="dom-if" if="[[!item.isNil]]">:</template></div>
+        <div class="annotation-value">
+          <template is="dom-if" if="[[item.isString]]">
+            <marked-element markdown="[[item.structuredValue]]">
+              <div class="markdown-html markdown-body"></div>
+            </marked-element>
+          </template>
+          <template is="dom-if" if="[[item.isArray]]">
+            <ul class="array">
+              <template is="dom-repeat" items="[[item.structuredValue]]">
+                <li><span class="value-name">[[item.name]]</span><span class="value-content">[[item.value]]</span></li>
+              </template>
+            </ul>
+          </template>
+        </div>
+      </div>
+    </template>
+  </template>
+  <script>
+  Polymer({
+    is: 'annotations-display',
+
+    properties: {
+      /**
+       * The annotation property.
+       */
+      annotations: Array,
+      // Model generated for the annotations.
+      _model: {
+        type: Array,
+        computed: '_computeModel(annotations.*)'
+      },
+      /**
+       * True if `annotations` are set and valid. The value is computed
+       * from generated model and not the `annotations`.
+       */
+      hasAnnotations: {
+        type: Boolean,
+        computed: '_computeHasAnnotations(_model.*)',
+        value: false
+      },
+    },
+
+    _computeHasAnnotations: function(record) {
+      return !!(record && record.base && record.base.length);
+    },
+
+    _computeModel: function(record) {
+      if (!this._computeHasAnnotations(record)) {
+        return;
+      }
+      var result = record.base.map(function(item) {
+        item = Object.assign({}, item);
+        delete item.key;
+        var structureType = typeof item.structuredValue;
+        item.isString = !['string', 'number', 'boolean'].indexOf(structureType);
+        item.isNil = item.structuredValue === null || item.structuredValue === undefined;
+        if (!item.isString && !item.isNil) {
+          try {
+            var keys = Object.keys(item.structuredValue);
+            if (keys.length) {
+              var list = [];
+              for (var i = 0, len = keys.length; i < len; i++) {
+                var key = keys[i];
+                var value = item.structuredValue[keys[i]];
+                var _typeof = typeof value;
+                if (!~['string', 'number', 'boolean'].indexOf(_typeof)) {
+                  continue;
+                }
+                list.push({
+                  name: key,
+                  value: value
+                });
+              }
+              item.isArray = true;
+              item.structuredValue = list;
+            } else {
+              // Not supported annotation.
+              return;
+            }
+          } catch (e) {
+            console.info('Issue with annotations computations.', e);
+          }
+        }
+        if (!item.isArray) {
+          item.isArray = false;
+        }
+        return item;
+      });
+      return result.filter(function(item) {
+        return !!item;
+      });
+    }
+  });
+  </script>
+</dom-module>
