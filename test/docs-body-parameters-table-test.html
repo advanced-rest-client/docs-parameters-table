@@ -78,8 +78,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         assert.typeOf(element.bodyTypes, 'array');
       });
 
-      test('The bodyTypes has two elements', function() {
-        var compare = ['application/json', 'application/xml'];
+      test('The bodyTypes has 3 elements', function() {
+        var compare = ['application/json', 'application/xml', 'application/x-www-form-urlencoded'];
         assert.deepEqual(element.bodyTypes, compare);
       });
 
