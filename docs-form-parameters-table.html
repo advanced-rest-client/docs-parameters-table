@@ -60,31 +60,31 @@ Custom property | Description | Default
     }
     </style>
     <template is="dom-if" if="[[hasParams]]">
-      <table class="params-table">
-        <thead class="params-table-header">
-          <tr>
-            <th>Parameter</th>
-            <th>Type</th>
-            <th>Description</th>
-          </tr>
-        </thead>
+      <div class="params-table">
+        <div class="thead params-table-header">
+          <section class="tr">
+            <span class="th">Parameter</span>
+            <span class="th">Type</span>
+            <span class="th">Description</span>
+          </section>
+        </div>
         <h5 class="narrow-title">Properties</h5>
-        <tbody>
+        <div class="tbody">
           <template is="dom-repeat" items="[[readProperties(type.formParameters)]]">
-            <tr>
-              <td class="param-name">
+            <section class="tr">
+              <div class="td param-name">
                 <span class="name">[[item.name]]</span>
                 <template is="dom-if" if="[[item.required]]">
                   <span class="required-label">(required)</span>
                 </template>
-              </td>
-              <td class="param-type">
+              </div>
+              <div class="td param-type">
                 <span class="type">[[item.type]]</span>
                 <template is="dom-if" if="[[hasValue(item.enum)]]">
                   <span class="enum-label">(enum)</span>
                 </template>
-              </td>
-              <td class="param-desc">
+              </div>
+              <div class="td param-desc">
                 <template is="dom-if" if="[[_hasDisplayName(item)]]">
                   <p class="property-display-name">[[item.displayName]]</p>
                 </template>
@@ -114,11 +114,11 @@ Custom property | Description | Default
                 <template is="dom-if" if="[[hasValue(item.annotations)]]">
                   <annotations-display annotations="[[item.annotations]]"></annotations-display>
                 </template>
-              </td>
-            </tr>
+              </div>
+            </section>
           </template>
-        </tbody>
-      </table>
+        </div>
+      </div>
     </template>
   </template>
   <script>

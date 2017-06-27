@@ -70,34 +70,42 @@ Custom property | Description | Default
     paper-listbox paper-item {
       cursor: pointer;
     }
+
+    .params-table {
+      display: table;
+    }
+
+    .tr {
+      display: table-row;
+    }
     </style>
     <iron-collapse opened="[[structureDisplayOpened]]">
       <docs-json-structure-view type="[[type]]" has-type="[[hasType]]" is-schema="[[isSchema]]"></docs-json-structure-view>
     </iron-collapse>
 
     <template is="dom-if" if="[[renderTable]]">
-      <table class="params-table">
-        <thead class="params-table-header">
-          <tr>
-            <th>Parameter</th>
-            <th>Type</th>
-            <th>Description</th>
-          </tr>
-        </thead>
+      <div class="params-table">
+        <div class="thead params-table-header">
+          <section class="tr">
+            <span class="th">Parameter</span>
+            <span class="th">Type</span>
+            <span class="th">Description</span>
+          </section>
+        </div>
         <h5 class="narrow-title">Properties</h5>
-        <tbody>
+        <div class="tbody">
           <template is="dom-repeat" items="[[model]]">
             <template is="dom-if" if="[[item.isArrayHeader]]">
-              <tr>
-                <td class="param-type" colspan="3">
+              <section class="tr">
+                <div class="td param-type" colspan="3">
                   Array of [[item.type]] items
-                </td>
-              </tr>
+                </div>
+              </section>
             </template>
             <template is="dom-if" if="[[item.isUnionSelector]]">
-              <tr>
-                <td class="param-name">Type variant</td>
-                <td class="param-type">
+              <section class="tr">
+                <div class="td param-name">Type variant</div>
+                <div class="td param-type">
                   <paper-dropdown-menu no-label-float>
                     <paper-listbox class="dropdown-content" selected="{{selectedUnion}}" data-action="toggle-type">
                       <template is="dom-repeat" items="[[item.options]]" as="union">
@@ -105,13 +113,13 @@ Custom property | Description | Default
                       </template>
                     </paper-listbox>
                   </paper-dropdown-menu>
-                </td>
-                <td class="param-desc"></td>
-              </tr>
+                </div>
+                <div class="td param-desc"></div>
+              </section>
             </template>
             <template is="dom-if" if="[[item.isProperyItem]]">
-              <tr data-parent$="[[item.dataParent]]" hidden$="[[item.isHidden]]" subproperty$="[[item.isSubproperty]]" has-children$="[[item.hasChildren]]">
-                <td class="param-name">
+              <section class="tr" data-parent$="[[item.dataParent]]" hidden$="[[item.isHidden]]" subproperty$="[[item.isSubproperty]]" has-children$="[[item.hasChildren]]">
+                <div class="td param-name">
                   <span class="name" child$="[[item.isSubproperty]]">
                     <template is="dom-if" if="[[item.withParent]]">
                       <span class="parent-prefix">[[item.parentDisplayValue]]</span>
@@ -122,14 +130,14 @@ Custom property | Description | Default
                   <template is="dom-if" if="[[item.required]]">
                     <span class="required-label">(required)</span>
                   </template>
-                </td>
-                <td class="param-type">
+                </div>
+                <div class="td param-type">
                   <span class="type">[[item.typeDisplay]]</span>
                   <template is="dom-if" if="[[item.hasEnum]]">
                     <span class="enum-label">(enum)</span>
                   </template>
-                </td>
-                <td class="param-desc">
+                </div>
+                <div class="td param-desc">
                   <template is="dom-if" if="[[item.hasDisplaName]]">
                     <p class="property-display-name">[[item.displayName]]</p>
                   </template>
@@ -159,12 +167,12 @@ Custom property | Description | Default
                   <template is="dom-if" if="[[item.hasAnnotations]]">
                     <annotations-display annotations="[[item.annotations]]"></annotations-display>
                   </template>
-                </td>
-              </tr>
+                </div>
+              </section>
             </template>
           </template>
-        </tbody>
-      </table>
+        </div>
+      </div>
     </template>
   </template>
   <script>
@@ -500,7 +508,7 @@ Custom property | Description | Default
         isProperyItem: false,
         isUnionSelector: false,
         type: type
-      }
+      };
     },
 
     __createModelForUnion: function(no) {
@@ -520,7 +528,7 @@ Custom property | Description | Default
         isProperyItem: false,
         isUnionSelector: true,
         options: options
-      }
+      };
     },
 
     _selectedUnionChanged: function(selectedUnion, model) {
