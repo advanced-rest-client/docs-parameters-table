@@ -165,6 +165,7 @@ Custom property | Description | Default
         if (!item.isArray) {
           item.isArray = false;
         }
+        delete item.structuredValue;
         return item;
       });
       return result.filter(function(item) {
