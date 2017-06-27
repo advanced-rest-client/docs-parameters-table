@@ -131,35 +131,36 @@ Custom property | Description | Default
     .toggle-button:hover {
       color: var(--docs-body-parameters-toggle-icon-hover-color, rgba(0, 0, 0, 0.78));
     }
+
+    *[hidden] {
+      display: none !important;
+    }
     </style>
     <prism-highlighter></prism-highlighter>
 
-
-    <paper-dropdown-menu label="Body type" hidden$="[[!displayBodySelector]]" class="body-selector">
-      <paper-listbox class="dropdown-content" attr-for-selected="data-type" selected="{{selectedBodyType}}">
-        <template is="dom-repeat" items="[[bodyTypes]]">
-          <paper-item data-type$="[[item]]">[[item]]</paper-item>
-        </template>
-      </paper-listbox>
-    </paper-dropdown-menu>
-
+    <template is="dom-if" if="[[displayBodySelector]]">
+      <paper-dropdown-menu label="Body type" class="body-selector">
+        <paper-listbox class="dropdown-content" attr-for-selected="data-type" selected="{{selectedBodyType}}">
+          <template is="dom-repeat" items="[[bodyTypes]]">
+            <paper-item data-type$="[[item]]">[[item]]</paper-item>
+          </template>
+        </paper-listbox>
+      </paper-dropdown-menu>
+    </template>
     <div class="type-title">
       <h4><span hidden$="[[!displayName]]">Type: [[displayName]]</span></h4>
       <paper-icon-button class$="toggle-button[[_computeToggleClass(structureDisplayOpened)]]" icon="arc:expand-more" on-tap="toggleOpened" title="Toggle structure display" hidden$="[[isFormUrlEncoded]]"></paper-icon-button>
     </div>
-
     <template is="dom-if" if="[[isJson]]">
-      <docs-json-parameters-table type="[[selectedBody]]" has-type="{{hasTypeJson}}" structure-display-opened="[[structureDisplayOpened]]" narrow="[[narrow]]"></docs-json-parameters-table>
+      <docs-json-parameters-table type="[[selectedBody]]" structure-display-opened="[[structureDisplayOpened]]" narrow="[[narrow]]"></docs-json-parameters-table>
     </template>
     <template is="dom-if" if="[[isXml]]">
-      <docs-xml-parameters-table type="[[selectedBody]]" has-type="{{hasTypeXml}}" structure-display-opened="[[structureDisplayOpened]]" narrow="[[narrow]]"></docs-xml-parameters-table>
+      <docs-xml-parameters-table type="[[selectedBody]]" structure-display-opened="[[structureDisplayOpened]]" narrow="[[narrow]]"></docs-xml-parameters-table>
     </template>
     <template is="dom-if" if="[[isFormUrlEncoded]]">
-      <docs-form-parameters-table type="[[selectedBody]]" has-type="{{hasForm}}" structure-display-opened="[[structureDisplayOpened]]" narrow="[[narrow]]"><docs-form-parameters-table>
+      <docs-form-parameters-table type="[[selectedBody]]" narrow="[[narrow]]"><docs-form-parameters-table>
     </template>
-
     <iron-media-query query="max-width: 640px" query-matches="{{narrow}}"></iron-media-query>
-
   </template>
   <script>
   Polymer({
@@ -198,18 +199,6 @@ Custom property | Description | Default
         value: false,
         readOnly: true
       },
-      hasTypeJson: {
-        type: Boolean,
-        vealue: false
-      },
-      hasTypeXml: {
-        type: Boolean,
-        vealue: false
-      },
-      hasForm: {
-        type: Boolean,
-        vealue: false
-      },
       // True if body is set.
       hasBody: {
         value: false,
@@ -244,7 +233,10 @@ Custom property | Description | Default
         type: Object,
         computed: '_computeSelectedBody(selectedBodyType)'
       },
-      // If true then the schema / sxamples section is displayed.
+      /**
+       * True when the schema / examples section is displayed.
+       * Set this value to change the state.
+       */
       structureDisplayOpened: {
         type: Boolean,
         value: true
@@ -271,15 +263,12 @@ Custom property | Description | Default
       if (!autoHide) {
         return;
       }
-      if (hasBody) {
-        this.removeAttribute('hidden');
-      } else {
-        this.setAttribute('hidden', true);
-      }
+      var state = !hasBody;
+      this.toggleAttribute('hidden', state);
     },
 
-    _computeDisplayName: function(selectedBodyType, displayBodySelector) {
-      var body = this.selectedBody;
+    _computeDisplayName: function(selectedBodyType, displayBodySelector, record) {
+      var body = record && record.base;
       if (!body || !selectedBodyType) {
         return '';
       }
@@ -342,7 +331,6 @@ Custom property | Description | Default
         return item.key;
       });
       this._setBodyTypes(mime);
-      // this.selectedBodyType = mime[0];
     },
 
     // returns true if given argument is an array and has more than 1 element.
@@ -393,7 +381,6 @@ Custom property | Description | Default
       }
       return clazz;
     }
-
   });
   </script>
 </dom-module>

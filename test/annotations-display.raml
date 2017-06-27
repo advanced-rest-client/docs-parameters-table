@@ -1,0 +1,59 @@
+#%RAML 1.0
+title: Example API
+version: v1
+baseUri: https://domain.com
+
+annotationTypes:
+  annotationTest: nil
+  deprecated: string
+  clearanceLevel:
+    properties:
+      level:
+        enum: [ low, medium, high ]
+        required: true
+      signature:
+        pattern: "\\d{3}-\\w{12}"
+        required: true
+      id:
+        type: integer
+        description: Id of the supervisor
+/test:
+  get:
+    queryParameters:
+      page:
+        (deprecated): |
+          This value will be replaced with `pageLimit` query parameter
+        (annotationTest):
+        (clearanceLevel):
+          level: high
+          signature: 230-ghtwvfrs1itr
+          id: 123
+        description: Specify the page that you want to retrieve
+        type:        integer
+        required:    true
+        example:     1
+      per_page:
+        (deprecated): |
+          This value will be replaced with `pageLimit` query parameter
+        description: Specify the amount of items that will be retrieved per page
+        type:        integer
+        minimum:     10
+        maximum:     200
+        default:     30
+        example:     50
+        displayName: Per page
+      type:
+        description: Specify the type of the item.
+        type:        string
+        enum:       [type 1, type 2, type 3]
+        required: false
+        pattern: type\s\d
+        minLength: 5
+        maxLength: 6
+        default:     type 1
+        example:     type 2
+        displayName: Type
+        (clearanceLevel):
+          level: high
+          signature: 230-ghtwvfrs1itr
+          id: 123

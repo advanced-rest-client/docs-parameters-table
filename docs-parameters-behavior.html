@@ -12,32 +12,9 @@ License for the specific language governing permissions and limitations under
 the License.
 -->
 <link rel="import" href="../polymer/polymer.html">
-
+<link rel="import" href="../arc-polyfills/arc-polyfills.html">
 <script>
 (function() {
-  if (typeof Object.assign !== 'function') {
-    (function() {
-      Object.assign = function(target) {
-        'use strict';
-        if (target === undefined || target === null) {
-          throw new TypeError('Cannot convert undefined or null to object');
-        }
-        var output = Object(target);
-        for (var index = 1; index < arguments.length; index++) {
-          var source = arguments[index];
-          if (source !== undefined && source !== null) {
-            for (var nextKey in source) {
-              if (source.hasOwnProperty(nextKey)) {
-                output[nextKey] = source[nextKey];
-              }
-            }
-          }
-        }
-        return output;
-      };
-    })();
-  }
-
   window.RamlBehaviors = window.RamlBehaviors || {};
   /**
    * Use `RamlBehaviors.DocsParametersBehavior` to implement a custom element
@@ -77,6 +54,11 @@ the License.
         notify: true,
         computed: '_computeHasExamples(examples.*)'
       },
+      // If true then the narrow layout is applied.
+      narrow: {
+        type: Boolean,
+        reflectToAttribute: true
+      }
     },
     /**
      * Check if passed object is not empty.
@@ -133,7 +115,7 @@ the License.
       if (obj instanceof Array) {
         return obj;
       }
-      var names = Object.getOwnPropertyNames(obj);
+      var names = Object.keys(obj);
       if (!names) {
         return [];
       }
@@ -143,6 +125,9 @@ the License.
     _computeEnumValue: function(enumValue) {
       if (!enumValue || !enumValue.length) {
         return '';
+      }
+      if (typeof enumValue === 'string') {
+        return enumValue;
       }
       enumValue = enumValue.map(function(item) {
         if (typeof item === 'string') {
@@ -191,6 +176,61 @@ the License.
         return false;
       }
       return !!object.length;
+    },
+    // Checks if the item has a maximum or max property.
+    _hasMaximum: function(item) {
+      return !!(item && (item.max || item.maximum || item.max === 0 ||
+        item.maximum === 0));
+    },
+    // returns item's maximum or max property.
+    _getMaximum: function(item) {
+      if (!item) {
+        return;
+      }
+      if (!!item.max || item.max === 0) {
+        return item.max;
+      }
+      if (!!item.maximum || item.maximum === 0) {
+        return item.maximum;
+      }
+    },
+    // Checks if the item has a maximum or max property.
+    _hasMinimum: function(item) {
+      return !!(item && (item.min || item.minimum || item.min === 0 ||
+        item.minimum === 0));
+    },
+    // returns item's maximum or max property.
+    _getMinimum: function(item) {
+      if (!item) {
+        return;
+      }
+      if (!!item.min || item.min === 0) {
+        return item.min;
+      }
+      if (!!item.minimum || item.minimum === 0) {
+        return item.minimum;
+      }
+      return item && (item.min || item.minimum);
+    },
+    // Checks if the item has a maximum or max property.
+    _hasExamples: function(item) {
+      return !!(item && item.examples && item.examples.length);
+    },
+    // returns item's maximum or max property.
+    _getExamples: function(item) {
+      if (!this._hasExamples(item)) {
+        return;
+      }
+      return item.examples.map(function(item) {
+        if (typeof item === 'string') {
+          return item;
+        }
+        return item.value;
+      }).join('\n');
+    },
+    // Returns true if `displayName` is set and it's different that `name`
+    _hasDisplayName: function(item) {
+      return !!(item && item.displayName && item.displayName !== item.name);
     }
   };
 })();
