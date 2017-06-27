@@ -89,7 +89,7 @@ Custom property | Description | Default
             <td colspan="3">Path parameters</td>
           </tr>
           <template is="dom-repeat" items="[[displayUriParameters]]">
-            <tr>
+            <tr class="uri-parameter">
               <td class="param-name">
                 <span class="name">[[item.name]]</span>
                 <template is="dom-if" if="[[item.required]]">
@@ -164,28 +164,28 @@ Custom property | Description | Default
                   </marked-element>
                 </template>
                 <template is="dom-if" if="[[item.default]]">
-                  <div class="default">Default value: <span>[[item.default]]</span></div>
+                  <div class="meta-property default">Default value: <span>[[item.default]]</span></div>
                 </template>
                 <template is="dom-if" if="[[_hasExamples(item)]]">
-                  <div class="example">Example value: <span>[[_getExamples(item)]]</span></div>
+                  <div class="meta-property example">Example value: <span>[[_getExamples(item)]]</span></div>
                 </template>
                 <template is="dom-if" if="[[item.pattern]]">
-                  <div class="pattern">Validation pattern: <span>[[item.pattern]]</span></div>
+                  <div class="meta-property pattern">Validation pattern: <span>[[item.pattern]]</span></div>
                 </template>
                 <template is="dom-if" if="[[_hasMinimum(item)]]">
-                  <div class="min">Minimum value: <span>[[_getMinimum(item)]]</span></div>
+                  <div class="meta-property min">Minimum value: <span>[[_getMinimum(item)]]</span></div>
                 </template>
                 <template is="dom-if" if="[[_hasMaximum(item)]]">
-                  <div class="max">Maximum value: <span>[[_getMaximum(item)]]</span></div>
+                  <div class="meta-property max">Maximum value: <span>[[_getMaximum(item)]]</span></div>
                 </template>
                 <template is="dom-if" if="[[item.minLength]]">
-                  <div class="min">Minimum length: <span>[[item.minLength]]</span></div>
+                  <div class="meta-property min">Minimum length: <span>[[item.minLength]]</span></div>
                 </template>
                 <template is="dom-if" if="[[item.maxLength]]">
-                  <div class="max">Maximum length: <span>[[item.maxLength]]</span></div>
+                  <div class="meta-property max">Maximum length: <span>[[item.maxLength]]</span></div>
                 </template>
                 <template is="dom-if" if="[[hasValue(item.enum)]]">
-                  <div class="enum">Possible values: <span>[[_computeEnumValue(item.enum)]]</span></div>
+                  <div class="meta-property enum">Possible values: <span>[[_computeEnumValue(item.enum)]]</span></div>
                 </template>
                 <template is="dom-if" if="[[hasValue(item.annotations)]]">
                   <annotations-display annotations="[[item.annotations]]"></annotations-display>
