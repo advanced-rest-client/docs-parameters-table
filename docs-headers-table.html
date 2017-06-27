@@ -162,11 +162,8 @@ Custom property | Description | Default
       if (!autoHide) {
         return;
       }
-      if (hasHeaders) {
-        this.removeAttribute('hidden');
-      } else {
-        this.setAttribute('hidden', true);
-      }
+      var state = !hasHeaders;
+      this.toggleAttribute('hidden', state);
     }
   });
   </script>
