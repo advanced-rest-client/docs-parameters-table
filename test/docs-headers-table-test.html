@@ -151,7 +151,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       test('hiddes the element', function() {
         element.headers = undefined;
         TestHelpers.forceXIfStamp(element);
-        console.log('READING STATE');
         assert.isTrue(element.hasAttribute('hidden'));
       });
     });
