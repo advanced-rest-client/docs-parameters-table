@@ -143,13 +143,13 @@ Custom property | Description | Default
           <template is="dom-repeat" items="[[displayQueryParameters]]">
             <tr class="query-param">
               <td class="param-name">
-                <span>[[item.name]]</span>
+                <span class="name">[[item.name]]</span>
                 <template is="dom-if" if="[[item.required]]">
                   <span class="required-label">(required)</span>
                 </template>
               </td>
               <td class="param-type">
-                <span>[[item.type]]</span>
+                <span class="type">[[item.type]]</span>
                 <template is="dom-if" if="[[hasValue(item.enum)]]">
                   <span class="enum-label">(enum)</span>
                 </template>
@@ -185,7 +185,7 @@ Custom property | Description | Default
                   <div class="max">Maximum length: <span>[[item.maxLength]]</span></div>
                 </template>
                 <template is="dom-if" if="[[hasValue(item.enum)]]">
-                  <div class="example">Possible values: <span>[[_computeEnumValue(item.enum)]]</span></div>
+                  <div class="enum">Possible values: <span>[[_computeEnumValue(item.enum)]]</span></div>
                 </template>
                 <template is="dom-if" if="[[hasValue(item.annotations)]]">
                   <annotations-display annotations="[[item.annotations]]"></annotations-display>
