@@ -12,11 +12,12 @@ License for the specific language governing permissions and limitations under
 the License.
 -->
 <link rel="import" href="../polymer/polymer.html">
-<link rel="import" href="docs-parameters-behavior.html">
-<link rel="import" href="docs-parameters-table-shared-styles.html">
 <link rel="import" href="../marked-element/marked-element.html">
 <link rel="import" href="../prism-element/prism-theme-default.html">
 <link rel="import" href="../markdown-styles/markdown-styles.html">
+<link rel="import" href="docs-parameters-behavior.html">
+<link rel="import" href="docs-parameters-table-shared-styles.html">
+<link rel="import" href="annotations-display.html">
 <!--
 `<docs-headers-table>` A headers list documentation table for the RAML documentation view.
 
@@ -66,36 +67,67 @@ Custom property | Description | Default
   <template>
     <style include="markdown-styles"></style>
     <style include="docs-parameters-table-shared-styles"></style>
-    <table class="params-table">
-      <thead class="params-table-header">
-        <tr>
-          <th>Parameter</th>
-          <th>Description</th>
-        </tr>
-      </thead>
-      <tbody>
+    <div class="params-table">
+      <div class="thead params-table-header">
+        <section class="tr">
+          <span class="th">Parameter</span>
+          <span class="th">Type</span>
+          <span class="th">Description</span>
+        </section>
+      </div>
+      <h5 class="narrow-title">Properties</h5>
+      <div class="tbody">
         <template is="dom-if" if="[[hasHeaders]]">
           <template is="dom-repeat" items="[[headers]]">
-            <tr>
-              <td class="param-name">[[item.name]]<span hidden$="[[!item.required]]">*</span></td>
-              <td class="param-desc">
-                <b>[[item.type]]</b>
-                <div hidden$="[[!hasValue(item.description)]]">
+            <section class="tr">
+              <div class="td param-name">
+                <span class="name">[[item.name]]</span>
+                <template is="dom-if" if="[[item.required]]">
+                  <span class="required-label">(required)</span>
+                </template>
+              </div>
+              <div class="td param-type">
+                <span class="type">[[item.type]]</span>
+                <template is="dom-if" if="[[hasValue(item.enum)]]">
+                  <span class="enum-label">(enum)</span>
+                </template>
+              </div>
+              <div class="td param-desc">
+                <template is="dom-if" if="[[_hasDisplayName(item)]]">
+                  <p class="property-display-name">[[item.displayName]]</p>
+                </template>
+                <template is="dom-if" if="[[item.description]]">
                   <marked-element markdown="[[item.description]]">
                     <div class="markdown-html markdown-body"></div>
                   </marked-element>
-                </div>
-                <div hidden$="[[!hasValue(item.pattern)]]" class="pattern">Validation pattern: <span>[[item.pattern]]</span></div>
-                <div hidden$="[[!hasValue(item.example)]]" class="example">Example value: <span>[[item.example]]</span></div>
-                <div hidden$="[[!hasValue(item.min)]]" class="example">Minimum value: <span>[[item.min]]</span></div>
-                <div hidden$="[[!hasValue(item.max)]]" class="example">Maximum value: <span>[[item.max]]</span></div>
-                <div hidden$="[[!hasValue(item.enum)]]" class="example">Possible values: <span>[[_computeEnumValue(item.enum)]]</span></div>
-              </td>
-            </tr>
+                </template>
+                <template is="dom-if" if="[[item.default]]">
+                  <div class="meta-property default">Default value: <span>[[item.default]]</span></div>
+                </template>
+                <template is="dom-if" if="[[_hasExamples(item)]]">
+                  <div class="meta-property example">Example value: <span>[[_getExamples(item)]]</span></div>
+                </template>
+                <template is="dom-if" if="[[item.pattern]]">
+                  <div class="meta-property pattern">Validation pattern: <span>[[item.pattern]]</span></div>
+                </template>
+                <template is="dom-if" if="[[_hasMinimum(item)]]">
+                  <div class="meta-property min">Minimum value: <span>[[_getMinimum(item)]]</span></div>
+                </template>
+                <template is="dom-if" if="[[_hasMaximum(item)]]">
+                  <div class="meta-property max">Maximum value: <span>[[_getMaximum(item)]]</span></div>
+                </template>
+                <template is="dom-if" if="[[hasValue(item.enum)]]">
+                  <div class="meta-property enum">Possible values: <span>[[_computeEnumValue(item.enum)]]</span></div>
+                </template>
+                <template is="dom-if" if="[[hasValue(item.annotations)]]">
+                  <annotations-display annotations="[[item.annotations]]"></annotations-display>
+                </template>
+              </div>
+            </section>
           </template>
         </template>
-      </tbody>
-    </table>
+      </div>
+    </div>
   </template>
   <script>
   Polymer({
@@ -130,11 +162,8 @@ Custom property | Description | Default
       if (!autoHide) {
         return;
       }
-      if (hasHeaders) {
-        this.removeAttribute('hidden');
-      } else {
-        this.setAttribute('hidden', true);
-      }
+      var state = !hasHeaders;
+      this.toggleAttribute('hidden', state);
     }
   });
   </script>

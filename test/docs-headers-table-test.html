@@ -1,0 +1,168 @@
+<!doctype html>
+<!--
+@license
+Copyright (c) 2015 The Polymer Project Authors. All rights reserved.
+This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
+The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
+The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
+Code distributed by Google as part of the polymer project is also
+subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
+-->
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes">
+  <script src="../../webcomponentsjs/webcomponents-lite.js"></script>
+  <script src="../../web-component-tester/browser.js"></script>
+  <script src="../../iron-test-helpers/test-helpers.js"></script>
+  <script src="../../iron-test-helpers/mock-interactions.js"></script>
+  <link rel="import" href="../../raml-js-parser/raml-js-parser.html">
+  <link rel="import" href="../../raml-json-enhance/raml-json-enhance.html">
+  <link rel="import" href="../docs-headers-table.html">
+</head>
+
+<body>
+  <test-fixture id="basic">
+    <template>
+      <docs-headers-table auto-hide></docs-headers-table>
+    </template>
+  </test-fixture>
+  <test-fixture id="parser">
+    <template>
+      <raml-js-parser json></raml-js-parser>
+    </template>
+  </test-fixture>
+  <test-fixture id="enhancer">
+    <template>
+      <raml-json-enhance></raml-json-enhance>
+    </template>
+  </test-fixture>
+  <script>
+  /* global fixture, assert, TestHelpers */
+  suite('docs-headers-table', function() {
+    var raml;
+    var element;
+    suiteSetup(function(done) {
+      this.timeout(120000);
+      var baseUrl = location.href.substr(0, location.href.lastIndexOf('/') + 1);
+      var parser = fixture('parser');
+      var enhancer = fixture('enhancer');
+      enhancer.addEventListener('raml-json-enhance-ready', function(e) {
+        raml = e.detail.json;
+        done();
+      });
+      parser.loadApi(baseUrl + 'docs-headers-table.raml')
+        .then(function(data) {
+          enhancer.json = data.json.specification;
+        })
+        .catch(function(e) {
+          done(new Error('Parser error: ' + (e.message || 'Some error happened...')));
+        });
+    });
+
+    setup(function() {
+      element = fixture('basic');
+      element.headers = raml.resources[0].methods[0].headers;
+      TestHelpers.forceXIfStamp(element);
+    });
+
+    test('Computes hasHeaders', function() {
+      assert.isTrue(element.hasHeaders);
+    });
+
+    test('Should render the list', function() {
+      var nodes = Polymer.dom(element.root).querySelectorAll('.params-table .tbody .tr');
+      assert.lengthOf(nodes, element.headers.length);
+    });
+
+    test('Renders name', function() {
+      var node = Polymer.dom(element.root)
+      .querySelector('.params-table .tbody .tr:nth-child(1) span.name');
+      var property = element.headers[0];
+      assert.equal(node.textContent, property.name);
+    });
+
+    test('Renders required label', function() {
+      var node = Polymer.dom(element.root)
+      .querySelector('.params-table .tbody .tr:nth-child(1) .required-label');
+      assert.ok(node);
+    });
+
+    test('Renders type', function() {
+      var node = Polymer.dom(element.root)
+      .querySelector('.params-table .tbody .tr:nth-child(1) .param-type .type');
+      var property = element.headers[0];
+      assert.equal(node.textContent, property.type);
+    });
+
+    test('Renders enum label', function() {
+      var node = Polymer.dom(element.root)
+      .querySelector('.params-table .tbody .tr:nth-child(3) .enum-label');
+      assert.ok(node);
+    });
+
+    test('Renders description', function() {
+      var node = Polymer.dom(element.root)
+      .querySelector('.params-table .tbody .tr:nth-child(1) .param-desc marked-element');
+      assert.ok(node);
+    });
+
+    test('Renders display name', function() {
+      var node = Polymer.dom(element.root)
+      .querySelector('.params-table .tbody .tr:nth-child(2) .param-desc .property-display-name');
+      assert.ok(node);
+    });
+
+    test('Renders detaul value', function() {
+      var node = Polymer.dom(element.root)
+      .querySelector('.params-table .tbody .tr:nth-child(2) .param-desc .meta-property.default');
+      assert.ok(node);
+    });
+
+    test('Renders examples', function() {
+      var node = Polymer.dom(element.root)
+      .querySelector('.params-table .tbody .tr:nth-child(1) .param-desc .meta-property.example');
+      assert.ok(node);
+    });
+
+    test('Renders pattern', function() {
+      var node = Polymer.dom(element.root)
+      .querySelector('.params-table .tbody .tr:nth-child(3) .param-desc .meta-property.pattern');
+      assert.ok(node);
+    });
+
+    test('Renders minimum', function() {
+      var node = Polymer.dom(element.root)
+      .querySelector('.params-table .tbody .tr:nth-child(2) .param-desc .meta-property.min');
+      assert.ok(node);
+    });
+
+    test('Renders maximum', function() {
+      var node = Polymer.dom(element.root)
+      .querySelector('.params-table .tbody .tr:nth-child(2) .param-desc .meta-property.max');
+      assert.ok(node);
+    });
+
+    test('Renders enum', function() {
+      var node = Polymer.dom(element.root)
+      .querySelector('.params-table .tbody .tr:nth-child(3) .param-desc .meta-property.enum');
+      assert.ok(node);
+    });
+
+    test('Renders annotations', function() {
+      var node = Polymer.dom(element.root)
+      .querySelector('.params-table .tbody .tr:nth-child(1) .param-desc annotations-display');
+      assert.ok(node);
+    });
+
+    test('hiddes the element', function() {
+      element.headers = undefined;
+      TestHelpers.forceXIfStamp(element);
+      assert.isTrue(element.hasAttribute('hidden'));
+    });
+  });
+  </script>
+</body>
+
+</html>

@@ -1,0 +1,143 @@
+<!doctype html>
+<!--
+@license
+Copyright (c) 2015 The Polymer Project Authors. All rights reserved.
+This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
+The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
+The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
+Code distributed by Google as part of the polymer project is also
+subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
+-->
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes">
+
+    <script src="../../webcomponentsjs/webcomponents-lite.js"></script>
+    <script src="../../web-component-tester/browser.js"></script>
+    <script src="../../iron-test-helpers/test-helpers.js"></script>
+    <script src="../../iron-test-helpers/mock-interactions.js"></script>
+    <link rel="import" href="../../raml-js-parser/raml-js-parser.html">
+    <link rel="import" href="../../raml-json-enhance/raml-json-enhance.html">
+    <link rel="import" href="../annotations-display.html">
+  </head>
+  <body>
+
+    <test-fixture id="basic">
+      <template>
+        <annotations-display auto-hide></annotations-display>
+      </template>
+    </test-fixture>
+
+    <test-fixture id="parser">
+      <template>
+        <raml-js-parser json></raml-js-parser>
+      </template>
+    </test-fixture>
+
+    <test-fixture id="enhancer">
+      <template>
+        <raml-json-enhance></raml-json-enhance>
+      </template>
+    </test-fixture>
+
+    <script>
+
+
+    /* global fixture, assert, TestHelpers */
+    suite('annotations-display', function() {
+      var raml;
+      var element;
+      suiteSetup(function(done) {
+        this.timeout(120000);
+        var baseUrl = location.href.substr(0, location.href.lastIndexOf('/') + 1);
+        var parser = fixture('parser');
+        var enhancer = fixture('enhancer');
+        enhancer.addEventListener('raml-json-enhance-ready', function(e) {
+          raml = e.detail.json;
+          done();
+        });
+        parser.loadApi(baseUrl + 'annotations-display.raml')
+        .then(function(data) {
+          enhancer.json = data.json.specification;
+        })
+        .catch(function(e) {
+          done(new Error('Parser error: ' + (e.message || 'Some error happened...')));
+        });
+      });
+
+      setup(function() {
+        element = fixture('basic');
+      });
+
+      function getAnnotations(index) {
+        return raml.resources[0].methods[0].queryParameters[index].annotations;
+      }
+
+      test('Model is set', function() {
+        element.annotations = getAnnotations(0);
+        assert.lengthOf(element._model, element.annotations.length);
+      });
+
+      test('Computes string annotation', function() {
+        element.annotations = getAnnotations(0);
+        assert.isTrue(element._model[0].isString);
+      });
+
+      test('String annotation has value property', function() {
+        element.annotations = getAnnotations(0);
+        assert.ok(element._model[0].value);
+      });
+
+      test('String value property is a string', function() {
+        element.annotations = getAnnotations(0);
+        assert.typeOf(element._model[0].value, 'string');
+      });
+
+      test('The structuredValue property is removed', function() {
+        element.annotations = getAnnotations(0);
+        assert.isUndefined(element._model[0].structuredValue);
+      });
+
+      test('Computes nil annotation', function() {
+        element.annotations = getAnnotations(0);
+        assert.isTrue(element._model[1].isNil);
+      });
+
+      test('Nil annotation doesn\'t have value properties', function() {
+        element.annotations = getAnnotations(0);
+        assert.isUndefined(element._model[1].value);
+      });
+
+      test('Computes array annotation', function() {
+        element.annotations = getAnnotations(0);
+        assert.isTrue(element._model[2].isArray);
+      });
+
+      test('Array annotation has list property', function() {
+        element.annotations = getAnnotations(0);
+        assert.ok(element._model[2].list);
+      });
+
+      test('Array list property is an array', function() {
+        element.annotations = getAnnotations(0);
+        assert.typeOf(element._model[2].list, 'array');
+      });
+
+      test('Changes annotations', function() {
+        element.annotations = getAnnotations(0);
+        TestHelpers.forceXIfStamp(element);
+        element.annotations = getAnnotations(1);
+        assert.lengthOf(element._model, element.annotations.length);
+      });
+
+      test('Array renders the list of properties', function() {
+        element.annotations = getAnnotations(0);
+        TestHelpers.forceXIfStamp(element);
+        var nodes = Polymer.dom(element.root).querySelectorAll('ul li');
+        assert.lengthOf(nodes, 3);
+      });
+    });
+    </script>
+  </body>
+</html>
