@@ -13,8 +13,7 @@
   "private": true,
   "main": [
     "docs-parameters-table.html",
-    "docs-headers-table.html",
-    "docs-body-table.html"
+    "docs-headers-table.html"
   ],
   "repository": {
     "type": "git",
