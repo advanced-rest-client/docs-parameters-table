@@ -15,28 +15,61 @@ the License.
 <link rel="import" href="../clipboard-copy/clipboard-copy.html">
 <link rel="import" href="../arc-icons/arc-icons.html">
 <link rel="import" href="../paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../paper-tooltip/paper-tooltip.html">
 <link rel="import" href="../json-table/json-table.html">
 <link rel="import" href="structure-display.html">
 <!--
-An element to display an example item.
+An element to render an example of the RAML property.
 
 ## Usage
 ```
 <example-display content="[[json]]" is-json></example-display>
 ```
 
+### Styling
+`<docs-json-parameters-table>` provides the following custom properties and mixins for styling:
+
+Custom property | Description | Default
+----------------|-------------|----------
+`--example-display` | Mixin applied to this elements | `{}`
+`--example-display-actions-container` | Mixin applied to the top actions container | `{}`
+
+
+@element example-display
+@demo demo/docs-body-parameters-table.html
 -->
 <dom-module id="example-display">
   <template strip-whitespace>
     <style>
+    :host {
+      display: block;
+      @apply(--example-display);
+    }
+
     *[hidden] {
       display: none;
     }
+
+    paper-icon-button[active] {
+      background-color: var(--example-display-button-active-background-color, #e0e0e0);
+      border-radius: 50%;
+      @apply(--example-display-button-active);
+    }
+
+    .example-actions {
+      @apply(--example-display-actions-container);
+    }
     </style>
     <div class="example-actions">
-      <paper-icon-button icon="arc:content-copy" title="Copy example to clipboard" on-tap="_copyToClipboard"></paper-icon-button>
+      <span>
+        <paper-icon-button icon="arc:content-copy" on-tap="_copyToClipboard"></paper-icon-button>
+        <paper-tooltip animation-delay="200">Copy example to clipboard</paper-tooltip>
+      </span>
       <template is="dom-if" if="[[isJson]]">
-        <paper-icon-button icon="arc:view-column" title="Toggle table view" active="[[table]]" toggles on-tap="toggleTable"></paper-icon-button>
+        <span>
+          <paper-icon-button icon="arc:view-column" active="[[table]]" toggles on-tap="toggleTable"></paper-icon-button>
+          <paper-tooltip animation-delay="200">Toggle table view</paper-tooltip>
+        </span>
       </template>
     </div>
     <template is="dom-if" if="[[!table]]">
@@ -100,9 +133,11 @@ An element to display an example item.
           this._resetCopyButtonState(button);
         }, 1000);
       },
+
       _resetCopyButtonState: function(button) {
         button.icon = 'arc:content-copy';
       },
+
       // Toggles the JSON table view
       toggleTable: function() {
         this.table = !this.table;
