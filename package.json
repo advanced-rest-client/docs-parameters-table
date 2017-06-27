@@ -16,7 +16,7 @@
   "author": "The Advanced REST client authors",
   "scripts": {
     "serve": "node_modules/.bin/polymer serve",
-    "lint": "node_modules/.bin/polymer lint docs-parameters-table.html docs-headers-table.html docs-body-parameters-table.html docs-json-parameters-table.html docs-xml-parameters-table.html docs-form-parameters-table.html example-display.html annotations-display.html --rules polymer-1",
+    "lint": "node_modules/.bin/polymer lint docs-parameters-table.html docs-headers-table.html docs-body-parameters-table.html docs-json-parameters-table.html docs-xml-parameters-table.html docs-form-parameters-table.html example-display.html annotations-display.html structure-display.html --rules polymer-1",
     "test-sauce": "node_modules/.bin/polymer test --plugin sauce --job-name \"docs-parameters-table:local-test\"",
     "test": "node_modules/.bin/polymer test --plugin local",
     "deps": "npm install --quiet && bower install --quiet",
