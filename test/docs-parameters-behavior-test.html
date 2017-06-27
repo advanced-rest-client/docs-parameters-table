@@ -1,0 +1,315 @@
+<!doctype html>
+<!--
+@license
+Copyright (c) 2015 The Polymer Project Authors. All rights reserved.
+This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
+The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
+The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
+Code distributed by Google as part of the polymer project is also
+subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
+-->
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes">
+
+    <script src="../../webcomponentsjs/webcomponents-lite.js"></script>
+    <script src="../../web-component-tester/browser.js"></script>
+    <script src="../../iron-test-helpers/test-helpers.js"></script>
+    <script src="../../iron-test-helpers/mock-interactions.js"></script>
+    <link rel="import" href="../../raml-js-parser/raml-js-parser.html">
+    <link rel="import" href="../../raml-json-enhance/raml-json-enhance.html">
+    <link rel="import" href="../docs-parameters-table.html">
+  </head>
+  <body>
+
+    <test-fixture id="basic">
+      <template>
+        <docs-parameters-table></docs-parameters-table>
+      </template>
+    </test-fixture>
+
+    <script>
+    /* global fixture, assert */
+    suite('hasValue()', function() {
+      var element;
+      setup(function() {
+        element = fixture('basic');
+      });
+
+      test('hasValue() of 0', function() {
+        assert.isTrue(element.hasValue(0));
+      });
+
+      test('hasValue() of 1', function() {
+        assert.isTrue(element.hasValue(1));
+      });
+
+      test('hasValue() of true', function() {
+        assert.isTrue(element.hasValue(true));
+      });
+
+      test('hasValue() of false', function() {
+        assert.isTrue(element.hasValue(false));
+      });
+
+      test('hasValue() of Date', function() {
+        assert.isTrue(element.hasValue(new Date()));
+      });
+
+      test('hasValue() of ""', function() {
+        assert.isFalse(element.hasValue(''));
+      });
+
+      test('hasValue() of undefined', function() {
+        assert.isFalse(element.hasValue(undefined));
+      });
+
+      test('hasValue() of null', function() {
+        assert.isFalse(element.hasValue(null));
+      });
+    });
+
+    suite('readProperties()', function() {
+      var element;
+      setup(function() {
+        element = fixture('basic');
+      });
+
+      test('readProperties() of null', function() {
+        assert.typeOf(element.readProperties(null), 'array');
+      });
+
+      test('readProperties() of undefined', function() {
+        assert.typeOf(element.readProperties(undefined), 'array');
+      });
+
+      test('readProperties() of empty object', function() {
+        assert.typeOf(element.readProperties({}), 'array');
+      });
+
+      test('readProperties() of array', function() {
+        var arr = [1, 2, 3];
+        assert.typeOf(element.readProperties(arr), 'array');
+      });
+
+      test('array equal array', function() {
+        var arr = [1, 2, 3];
+        assert.deepEqual(element.readProperties(arr), arr);
+      });
+
+      test('readProperties() of object', function() {
+        var arr = {
+          a: {name: 'a'},
+          b: {name: 'b'},
+          c: {name: 'c'}
+        };
+        var compare = [{name: 'a'}, {name: 'b'}, {name: 'c'}];
+        assert.deepEqual(element.readProperties(arr), compare);
+      });
+    });
+
+    suite('_hasMaximum()', function() {
+      var element;
+      setup(function() {
+        element = fixture('basic');
+      });
+
+      test('_hasMaximum() of null', function() {
+        assert.isFalse(element._hasMaximum(null));
+      });
+
+      test('_hasMaximum() of undefined', function() {
+        assert.isFalse(element._hasMaximum(undefined));
+      });
+
+      test('_hasMaximum() of empty object', function() {
+        assert.isFalse(element._hasMaximum({}));
+      });
+
+      test('_hasMaximum() with max', function() {
+        assert.isTrue(element._hasMaximum({max: 1}));
+      });
+
+      test('_hasMaximum() with max equal 0', function() {
+        assert.isTrue(element._hasMaximum({max: 0}));
+      });
+
+      test('_hasMaximum() with maximum', function() {
+        assert.isTrue(element._hasMaximum({maximum: 1}));
+      });
+
+      test('_hasMaximum() with maximum equal 0', function() {
+        assert.isTrue(element._hasMaximum({maximum: 0}));
+      });
+    });
+
+    suite('_hasMinimum()', function() {
+      var element;
+      setup(function() {
+        element = fixture('basic');
+      });
+
+      test('_hasMinimum() of null', function() {
+        assert.isFalse(element._hasMinimum(null));
+      });
+
+      test('_hasMinimum() of undefined', function() {
+        assert.isFalse(element._hasMinimum(undefined));
+      });
+
+      test('_hasMinimum() of empty object', function() {
+        assert.isFalse(element._hasMinimum({}));
+      });
+
+      test('_hasMinimum() with min', function() {
+        assert.isTrue(element._hasMinimum({min: 1}));
+      });
+
+      test('_hasMinimum() with min equal 0', function() {
+        assert.isTrue(element._hasMinimum({min: 0}));
+      });
+
+      test('_hasMinimum() with minimum', function() {
+        assert.isTrue(element._hasMinimum({minimum: 1}));
+      });
+
+      test('_hasMinimum() with minimum equal 0', function() {
+        assert.isTrue(element._hasMinimum({minimum: 0}));
+      });
+    });
+
+    suite('_hasExamples()', function() {
+      var element;
+      setup(function() {
+        element = fixture('basic');
+      });
+
+      test('_hasExamples() of null', function() {
+        assert.isFalse(element._hasExamples(null));
+      });
+
+      test('_hasExamples() of undefined', function() {
+        assert.isFalse(element._hasExamples(undefined));
+      });
+
+      test('_hasExamples() of empty object', function() {
+        assert.isFalse(element._hasExamples({}));
+      });
+
+      test('_hasExamples() with empty array', function() {
+        assert.isFalse(element._hasExamples({examples: []}));
+      });
+
+      test('_hasExamples() with not empry array', function() {
+        assert.isTrue(element._hasExamples({examples: ['test']}));
+      });
+    });
+
+    suite('_hasDisplayName()', function() {
+      var element;
+      setup(function() {
+        element = fixture('basic');
+      });
+
+      test('_hasDisplayName() of null', function() {
+        assert.isFalse(element._hasDisplayName(null));
+      });
+
+      test('_hasDisplayName() of undefined', function() {
+        assert.isFalse(element._hasDisplayName(undefined));
+      });
+
+      test('_hasDisplayName() of empty object', function() {
+        assert.isFalse(element._hasDisplayName({}));
+      });
+
+      test('_hasDisplayName() with display name', function() {
+        var obj = {
+          displayName: 'Name',
+          name: 'other name'
+        };
+        assert.isTrue(element._hasDisplayName(obj));
+      });
+
+      test('_hasDisplayName() with display name equal name', function() {
+        var obj = {
+          displayName: 'Name',
+          name: 'Name'
+        };
+        assert.isFalse(element._hasDisplayName(obj));
+      });
+    });
+
+    suite('_getMaximum()', function() {
+      var element;
+      setup(function() {
+        element = fixture('basic');
+      });
+
+      test('_getMaximum() of null', function() {
+        assert.isUndefined(element._getMaximum(null));
+      });
+
+      test('_getMaximum() of undefined', function() {
+        assert.isUndefined(element._getMaximum(undefined));
+      });
+
+      test('_getMaximum() of empty object', function() {
+        assert.isUndefined(element._getMaximum({}));
+      });
+
+      test('_getMaximum() of max not equal 0', function() {
+        assert.equal(element._getMaximum({max: 10}), 10);
+      });
+
+      test('_getMaximum() of max equal 0', function() {
+        assert.equal(element._getMaximum({max: 0}), 0);
+      });
+
+      test('_getMaximum() of maximum not equal 0', function() {
+        assert.equal(element._getMaximum({maximum: 10}), 10);
+      });
+
+      test('_getMaximum() of maximum equal 0', function() {
+        assert.equal(element._getMaximum({maximum: 0}), 0);
+      });
+    });
+
+    suite('_getMinimum()', function() {
+      var element;
+      setup(function() {
+        element = fixture('basic');
+      });
+
+      test('_getMinimum() of null', function() {
+        assert.isUndefined(element._getMinimum(null));
+      });
+
+      test('_getMinimum() of undefined', function() {
+        assert.isUndefined(element._getMinimum(undefined));
+      });
+
+      test('_getMinimum() of empty object', function() {
+        assert.isUndefined(element._getMinimum({}));
+      });
+
+      test('_getMinimum() of min not equal 0', function() {
+        assert.equal(element._getMinimum({min: 10}), 10);
+      });
+
+      test('_getMinimum() of min equal 0', function() {
+        assert.equal(element._getMinimum({min: 0}), 0);
+      });
+
+      test('_getMinimum() of minimum not equal 0', function() {
+        assert.equal(element._getMinimum({minimum: 10}), 10);
+      });
+
+      test('_getMinimum() of minimum equal 0', function() {
+        assert.equal(element._getMinimum({minimum: 0}), 0);
+      });
+    });
+    </script>
+  </body>
+</html>

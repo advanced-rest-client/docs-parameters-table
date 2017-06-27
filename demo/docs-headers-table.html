@@ -35,17 +35,28 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     </style>
   </head>
   <body unresolved>
-    <template is="dom-bind">
-      <raml-demo-page selected-object="{{selected}}" is-method="{{isMethod}}">
-        <h1>The docs-body-parameters-table element</h1>
+    <template is="dom-bind" id="app">
+      <raml-demo-page selected-object="{{selected}}" is-method="{{isMethod}}" narrow="{{narrow}}">
+        <paper-item data-url$="[[testRaml]]">Test case</paper-item>
+        <h1>The docs-headers-table element</h1>
         <div main>
           <template is="dom-if" if="[[isMethod]]" restamp="true">
-            <docs-headers-table auto-hide has-headers="{{hasHeaders}}" headers="[[selected.headers]]"></docs-headers-table>
+            <docs-headers-table auto-hide has-headers="{{hasHeaders}}" headers="[[selected.headers]]" narrow="[[narrow]]"></docs-headers-table>
             <p hidden$="[[hasHeaders]]">Selected method does not have the <b>headers</b> property.</p>
           </template>
           <p hidden$="[[isMethod]]">Select a method</p>
         </div>
       </raml-demo-page>
     </template>
+    <script>
+    (function(scope) {
+      var path = location.pathname;
+      if (~path.indexOf('.html')) {
+        path = path.substr(0, path.lastIndexOf('/') + 1);
+      }
+      scope.testRaml = location.protocol + '//' + location.host +
+        path.replace('demo', 'test') + 'docs-headers-table.raml';
+    })(document.getElementById('app'));
+    </script>
   </body>
 </html>

@@ -1,3 +1,83 @@
+<a name="1.1.18"></a>
+## [1.1.18](https://github.com/advanced-rest-client/docs-parameters-table/compare/1.1.17...v1.1.18) (2017-06-27)
+
+
+### Docs
+
+* Updated docs for the element. ([b666d1b32b4165a16fc8c3b11bbab9a349744c6f](https://github.com/advanced-rest-client/docs-parameters-table/commit/b666d1b32b4165a16fc8c3b11bbab9a349744c6f))
+* Updated documentartion for the annotations display. ([1f9c7040e7166c417d32921c5de9cb0087eb7325](https://github.com/advanced-rest-client/docs-parameters-table/commit/1f9c7040e7166c417d32921c5de9cb0087eb7325))
+* Updated documentation for the element. ([e966bc05a988dcf4337632f818583129ae13e1d8](https://github.com/advanced-rest-client/docs-parameters-table/commit/e966bc05a988dcf4337632f818583129ae13e1d8))
+* Updated style documentation for example-display ([524d08b4051f17d7a19832a08680231c231e983a](https://github.com/advanced-rest-client/docs-parameters-table/commit/524d08b4051f17d7a19832a08680231c231e983a))
+
+### Fix
+
+* Fixed and issue when there was an error where the value updated and marked element or dom-repeat tried to rended incompatible value before dom-if removed template content from the DOM. ([8fcc029324c2d367a96bca7558aada860c378c3c](https://github.com/advanced-rest-client/docs-parameters-table/commit/8fcc029324c2d367a96bca7558aada860c378c3c))
+* Fixed table view for IE 11. Apparently IE does not allow `template` inside table abd because of this whole view was crashed. Now it works as intended. ([d03145a7b0adc872f09f6668929cab892f4df904](https://github.com/advanced-rest-client/docs-parameters-table/commit/d03145a7b0adc872f09f6668929cab892f4df904))
+* Fixing linter errors caused by wrongly set attributes. ([83a58363db0bd9002040d7680e3c5382926d4da2](https://github.com/advanced-rest-client/docs-parameters-table/commit/83a58363db0bd9002040d7680e3c5382926d4da2))
+* Fixing property css class. ([c56b3e1dd3b8842c4171b98d05522021b66df09e](https://github.com/advanced-rest-client/docs-parameters-table/commit/c56b3e1dd3b8842c4171b98d05522021b66df09e))
+* Updated behavior so it passes tests. ([b74c7654e573e9300a0dac92068c18af21214b0c](https://github.com/advanced-rest-client/docs-parameters-table/commit/b74c7654e573e9300a0dac92068c18af21214b0c))
+
+### New
+
+* Added a test RAML with resource as an Array. ([476a6f115d7e3a37a75532284ebe7c69ba0f5d7b](https://github.com/advanced-rest-client/docs-parameters-table/commit/476a6f115d7e3a37a75532284ebe7c69ba0f5d7b))
+* Added demo page for annotation-display.htlm ([f698d3e161140fbc1eee6351ab1cd82199997b71](https://github.com/advanced-rest-client/docs-parameters-table/commit/f698d3e161140fbc1eee6351ab1cd82199997b71))
+* Added new element to display annotations. ([3559a3cd2b4161dcc3fc62ed6a4a4a040560c78c](https://github.com/advanced-rest-client/docs-parameters-table/commit/3559a3cd2b4161dcc3fc62ed6a4a4a040560c78c))
+* Added test case for the body parameters table. ([0b59db92d0ec4c7fd59aaadb50dbe45880bb8645](https://github.com/advanced-rest-client/docs-parameters-table/commit/0b59db92d0ec4c7fd59aaadb50dbe45880bb8645))
+* Added tests for annotations display. ([6349a7365d0ca9fddacbbaba3f3b24b35bdd55ec](https://github.com/advanced-rest-client/docs-parameters-table/commit/6349a7365d0ca9fddacbbaba3f3b24b35bdd55ec))
+* Added tests for body table. ([5b4f220d5601fce928ce1d71f70a871da5a23a7f](https://github.com/advanced-rest-client/docs-parameters-table/commit/5b4f220d5601fce928ce1d71f70a871da5a23a7f))
+* Added tests for docs-json-parameters-table ([1abaa3ce8d5f4b5ac5b64e0332d5fd0c67f688bc](https://github.com/advanced-rest-client/docs-parameters-table/commit/1abaa3ce8d5f4b5ac5b64e0332d5fd0c67f688bc))
+* Added tests for headers table. ([37eb6efea1af5ad261d59b4255a9b672f3db8ae2](https://github.com/advanced-rest-client/docs-parameters-table/commit/37eb6efea1af5ad261d59b4255a9b672f3db8ae2))
+* Added tests for the behavior and docs-parameters-table. ([e01bffddce603fb47928a0f3b1dab18d872c1526](https://github.com/advanced-rest-client/docs-parameters-table/commit/e01bffddce603fb47928a0f3b1dab18d872c1526))
+
+### Update
+
+* Added annotation display to linter test. ([66b0054659d5e5cb9e7bb88e8e02386514291f4b](https://github.com/advanced-rest-client/docs-parameters-table/commit/66b0054659d5e5cb9e7bb88e8e02386514291f4b))
+* Added annotations display to the parameters table. ([39fb16e5a9e9ffe5ea25b5052268b21f7b0351fd](https://github.com/advanced-rest-client/docs-parameters-table/commit/39fb16e5a9e9ffe5ea25b5052268b21f7b0351fd))
+* Added definition for x-www-form-urlencoded body. ([750e9255dd4773f41f4f9337fa4671be54281530](https://github.com/advanced-rest-client/docs-parameters-table/commit/750e9255dd4773f41f4f9337fa4671be54281530))
+* Added mire elements to be exposed in the catalog. ([c8aa53d3427f751fca0e34eca5abe89cf04ff354](https://github.com/advanced-rest-client/docs-parameters-table/commit/c8aa53d3427f751fca0e34eca5abe89cf04ff354))
+* Added missing dependency. ([5768f3a5a896420ece5d44806064171930983900](https://github.com/advanced-rest-client/docs-parameters-table/commit/5768f3a5a896420ece5d44806064171930983900))
+* Added more fancy properties for a type. ([dd96d462fa3f02fe2d14d2e0bbf24a7a3ff677c9](https://github.com/advanced-rest-client/docs-parameters-table/commit/dd96d462fa3f02fe2d14d2e0bbf24a7a3ff677c9))
+* Added narrow handler to the demo page. ([94065a2af5a4b982f4bf32110ee2fb4ba32b252e](https://github.com/advanced-rest-client/docs-parameters-table/commit/94065a2af5a4b982f4bf32110ee2fb4ba32b252e))
+* Added property css class for tests. ([d33843708045b354df78c03fc40357b13f81a6a7](https://github.com/advanced-rest-client/docs-parameters-table/commit/d33843708045b354df78c03fc40357b13f81a6a7))
+* Added support for narrow layout for demo page. ([8f9414e0a3956f3dc93390b1615a800057eec53d](https://github.com/advanced-rest-client/docs-parameters-table/commit/8f9414e0a3956f3dc93390b1615a800057eec53d))
+* Claned the file. ([3746a85cca361b2fe77e79d963f2ee11c2197c68](https://github.com/advanced-rest-client/docs-parameters-table/commit/3746a85cca361b2fe77e79d963f2ee11c2197c68))
+* Moved `narrow` property to the behavior to share it accross other elements. ([9a9c42de3161569a62311f49b6f69875e5c70e35](https://github.com/advanced-rest-client/docs-parameters-table/commit/9a9c42de3161569a62311f49b6f69875e5c70e35))
+* Now the parameter name will not break in line. ([e81e27ef735693e50ed00644e081f69810d8ca15](https://github.com/advanced-rest-client/docs-parameters-table/commit/e81e27ef735693e50ed00644e081f69810d8ca15))
+* Redesigned the table. Added more meta properties to display. ([9ec41211c24f8ddedb6958f286218137b153e1de](https://github.com/advanced-rest-client/docs-parameters-table/commit/9ec41211c24f8ddedb6958f286218137b153e1de))
+* removed basic tests. it's content has been moved to other tests. ([5a9034a36fae7fc18950805c602d6fdfdda1d41d](https://github.com/advanced-rest-client/docs-parameters-table/commit/5a9034a36fae7fc18950805c602d6fdfdda1d41d))
+* Removed content of the demo index page to provide an index of all demi pages. ([4b09f81846931333f1245ec5475d8ae2f8d87e4c](https://github.com/advanced-rest-client/docs-parameters-table/commit/4b09f81846931333f1245ec5475d8ae2f8d87e4c))
+* Removed docs-body-table.html as an unused and invalid element. ([f94fbf4e9b8344f852a3af37c10c5f1ccf3a2e9f](https://github.com/advanced-rest-client/docs-parameters-table/commit/f94fbf4e9b8344f852a3af37c10c5f1ccf3a2e9f))
+* Removed reference to native table elements. ([d1ab4ec368abc113d8f636031671a5aefb1460a2](https://github.com/advanced-rest-client/docs-parameters-table/commit/d1ab4ec368abc113d8f636031671a5aefb1460a2))
+* Removed unused file. ([36fac0da035d17d0c64c2152f77233dd086a7fa9](https://github.com/advanced-rest-client/docs-parameters-table/commit/36fac0da035d17d0c64c2152f77233dd086a7fa9))
+* Removed unused properties. Updated markup for faster rendering (by using templates instead of hidden attribute). ([81cc92bfa2aa9510c4609757391bb5b0ec58552c](https://github.com/advanced-rest-client/docs-parameters-table/commit/81cc92bfa2aa9510c4609757391bb5b0ec58552c))
+* Removed unused property ([6a9531fd4196a64b9e53ce35b6326cced9aff94b](https://github.com/advanced-rest-client/docs-parameters-table/commit/6a9531fd4196a64b9e53ce35b6326cced9aff94b))
+* removing unused property. ([5e8dacfc12306e42d7c50e10ef8d5bf72b8d3293](https://github.com/advanced-rest-client/docs-parameters-table/commit/5e8dacfc12306e42d7c50e10ef8d5bf72b8d3293))
+* Replaced local polyfill with ARC polyfills library. ([68e73d233067016750cc71801c64e3fd654dcaf7](https://github.com/advanced-rest-client/docs-parameters-table/commit/68e73d233067016750cc71801c64e3fd654dcaf7))
+* Rewritten JSON display. Now the JSON table creates a model and base renderer process on it's content. It's more efficient and scalable than creating DOM objects manually. ([4030dec9d9a98292445d60bb3bd7e0d6ccaf0887](https://github.com/advanced-rest-client/docs-parameters-table/commit/4030dec9d9a98292445d60bb3bd7e0d6ccaf0887))
+* Simplified auto hide function ([e32c90cc7df81f1690da189854e15aba06539a76](https://github.com/advanced-rest-client/docs-parameters-table/commit/e32c90cc7df81f1690da189854e15aba06539a76))
+* Simplified auto hide function. ([6d319382594b76973e0d217bb7c9878e8993f192](https://github.com/advanced-rest-client/docs-parameters-table/commit/6d319382594b76973e0d217bb7c9878e8993f192))
+* Split docs-json-parampeters-table into two elements as they do different things. ([2637b846b8eb000bf6737ebc70153d5e1ec69c39](https://github.com/advanced-rest-client/docs-parameters-table/commit/2637b846b8eb000bf6737ebc70153d5e1ec69c39))
+* Updated "required" and "enum" lables in narrow view. ([c1dd91a1482892552b827a9434144ab740b5c440](https://github.com/advanced-rest-client/docs-parameters-table/commit/c1dd91a1482892552b827a9434144ab740b5c440))
+* Updated class names for second table. ([971000c01ea01d9524a7c67c15f6f4043426636b](https://github.com/advanced-rest-client/docs-parameters-table/commit/971000c01ea01d9524a7c67c15f6f4043426636b))
+* Updated css names to fit the patter of other elements. ([a37e32f599b57e8de1cb8eb85a1c73764f5679da](https://github.com/advanced-rest-client/docs-parameters-table/commit/a37e32f599b57e8de1cb8eb85a1c73764f5679da))
+* Updated demo page - added demo raml file for the parameters table. ([f5fd9cd9045de67975a3ef24bace768f820bb2ca](https://github.com/advanced-rest-client/docs-parameters-table/commit/f5fd9cd9045de67975a3ef24bace768f820bb2ca))
+* Updated demo pages so it accepts local RAML file from tests. ([1e1c65dfb0c9619db0d1c819ea1126f6c906e744](https://github.com/advanced-rest-client/docs-parameters-table/commit/1e1c65dfb0c9619db0d1c819ea1126f6c906e744))
+* Updated dependencies versions for demo page and test. Also updated tests configuration for new API. ([10191ab96f9587370d75b6ed5bac70a904ad30df](https://github.com/advanced-rest-client/docs-parameters-table/commit/10191ab96f9587370d75b6ed5bac70a904ad30df))
+* Updated docs-parameter-table tests to check for proper rendering. ([ea93076899f782b94dac8d25f7530fb5cad6f19f](https://github.com/advanced-rest-client/docs-parameters-table/commit/ea93076899f782b94dac8d25f7530fb5cad6f19f))
+* Updated example display - added documentation and paper tootlip to content actions. ([4145cf821a3fa07828cf60fd0673d7e5c52d4e01](https://github.com/advanced-rest-client/docs-parameters-table/commit/4145cf821a3fa07828cf60fd0673d7e5c52d4e01))
+* Updated lint command to test all eleements. ([75731f029cdc1847ee818ed630fd01e3fb66aa71](https://github.com/advanced-rest-client/docs-parameters-table/commit/75731f029cdc1847ee818ed630fd01e3fb66aa71))
+* Updated linter to accept mocha variables and functions. ([65c88716099798619db08458f99b7fb376d227dc](https://github.com/advanced-rest-client/docs-parameters-table/commit/65c88716099798619db08458f99b7fb376d227dc))
+* Updated name of the test. ([28c254e04924a128680ad1ae88ab415e77e8855f](https://github.com/advanced-rest-client/docs-parameters-table/commit/28c254e04924a128680ad1ae88ab415e77e8855f))
+* Updated style names for query parameters table to match other tables. ([14a38d1af91957907b4ce0ec804d19bf6d3195c0](https://github.com/advanced-rest-client/docs-parameters-table/commit/14a38d1af91957907b4ce0ec804d19bf6d3195c0))
+* Updated test after changing source RAML ([4887597185e683c4b8b294d0c46406c0169241b2](https://github.com/advanced-rest-client/docs-parameters-table/commit/4887597185e683c4b8b294d0c46406c0169241b2))
+* Updated test configuration for chrome and firefox ([2a6e0d0f2c1c4fd5c0a399b32489ff4eada37ffc](https://github.com/advanced-rest-client/docs-parameters-table/commit/2a6e0d0f2c1c4fd5c0a399b32489ff4eada37ffc))
+* Updated tests to pass on IE11 ([c256baf0109cca7b80302a3d61f63ac868e1a2ca](https://github.com/advanced-rest-client/docs-parameters-table/commit/c256baf0109cca7b80302a3d61f63ac868e1a2ca))
+* Updated the form body display for new design. ([6eb754ecfd491917159be34c76edc3701c990e4d](https://github.com/advanced-rest-client/docs-parameters-table/commit/6eb754ecfd491917159be34c76edc3701c990e4d))
+* Updated the headers table to support more properties to display and added annotations. ([2fd5a39d1fee539c8e3d77e0bacd3ca16dab2358](https://github.com/advanced-rest-client/docs-parameters-table/commit/2fd5a39d1fee539c8e3d77e0bacd3ca16dab2358))
+* Updated Travis configuration ([5dda9ae62d941de4fb1be579157acd0268e804dd](https://github.com/advanced-rest-client/docs-parameters-table/commit/5dda9ae62d941de4fb1be579157acd0268e804dd))
+
+
+
 <a name="1.1.17"></a>
 ## [1.1.17](https://github.com/advanced-rest-client/docs-parameters-table/compare/1.1.16...v1.1.17) (2017-06-06)
 

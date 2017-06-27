@@ -12,7 +12,6 @@ License for the specific language governing permissions and limitations under
 the License.
 -->
 <link rel="import" href="../polymer/polymer.html">
-<!-- <link rel="import" href="../prism-element/prism-theme-default.html"> -->
 <link rel="import" href="../markdown-styles/markdown-styles.html">
 <link rel="import" href="../prism-element/prism-highlighter.html">
 <!--
@@ -27,6 +26,10 @@ A `<pre>` element that displays highlighted text.
 Custom property | Description | Default
 ----------------|-------------|----------
 `--code-block` | Mixin applied to the code block. | `{}`
+`--code-background-color` | Background color of the code block | `#f5f2f0`
+
+@element structure-display
+@demo demo/docs-body-parameters-table.html
 -->
 <dom-module id="structure-display">
   <template strip-whitespace>
@@ -35,6 +38,7 @@ Custom property | Description | Default
     :host {
       background-color: var(--code-background-color, #f5f2f0) !important;
     }
+
     #output {
       @apply(--code-block);
     }

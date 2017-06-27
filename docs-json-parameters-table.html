@@ -13,19 +13,14 @@ the License.
 -->
 <link rel="import" href="../polymer/polymer.html">
 <link rel="import" href="../marked-element/marked-element.html">
-<link rel="import" href="../prism-element/prism-theme-default.html">
-<link rel="import" href="../prism-element/prism-highlighter.html">
-<link rel="import" href="../iron-pages/iron-pages.html">
 <link rel="import" href="../iron-collapse/iron-collapse.html">
-<link rel="import" href="../paper-tabs/paper-tabs.html">
-<link rel="import" href="../paper-tabs/paper-tab.html">
 <link rel="import" href="../paper-dropdown-menu/paper-dropdown-menu.html">
 <link rel="import" href="../paper-listbox/paper-listbox.html">
 <link rel="import" href="../paper-item/paper-item.html">
 <link rel="import" href="docs-parameters-behavior.html">
 <link rel="import" href="docs-parameters-table-shared-styles.html">
-<link rel="import" href="structure-display.html">
-<link rel="import" href="example-display.html">
+<link rel="import" href="annotations-display.html">
+<link rel="import" href="docs-json-structure-view.html">
 <!--
 `<docs-json-parameters-table>` displays a documentation view for JSON structured body.
 
@@ -35,19 +30,9 @@ the License.
   type="[[ramlJsonType]]"></docs-json-parameters-table>
 ```
 
-Currently following properties are supported:
-
-- name (required) - name of the property, in case of UIR parameter it should be the parameter itself
-- type - the type of the parameter, any RAML allowed value will be accepted
-- description - description of the parameter
-- required - mark that the property is a required property
-- pattern - validation pattern to be applied to the parameter value
-- example - example value of the parameter
-- min - minimum value of the parametre when the type is numeric
-- max - maximum value of the parametre when the type is numeric
-
 ### Styling
-`<docs-json-parameters-table>` provides the following custom properties and mixins for styling:
+`<docs-json-parameters-table>` provides the following custom properties
+and mixins for styling:
 
 Custom property | Description | Default
 ----------------|-------------|----------
@@ -63,11 +48,7 @@ Custom property | Description | Default
 `--params-table-row-color` | Font color of table's each row |  `#fff`
 `--docs-parameters-table-cell` | Mixin applied to each cell | `{}`
 `--docs-parameters-table-meta` | Mixin applied to property's metadata (example, pattern, etc) | `{}`
-`--docs-body-parameters-table-type-name` | Mixin applied to the name of the type | `{}`
 `--params-table-subproperty-prefix-color` | Color of the parent property name in the subproperty list | `rgba(0, 0, 0, 0.54)`
-`--no-info-message` | A mixin applied to the "missing type" paragraph. | `{}`
-
-Use `paper-tabs`, `paper-tab` and `structure-display` mixins to style this element.
 
 @element docs-json-parameters-table
 @demo demo/docs-body-parameters-table.html
@@ -77,10 +58,6 @@ Use `paper-tabs`, `paper-tab` and `structure-display` mixins to style this eleme
     <style include="prism-theme-default"></style>
     <style include="docs-parameters-table-shared-styles"></style>
     <style>
-    :host {
-      --paper-tabs-selection-bar-color: var(--params-table-header-background-color, #00A1DF);
-      --paper-tab-ink: var(--params-table-header-background-color, #00A1DF);
-    }
 
     .parent-prefix {
       color: var(--params-table-subproperty-prefix-color, rgba(0, 0, 0, 0.54));
@@ -94,73 +71,112 @@ Use `paper-tabs`, `paper-tab` and `structure-display` mixins to style this eleme
       cursor: pointer;
     }
 
-    .no-type {
-      @apply(--no-info-message);
+    .params-table {
+      display: table;
     }
 
+    .tr {
+      display: table-row;
+    }
     </style>
-    <prism-highlighter></prism-highlighter>
+    <iron-collapse opened="[[structureDisplayOpened]]">
+      <docs-json-structure-view type="[[type]]" has-type="[[hasType]]" is-schema="[[isSchema]]"></docs-json-structure-view>
+    </iron-collapse>
 
-    <p class="no-type" hidden$="[[!_computeIsTypeVisible(hasExamples, hasType)]]">
-      This object doesn't have a type description.
-    </p>
-
-    <div id="content" hidden$="[[_computeIsTypeVisible(hasExamples, hasType)]]">
-      <template is="dom-if" if="[[_displayTypeOnly(hasType, hasExamples)]]" restamp="true">
-        <iron-collapse opened="[[structureDisplayOpened]]">
-          <div>
-            <pre is="structure-display" display="[[displayJson]]" class="language-javascript" auto-hide></pre>
-          </div>
-        </iron-collapse>
-      </template>
-      <template is="dom-if" if="[[_displayExampleOnly(hasType, hasExamples)]]" restamp="true">
-        <iron-collapse opened="[[structureDisplayOpened]]">
-          <div class="examples">
-            <template is="dom-repeat" items="[[examples]]">
-              <example-display is-json content="[[item]]"></example-display>
-            </template>
-          </div>
-        </iron-collapse>
-      </template>
-      <template is="dom-if" if="[[_displayTypeAndExample(hasType, hasExamples)]]" restamp="true">
-        <iron-collapse opened="[[structureDisplayOpened]]">
-          <div>
-            <paper-tabs class="schemas" selected="{{selectedSchemaPage}}">
-              <paper-tab>[[_getTypeTabName(isSchema)]]</paper-tab>
-              <paper-tab>Examples</paper-tab>
-            </paper-tabs>
-            <iron-pages selected="{{selectedSchemaPage}}">
-              <div class="schema">
-                <h5 hidden$="[[!type.schema]]">Schema: [[type.schema]]</h5>
-                <pre is="structure-display" display="[[displayJson]]" class="language-javascript" auto-hide></pre>
-              </div>
-              <div class="examples">
-                <template is="dom-repeat" items="[[examples]]">
-                  <example-display is-json content="[[item]]"></example-display>
-                </template>
-              </div>
-            </iron-pages>
-          </div>
-        </iron-collapse>
-      </template>
-      <table class="params-table" hidden$="[[_parametersTableHidden(isSchema, hasType)]]">
-        <thead class="params-table-header">
-          <tr>
-            <th>Parameter</th>
-            <th>Type</th>
-            <th>Description</th>
-          </tr>
-        </thead>
+    <template is="dom-if" if="[[renderTable]]">
+      <div class="params-table">
+        <div class="thead params-table-header">
+          <section class="tr">
+            <span class="th">Parameter</span>
+            <span class="th">Type</span>
+            <span class="th">Description</span>
+          </section>
+        </div>
         <h5 class="narrow-title">Properties</h5>
-        <tbody id="tableContent"></tbody>
-      </table>
-    </div>
+        <div class="tbody">
+          <template is="dom-repeat" items="[[model]]">
+            <template is="dom-if" if="[[item.isArrayHeader]]">
+              <section class="tr">
+                <div class="td param-type" colspan="3">
+                  Array of [[item.type]] items
+                </div>
+              </section>
+            </template>
+            <template is="dom-if" if="[[item.isUnionSelector]]">
+              <section class="tr">
+                <div class="td param-name">Type variant</div>
+                <div class="td param-type">
+                  <paper-dropdown-menu no-label-float>
+                    <paper-listbox class="dropdown-content" selected="{{selectedUnion}}" data-action="toggle-type">
+                      <template is="dom-repeat" items="[[item.options]]" as="union">
+                        <paper-item data-type$="[[union.index]]">[[union.label]]</paper-item>
+                      </template>
+                    </paper-listbox>
+                  </paper-dropdown-menu>
+                </div>
+                <div class="td param-desc"></div>
+              </section>
+            </template>
+            <template is="dom-if" if="[[item.isProperyItem]]">
+              <section class="tr" data-parent$="[[item.dataParent]]" hidden$="[[item.isHidden]]" subproperty$="[[item.isSubproperty]]" has-children$="[[item.hasChildren]]">
+                <div class="td param-name">
+                  <span class="name" child$="[[item.isSubproperty]]">
+                    <template is="dom-if" if="[[item.withParent]]">
+                      <span class="parent-prefix">[[item.parentDisplayValue]]</span>
+                      <span>[[item.nameDisplayValue]]</span>
+                    </template>
+                    <template is="dom-if" if="[[!item.withParent]]">[[item.nameDisplayValue]]</template>
+                  </span>
+                  <template is="dom-if" if="[[item.required]]">
+                    <span class="required-label">(required)</span>
+                  </template>
+                </div>
+                <div class="td param-type">
+                  <span class="type">[[item.typeDisplay]]</span>
+                  <template is="dom-if" if="[[item.hasEnum]]">
+                    <span class="enum-label">(enum)</span>
+                  </template>
+                </div>
+                <div class="td param-desc">
+                  <template is="dom-if" if="[[item.hasDisplaName]]">
+                    <p class="property-display-name">[[item.displayName]]</p>
+                  </template>
+                  <template is="dom-if" if="[[item.description]]">
+                    <marked-element markdown="[[item.description]]">
+                      <div class="markdown-html markdown-body"></div>
+                    </marked-element>
+                  </template>
+                  <template is="dom-if" if="[[item.default]]">
+                    <div class="default">Default value: <span>[[item.default]]</span></div>
+                  </template>
+                  <template is="dom-if" if="[[item.hasExamples]]">
+                    <div class="meta-property example">Example value: <span>[[item.examples]]</span></div>
+                  </template>
+                  <template is="dom-if" if="[[item.pattern]]">
+                    <div class="meta-property pattern">Validation pattern: <span>[[item.pattern]]</span></div>
+                  </template>
+                  <template is="dom-if" if="[[item.hasMinimum]]">
+                    <div class="meta-property min">Minimum value: <span>[[item.minimum]]</span></div>
+                  </template>
+                  <template is="dom-if" if="[[item.hasMaximum]]">
+                    <div class="meta-property max">Maximum value: <span>[[item.maximum]]</span></div>
+                  </template>
+                  <template is="dom-if" if="[[item.hasEnum]]">
+                    <div class="meta-property enum">Possible values: <span>[[item.enum]]</span></div>
+                  </template>
+                  <template is="dom-if" if="[[item.hasAnnotations]]">
+                    <annotations-display annotations="[[item.annotations]]"></annotations-display>
+                  </template>
+                </div>
+              </section>
+            </template>
+          </template>
+        </div>
+      </div>
+    </template>
   </template>
   <script>
   (function() {
-  var ce = function(el) {
-    return document.createElement(el);
-  };
   Polymer({
     is: 'docs-json-parameters-table',
 
@@ -171,35 +187,12 @@ Use `paper-tabs`, `paper-tab` and `structure-display` mixins to style this eleme
        * A RAML's type definition for the body payload.
        */
       type: Object,
-      // True when `type` is present
+      // True if `type` is set
       hasType: {
         type: Boolean,
         computed: '_computeHasType(type.*)',
         value: false,
         notify: true
-      },
-      // // Display name of the property.
-      // displayName: {
-      //   type: String,
-      //   computed: '_computeDisplayName(type.*)'
-      // },
-      // JSON created from the type definition
-      displayJson: {
-        type: String,
-        computed: '_computeDisplayJson(type.*)'
-      },
-      /**
-       * A list of examples in the definition.
-       * This is a computed value for both `example` and `examples` properties.
-       */
-      examples: {
-        type: Array,
-        computed: '_computeExamples(type.*)'
-      },
-      // Selected page in the tabs (where examples exists for this page)
-      selectedSchemaPage: {
-        type: Number,
-        value: 0
       },
       // Will be set to true
       isSchema: Boolean,
@@ -213,17 +206,38 @@ Use `paper-tabs`, `paper-tab` and `structure-display` mixins to style this eleme
       narrow: {
         type: Boolean,
         reflectToAttribute: true
+      },
+      /**
+       * Generated data model for the view.
+       */
+      model: Array,
+      /**
+       * Selected union type if the object is a type of union.
+       */
+      selectedUnion: {
+        type: Number,
+        value: 0
+      },
+      /**
+       * Computed property, true when the table can be rendered
+       */
+      renderTable: {
+        type: Boolean,
+        readOnly: true
       }
     },
 
     observers: [
-      '_computeHTML(hasType, type.*)',
-      '_updateTabs(hasExamples)'
+      '_generateModel(hasType, type.*)',
+      '_selectedUnionChanged(selectedUnion, model)',
+      '_updateUiVariables(hasType, isSchema)'
     ],
 
-    listeners: {
-      'content.iron-select': '_typeDropdownChanged',
-      'content.iron-deselect': '_typeDropdownChanged',
+    /**
+     * Compytes main flow variables that controll what is visible.
+     */
+    _updateUiVariables: function(hasType, isSchema) {
+      this._setRenderTable(!isSchema && hasType);
     },
 
     _computeHasType: function(record) {
@@ -248,196 +262,90 @@ Use `paper-tabs`, `paper-tab` and `structure-display` mixins to style this eleme
       var hasType = !!(object.properties && Object.keys(object.properties).length);
       return hasType;
     },
-
-    _computeDisplayJson: function(record) {
-      if (!record || !record.base) {
+    /**
+     * Generates a model for the view.
+     * Called automatically when `hasType` or `type` change.
+     */
+    _generateModel: function(hasType, record) {
+      var type = record && record.base;
+      if (!hasType || !type) {
         return;
       }
-
-      if (record.base.schema) {
-        return record.base.schemaContent;
-      }
-      if (record.base.type instanceof Array) {
-        record.base.type = record.base.type[0];
-      }
-      if (record.base.type === 'json') {
-        return record.base.content;
-      }
-
-      var properties = record.base.properties;
-      var isArray = false;
-      var hasProperties = !!(properties && Object.keys(properties).length);
-
-      if (!hasProperties) {
-        if (record.base.type === 'array') {
-          properties = record.base.items.properties;
-          isArray = true;
-          hasProperties = !!(properties && Object.keys(properties).length);
-        } else if (record.base.type === 'union') {
-          // just pass to the next block.
-        } else {
-          return undefined;
-        }
-      }
-      var data = hasProperties ? this.__transformObject({}, properties) : {};
-      var self = this;
-      if (record.base.type === 'union') {
-        var ut = [];
-        record.base.anyOf.forEach(function(item) {
-          var _props = self.__transformObject({}, item.properties, true);
-          ut[ut.length] = _props;
-        });
-        data = Object.assign(data, ut[0]);
-      }
-      if (isArray) {
-        data = [data];
-      }
-      return JSON.stringify(data, null, 2);
-    },
-
-    _computeHasExample: function() {
-      // example can be an array
-      var t = this.type;
-      if (!t) {
-        return false;
-      }
-      if (!t.examples && t.example) {
-        t.examples = [t.example];
-      }
-      return !!(t.structuredExample || (t.examples && t.examples.length));
-    },
-
-    __transformObject: function(base, obj) {
-      var bt = this.baseTypes;
-
-      for (var i = 0, len = obj.length; i < len; i++) {
-        var item = obj[i];
-        var type = item.type;
-        var structure;
-
-        if (type instanceof Array) {
-          type = type[0];
-          obj.type = type;
-        }
-        if (bt.indexOf(type) === -1) {
-          // other type defined in RAML
-          if (item.properties) {
-            structure = this.__transformObject({}, this.readProperties(item.properties));
-          } else {
-            structure = type;
-          }
-        } else if (type === 'object' && item.properties) {
-          structure = this.__transformObject({}, this.readProperties(item.properties));
-        } else if (type === 'array') {
-          if (item.items.type instanceof Array) {
-            item.items.type = item.items.type[0];
-          }
-          if (typeof item.items === 'string') {
-            structure = [item.items];
-          } else if (item.items.type === 'object') {
-            structure = [this.__transformObject({},
-              this.readProperties(item.items.properties))];
-          } else {
-            structure = [item.items.type];
-          }
-        } else {
-          structure = type; //item.example || type;
-        }
-
-        base[item.key] = structure;
-      }
-      return base;
-    },
-
-    _computeHTML: function(hasType) {
-      if (!hasType || !this.type) {
-        return;
-      }
-      // this.$$('#tableContent').innerHTML = '';
       this.debounce('body-params-table-render', function() {
-        this.$$('#tableContent').innerHTML = '';
-        this.__computeHtml(this.type);
+        var model = this.__computeModel(type, undefined, []);
+        this.set('model', model);
       }.bind(this), 100);
     },
-
-    __computeUnionTypes: function(object) {
-      var names = {};
-      if (object.anyOf && object.anyOf.length) {
-        for (var i = 0, len = object.anyOf.length; i < len; i++) {
-          for (var j = 0, pLen = object.anyOf[i].properties.length; j < pLen; j++) {
-            if (!(object.anyOf[i].properties[j].name in names)) {
-              names[object.anyOf[i].properties[j].name] = true;
-            }
-          }
-        }
-      }
-      return Object.keys(names);
-    },
     /**
-     * Compyte HTML value for the table.
-     * It can't be done using templates because of the nested structure of the properties.
+     * Computes a model for each item in the type.
+     * Creates a flat sctructure of a table. Each element is a row element.
+     * This recursively walking through objects properties and creates display
+     * structure.
      *
-     * @param {Array} props Object properties from which to create each row of the table
-     * @param {DocumentFragment?} f Document fragmet to which append elements
-     * @param {Object?} parent Parent for current properties. Note that it may not be actual
-     * parent object for the properties. For example, in case of union types it will be
-     * parent that holds union and not the atual parent object for the properties.
-     * @param {Object?} immidietParent Set when `parent` is not immidiet parent of the properties.
+     * @param {any} object Currenlty iterated object
+     * @param {?Object} opts Additional options for current item.
+     * @param {?Object} model An array where results are appended.
      */
-    __computeHtml: function(object, opts) {
+    __computeModel: function(object, opts, model) {
       if (!object) {
         return;
       }
+      model = model || [];
       opts = opts || {};
-      var tr;
+
       var i;
       var len;
       var property;
       var options;
-      var  tableContent = this.$$('#tableContent');
       if (this.baseTypes.indexOf(object.type) !== -1 &&
-        object.type !== 'object' &&
-        object.type !== 'array') {
-        tr = this.__createRowForItem(object, opts);
-        tableContent.appendChild(tr);
-        return;
+        object.type !== 'object' && object.type !== 'array') {
+        var modelItem = this.__createModelForItem(object, opts);
+        model.push(modelItem);
+        return model;
       }
 
       if (object.properties && object.properties.length) {
         for (i = 0, len = object.properties.length; i < len; i++) {
           property = object.properties[i];
-          this.__handleHtmlDocProperty(property, opts);
+          var list = this.__handleModelProperty(property, opts);
+          if (list) {
+            model = model.concat(list);
+          }
         }
       }
 
       if (object.items && object.items.properties && object.items.properties.length) {
-        var isEmptyTable = tableContent.firstChild === null;
+        var isEmptyTable = (model.length === 0 && (!opts || !opts.parent));
         if (isEmptyTable) {
-          tr = this.__createArrayHeaderRow(object, opts);
+          var modelItem = this.__createModelForArrayHeader(object, opts);
+          model.push(modelItem);
+          // Forces children to render a parent as "item."
           var currentCopy = Object.assign({}, object);
           currentCopy.displayName = 'item';
           options = Object.assign({}, opts, {
             parent: currentCopy
           });
         } else {
-          tr = this.__createRowForItem(object, opts);
+          var modelItem = this.__createModelForItem(object, opts);
+          model.push(modelItem);
           options = Object.assign({}, opts, {
             parent: object
           });
         }
-        tableContent.appendChild(tr);
-
         for (i = 0, len = object.items.properties.length; i < len; i++) {
           property = object.items.properties[i];
-          this.__handleHtmlDocProperty(property, options);
+          var list = this.__handleModelProperty(property, options);
+          if (list) {
+            model = model.concat(list);
+          }
         }
       }
       if (object.type === 'union') {
         if (!object.anyOf.length) {
-          return;
+          return model;
         }
-        tr = this.__createRowForUnion(object.anyOf.length);
-        tableContent.appendChild(tr);
+        var modelItem = this.__createModelForUnion(object.anyOf.length);
+        model.push(modelItem);
         for (i = 0, len = object.anyOf.length; i < len; i++) {
           for (var j = 0, pLen = object.anyOf[i].properties.length; j < pLen; j++) {
             property = object.anyOf[i].properties[j];
@@ -447,21 +355,34 @@ Use `paper-tabs`, `paper-tab` and `structure-display` mixins to style this eleme
               variantIndex: i,
               childIndex: j
             };
-            this.__handleHtmlDocProperty(property, options);
+            var list = this.__handleModelProperty(property, options);
+            if (list) {
+              model = model.concat(list);
+            }
           }
         }
       }
+      return model;
     },
-
-    __handleHtmlDocProperty: function(property, opts) {
+    /**
+     * Creates a model for object / array / union property.
+     *
+     * @param {Object} property A property to evaluate.
+     * @param {?Object} opts Item's options.
+     * @return {Array} List of generated model items.
+     */
+    __handleModelProperty: function(property, opts) {
       opts = opts || {};
+      var model = [];
+
       var hasChildren = false;
       if (property.properties || property.items) {
         hasChildren = true;
       }
       var options;
-      var tr = this.__createRowForItem(property, opts);
-      this.$$('#tableContent').appendChild(tr);
+      var modelItem = this.__createModelForItem(property, opts);
+      model.push(modelItem);
+
       if (hasChildren) {
         var children = property.properties || property.items.properties || property.items;
         if (children instanceof Array) {
@@ -470,75 +391,66 @@ Use `paper-tabs`, `paper-tab` and `structure-display` mixins to style this eleme
               parent: property,
               hasChildren: hasChildren
             });
-            this.__computeHtml(children[j], options);
+            var list = this.__computeModel(children[j], options);
+            if (list) {
+              model = model.concat(list);
+            }
           }
         } else if (typeof children === 'string') {
           //
         } else {
           if (children.type === 'any' && !children.enum) {
-            return;
+            return model;
           }
           if (children.name !== (property.name || property.key)) {
             options = Object.assign({}, opts, {
               parent: property,
               hasChildren: hasChildren
             });
-            this.__computeHtml(children, options);
+            var list = this.__computeModel(children, options);
+            if (list) {
+              model = model.concat(list);
+            }
           }
         }
       }
+      return model;
     },
-
-    __createRowForItem: function(item, opts) {
+    /**
+     * Creates a model for a regular property item.
+     */
+    __createModelForItem: function(item, opts) {
       opts = opts || {};
       if (typeof item === 'string') {
         return;
       }
-
-      var tr = ce('tr');
-      var td1 = ce('td');
-      var td2 = ce('td');
-      var td3 = ce('td');
-      var sp1 = ce('span');
-
-      var clsPrefix = 'style-scope docs-json-parameters-table';
-      tr.className = clsPrefix;
-      td1.className = clsPrefix + ' param-name';
-      td2.className = clsPrefix + ' param-type';
-      td3.className = clsPrefix + ' param-desc';
-      sp1.className = clsPrefix + ' display';
-
+      item = Object.assign({}, item);
+      if (opts.hasChildren) {
+        item.hasChildren = true;
+      } else {
+        item.hasChildren = true;
+      }
       var fillParentInfo = true;
       if (opts.inUnion) {
-        tr.dataset.parent = opts.variantIndex;
-        tr.setAttribute('hidden', true);
+        item.dataParent = opts.variantIndex;
+        item.isHidden = true;
         if (opts.parent.anyOf) { //[opts.variantIndex].properties[opts.childIndex] === item
-          sp1.textContent = item.key;
+          item.nameDisplayValue = item.name || item.key || item.displayName;
+          item.withParent = false;
           fillParentInfo = false;
         }
       }
-
       if (opts.parent) {
         if (fillParentInfo) {
-          td1.className += ' subproperty';
-          sp1.className += ' child';
-          var spParent = ce('span');
-          var spChild = ce('span');
-          spParent.className = clsPrefix + ' parent-prefix';
-          spParent.textContent = opts.parent.displayName || opts.parent.name || opts.parent.key;
-          spChild.textContent = item.key || item.name || item.displayName;
-          sp1.appendChild(spParent);
-          sp1.appendChild(spChild);
-          tr.className += ' subproperty';
+          item.isSubproperty = true;
+          item.nameDisplayValue = item.name || item.key || item.displayName;
+          item.parentDisplayValue = opts.parent.displayName || opts.parent.name || opts.parent.key;
+          item.withParent = true;
         }
       } else {
-        sp1.textContent = item.key;
+        item.nameDisplayValue = item.name || item.key || item.displayName;
+        item.withParent = false;
       }
-
-      if (opts.hasChildren) {
-        tr.className += ' has-children';
-      }
-
       if (item.type === 'array') {
         var name = '';
         if (typeof item.items === 'string') {
@@ -548,212 +460,95 @@ Use `paper-tabs`, `paper-tab` and `structure-display` mixins to style this eleme
         } else {
           name += item.items.displayName + '[' + item.items.type + ']';
         }
-        td2.textContent = name;
+        item.typeDisplay = name;
       } else if (item.type === 'any' && item.enum) {
-        td2.textContent = 'Enum';
+        item.typeDisplay = 'Enum';
       } else {
-        td2.textContent = item.type === 'object' ?
+        item.typeDisplay = item.type === 'object' ?
           (item.displayName || item.type) : item.type;
       }
 
-      if (item.description) {
-        var marked = ce('marked-element');
-        var htmlBody = ce('div');
-        marked.className = clsPrefix + '';
-        marked.setAttribute('smartypants', true);
-        marked.addEventListener('marked-render-complete', this._markedRendered.bind(this));
-        htmlBody.className = clsPrefix + ' markdown-html markdown-body';
-        marked.appendChild(htmlBody);
-        td3.appendChild(marked);
-        marked.markdown = item.description;
+      item.hasDisplaName = this._hasDisplayName(item);
+      item.hasExamples = this._hasExamples(item);
+      if (item.hasExamples) {
+        item.example = this._getExamples(item);
       }
-      if (item.pattern) {
-        var pattern = this.__createCellProperty('pattern', 'Validation pattern:', item.pattern);
-        td3.appendChild(pattern);
+      item.hasMinimum = this._hasMinimum(item);
+      if (item.hasMinimum) {
+        item.minimum = this._getMinimum(item);
       }
-      if (item.example) {
-        var example = this.__createCellProperty('example', 'Example:', item.example);
-        td3.appendChild(example);
+      item.hasMaximum = this._hasMaximum(item);
+      if (item.hasMaximum) {
+        item.maximum = this._getMaximum(item);
       }
-      if (item.min || item.min === 0) {
-        var min = this.__createCellProperty('min', 'Minimum value:', item.min);
-        td3.appendChild(min);
+      item.hasEnum = this.hasValue(item.enum);
+      if (item.hasEnum) {
+        item.enum = this._computeEnumValue(item.enum);
       }
-      if (item.max || item.max === 0) {
-        var max = this.__createCellProperty('max', 'Maximum value:', item.max);
-        td3.appendChild(max);
-      }
-
-      if (item.enum && item.enum.length) {
-        var enumValue = this.__createCellProperty('enum', 'Possible values:',
-          this._computeEnumValue(item.enum));
-        td3.appendChild(enumValue);
-      }
-
-      td1.appendChild(sp1);
-      if (item.required) {
-        var sp2 = ce('span');
-        sp2.textContent = '*';
-        sp2.title = sp1.title = 'Required property';
-        td1.appendChild(sp2);
-      }
-
-      tr.appendChild(td1);
-      tr.appendChild(td2);
-      tr.appendChild(td3);
-      return tr;
+      item.hasAnnotations = this.hasValue(item.annotations);
+      item.isArrayHeader = false;
+      item.isProperyItem = true;
+      item.isUnionSelector = false;
+      return item;
     },
-
-    __createArrayHeaderRow: function(item, opts) {
-      var tr = ce('tr');
-      var td = ce('td');
-
-      var clsPrefix = 'style-scope docs-json-parameters-table';
-      tr.className = clsPrefix;
-      td.className = clsPrefix + ' param-type';
-
+    /**
+     * Creates a model item for an array resource which have first element
+     * described as an array.
+     */
+    __createModelForArrayHeader: function(item, opts) {
       var type;
       if (typeof item.items === 'string') {
         type = item.items;
-      } else if (item.items.type) {
-        type = item.items.type;
-      } else {
-        type = 'any';
       }
-      var message = 'Array of ';
-      message += type || 'any';
-      message += ' items';
-      td.textContent = message;
-      td.colSpan = 3;
-      tr.appendChild(td);
-      return tr;
-    },
-
-    __createRowForUnion: function(no) {
-      if (!no) {
-        return console.warn('Trying to invoke row for union but number is not set');
-      }
-      var tr = ce('tr');
-      var td1 = ce('td');
-      var td2 = ce('td');
-      var td3 = ce('td');
-      var sp1 = ce('span');
-
-      var cPrx = 'style-scope docs-json-parameters-table';
-      tr.className = cPrx;
-      td1.className = cPrx + ' param-name';
-      td2.className = cPrx + ' param-type';
-      td3.className = cPrx + ' param-desc';
-      sp1.className = cPrx + ' display';
-
-      sp1.textContent = 'Type variant';
-
-      var html = '<paper-dropdown-menu no-label-float class="' + cPrx + '">';
-      html += '<paper-listbox class="' + cPrx +
-        ' dropdown-content" selected="0" data-action="toggle-type">';
-      for (var i = 0; i < no; i++) {
-        html += '<paper-item data-type="' + i + '" class="' +
-          cPrx + '">Variant ' + (i + 1) + '</paper-item>';
-      }
-      td2.innerHTML = html;
-      tr.appendChild(td1);
-      tr.appendChild(td2);
-      tr.appendChild(td3);
-      return tr;
-    },
-
-    __createCellProperty: function(name, label, value) {
-      var container = ce('div');
-      container.className = 'style-scope docs-json-parameters-table ' + name;
-      var display = ce('span');
-      var valueNode = ce('span');
-      display.className = 'style-scope docs-json-parameters-table display';
-      valueNode.className = 'style-scope docs-json-parameters-table value';
-      display.textContent = label;
-      valueNode.textContent = value;
-      container.appendChild(display);
-      container.appendChild(valueNode);
-      return container;
-    },
-
-    _typeDropdownChanged: function(e) {
-      var target = e.target;
-      if (!target || !target.dataset || !target.dataset.action) {
-        return;
-      }
-      switch (target.dataset.action) {
-        case 'toggle-type':
-          this._toggleType(e.detail.item.dataset.type, e.type === 'iron-select');
-          break;
-      }
-    },
-
-    _toggleType: function(type, visible) {
       if (!type) {
-        return;
+        type = item.items.name || item.items.type || 'any';
       }
-      Polymer.dom(this.$$('#tableContent')).querySelectorAll('[data-parent="' + type + '"]')
-        .forEach(function(node) {
-          if (visible) {
-            node.removeAttribute('hidden');
-          } else {
-            node.setAttribute('hidden', true);
-          }
+      return {
+        isArrayHeader: true,
+        isProperyItem: false,
+        isUnionSelector: false,
+        type: type
+      };
+    },
+
+    __createModelForUnion: function(no) {
+      if (!no) {
+        console.warn('Trying to invoke row for union but number is not set');
+        return [];
+      }
+      var options = [];
+      for (var i = 0; i < no; i++) {
+        options.push({
+          index: i,
+          label: 'Variant ' + (i + 1)
         });
+      }
+      return {
+        isArrayHeader: false,
+        isProperyItem: false,
+        isUnionSelector: true,
+        options: options
+      };
     },
 
-    _markedRendered: function(e) {
-      e = Polymer.dom(e);
-      var target = e.rootTarget;
-      var p = target.querySelector('p');
-      if (!p) {
+    _selectedUnionChanged: function(selectedUnion, model) {
+      if (!model || selectedUnion === undefined) {
         return;
       }
-      p.className += ' docs-json-parameters-table';
-      var div = target.querySelector('#content');
-      if (!div) {
-        return;
-      }
-      div.className += ' markdown-html markdown-body docs-json-parameters-table';
-    },
-    // Forces tabs redraw when tabs are rendered
-    _updateTabs: function(hasExamples) {
-      if (!hasExamples) {
-        return;
-      }
-      var elm = this.$$('paper-tabs');
-      if (!elm) {
-        return;
-      }
-      elm.notifyResize();
-    },
-    // Computes tab name, `Type` if not schema and `Schema` otherise.
-    _getTypeTabName: function(isSchema) {
-      return isSchema ? 'Schema' : 'Type';
-    },
-
-    // Computes visibility of the type description.
-    _computeIsTypeVisible: function(hasExamples, hasType) {
-      return !(hasExamples || hasType);
-    },
-
-    _displayExampleOnly: function(hasType, hasExamples) {
-      return !hasType && hasExamples;
-    },
-
-    _displayTypeOnly: function(hasType, hasExamples) {
-      return hasType && !hasExamples;
-    },
-
-    _displayTypeAndExample: function(hasType, hasExamples) {
-      return hasType && hasExamples;
-    },
-
-    _parametersTableHidden: function(isSchema, hasType) {
-      if (isSchema) {
-        return true;
-      }
-      return !hasType;
+      model.forEach(function(item, i) {
+        if (!item.isProperyItem || item.dataParent === undefined) {
+          return;
+        }
+        if (item.dataParent === selectedUnion) {
+          if (model[i].isHidden) {
+            this.set(['model', i, 'isHidden'], false);
+          }
+        } else {
+          if (!model[i].isHidden) {
+            this.set(['model', i, 'isHidden'], true);
+          }
+        }
+      }, this);
     }
   });
   })();
