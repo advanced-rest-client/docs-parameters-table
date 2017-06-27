@@ -210,22 +210,9 @@ Custom property | Description | Default
         type: Number,
         value: 0
       },
-      hasDisplayData: {
-        type: Boolean,
-        readOnly: true
-      },
-      typeOnly: {
-        type: Boolean,
-        readOnly: true
-      },
-      exampleOnly: {
-        type: Boolean,
-        readOnly: true
-      },
-      typeAndExample: {
-        type: Boolean,
-        readOnly: true
-      },
+      /**
+       * Computed property, true when the table can be rendered
+       */
       renderTable: {
         type: Boolean,
         readOnly: true
@@ -537,7 +524,7 @@ Custom property | Description | Default
     },
 
     _selectedUnionChanged: function(selectedUnion, model) {
-      if (!model) {
+      if (!model || selectedUnion === undefined) {
         return;
       }
       model.forEach(function(item, i) {
