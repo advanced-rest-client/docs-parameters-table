@@ -86,15 +86,15 @@ Custom property | Description | Default
       <div class="annotation">
         <div class="annotation-name">[[item.name]]<template is="dom-if" if="[[!item.isNil]]">:</template></div>
         <div class="annotation-value">
-          <template is="dom-if" if="[[item.isString]]">
-            <marked-element markdown="[[item.structuredValue]]">
+          <template is="dom-if" if="[[item.isString]]" restamp>
+            <marked-element markdown="[[item.value]]">
               <div class="markdown-html markdown-body"></div>
             </marked-element>
           </template>
-          <template is="dom-if" if="[[item.isArray]]">
+          <template is="dom-if" if="[[item.isArray]]" restamp>
             <ul class="array">
-              <template is="dom-repeat" items="[[item.structuredValue]]">
-                <li><span class="value-name">[[item.name]]</span><span class="value-content">[[item.value]]</span></li>
+              <template is="dom-repeat" items="[[item.list]]" as="list">
+                <li><span class="value-name">[[list.name]]</span><span class="value-content">[[list.value]]</span></li>
               </template>
             </ul>
           </template>
@@ -139,7 +139,7 @@ Custom property | Description | Default
         item = Object.assign({}, item);
         delete item.key;
         var structureType = typeof item.structuredValue;
-        item.isString = !['string', 'number', 'boolean'].indexOf(structureType);
+        item.isString = !!~['string', 'number', 'boolean'].indexOf(structureType);
         item.isNil = item.structuredValue === null || item.structuredValue === undefined;
         if (!item.isString && !item.isNil) {
           try {
@@ -159,7 +159,7 @@ Custom property | Description | Default
                 });
               }
               item.isArray = true;
-              item.structuredValue = list;
+              item.list = list;
             } else {
               // Not supported annotation.
               return;
@@ -167,6 +167,8 @@ Custom property | Description | Default
           } catch (e) {
             console.info('Issue with annotations computations.', e);
           }
+        } else if (item.isString) {
+          item.value = String(item.structuredValue);
         }
         if (!item.isArray) {
           item.isArray = false;
