@@ -40,12 +40,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   </head>
   <body unresolved>
     <template is="dom-bind" id="app">
-      <raml-demo-page selected-object="{{selected}}" is-method="{{isMethod}}">
+      <raml-demo-page selected-object="{{selected}}" is-method="{{isMethod}}" narrow="{{narrow}}">
         <paper-item data-url$="[[testRaml]]">Test case</paper-item>
         <h1>The docs-parameters-table element</h1>
         <div main>
           <template is="dom-if" if="[[isMethod]]" restamp="true">
-            <docs-parameters-table hidden$="[[!hasParameters]]" uri-parameters="[[selected.allUriParameters]]" query-parameters="[[selected.queryParameters]]" has-parameters="{{hasParameters}}" auto-hide></docs-parameters-table>
+            <docs-parameters-table hidden$="[[!hasParameters]]" uri-parameters="[[selected.allUriParameters]]" query-parameters="[[selected.queryParameters]]" has-parameters="{{hasParameters}}" auto-hide  narrow="[[narrow]]"></docs-parameters-table>
             <p hidden$="[[hasParameters]]">Selected method does not have nither the <b>allUriParameters</b> and <b>queryParameters</b> property.</p>
           </template>
           <p hidden$="[[isMethod]]">Select a method</p>
