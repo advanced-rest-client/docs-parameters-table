@@ -158,7 +158,7 @@ Custom property | Description | Default
       <docs-xml-parameters-table type="[[selectedBody]]" structure-display-opened="[[structureDisplayOpened]]" narrow="[[narrow]]"></docs-xml-parameters-table>
     </template>
     <template is="dom-if" if="[[isFormUrlEncoded]]">
-      <docs-form-parameters-table type="[[selectedBody]]" structure-display-opened="[[structureDisplayOpened]]" narrow="[[narrow]]"><docs-form-parameters-table>
+      <docs-form-parameters-table type="[[selectedBody]]" narrow="[[narrow]]"><docs-form-parameters-table>
     </template>
     <iron-media-query query="max-width: 640px" query-matches="{{narrow}}"></iron-media-query>
   </template>
