@@ -45,11 +45,19 @@ types:
           signature: 230-ghtwvfrs1itr
           id: 123
         type: string
+        pattern: W\\[a-zA-Z0-9]+
+        minLength: 8
+        maxLength: 25
+        default: "W\\244m4n5kj3gbn2nj4k4n4"
+        example: "W\\244m4n5kj3gbn2nj4k4n4"
         description: |
           ETag of this resource for caching purposes.
           __This property will be ignored when creating an object.__
       id:
         description: A unique identifier for a person. It is a 32 bit string containing alphanumeric characters.
+        type: string
+        example: akIamKH098-NJjgugy-98iU97j
+        pattern: "[a-zA-Z0-9-]+"
       name:
         (annotationTest):
         required: true
