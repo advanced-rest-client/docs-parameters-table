@@ -135,12 +135,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       });
 
       test('Table is rendered', function() {
-        var table = Polymer.dom(element.root).querySelector('table');
+        var table = Polymer.dom(element.root).querySelector('.params-table');
         assert.ok(table);
       });
 
       test('Table has rows as model size', function() {
-        var rows = Polymer.dom(element.root).querySelectorAll('tbody tr');
+        var rows = Polymer.dom(element.root).querySelectorAll('.tbody > .tr');
         assert.lengthOf(rows, model.length);
       });
     });
