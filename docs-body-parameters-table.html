@@ -263,15 +263,12 @@ Custom property | Description | Default
       if (!autoHide) {
         return;
       }
-      if (hasBody) {
-        this.removeAttribute('hidden');
-      } else {
-        this.setAttribute('hidden', true);
-      }
+      var state = !hasBody;
+      this.toggleAttribute('hidden', state);
     },
 
-    _computeDisplayName: function(selectedBodyType, displayBodySelector) {
-      var body = this.selectedBody;
+    _computeDisplayName: function(selectedBodyType, displayBodySelector, record) {
+      var body = record && record.base;
       if (!body || !selectedBodyType) {
         return '';
       }
