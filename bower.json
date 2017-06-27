@@ -13,7 +13,15 @@
   "private": true,
   "main": [
     "docs-parameters-table.html",
-    "docs-headers-table.html"
+    "docs-headers-table.html",
+    "docs-body-parameters-table.html",
+    "docs-xml-parameters-table.html",
+    "docs-form-parameters-table.html",
+    "docs-json-parameters-table.html",
+    "docs-parameters-behavior.html",
+    "example-display.html",
+    "structure-display.html",
+    "annotations-display.html"
   ],
   "repository": {
     "type": "git",
