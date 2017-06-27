@@ -21,7 +21,8 @@
     "docs-parameters-behavior.html",
     "example-display.html",
     "structure-display.html",
-    "annotations-display.html"
+    "annotations-display.html",
+    "docs-json-structure-view.html"
   ],
   "repository": {
     "type": "git",
