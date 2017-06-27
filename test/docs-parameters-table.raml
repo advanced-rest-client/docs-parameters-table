@@ -1,16 +1,27 @@
 #%RAML 1.0
 title: Example API
 version: v1
-baseUri: https://{host}:{port}
+baseUri: https://{host}:{port}/{environment}
 baseUriParameters:
   host:
     displayName: Domain name / ip address
     type: string
     default: localhost
+    description: Provide the IP of the server of its CDN.
+    example: 212.77.100.101
   port:
     displayName: Port
     type: integer
     default: 80
+    minimum: 80
+    maximum: 8888
+  environment:
+    (annotationTest):
+    displayName: Environment
+    enum: [Production, Staging, Development]
+    type: string
+    default: Development
+    pattern: (Production|Staging|Development)
 
 annotationTypes:
   annotationTest: nil

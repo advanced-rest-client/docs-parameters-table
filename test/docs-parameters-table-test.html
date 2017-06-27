@@ -25,7 +25,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
     <test-fixture id="basic">
       <template>
-        <docs-parameters-table></docs-parameters-table>
+        <docs-parameters-table auto-hide></docs-parameters-table>
       </template>
     </test-fixture>
 
@@ -93,38 +93,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         assert.typeOf(element.displayQueryParameters, 'array');
       });
 
-      test('The displayUriParameters has proper structure', function() {
-        var item = element.displayUriParameters[0];
-        var compare = {
-          displayName: 'Domain name / ip address',
-          type: 'string',
-          default: 'localhost',
-          name: 'host',
-          key: 'host',
-          required: true
-        };
-        assert.deepEqual(item, compare);
-      });
-
-      test('The displayQueryParameters has proper structure', function() {
-        var item = element.displayQueryParameters[2];
-        var compare = {
-          description: 'Specify the amount of items that will be retrieved per page',
-          type: 'string',
-          enum: ['type 1', 'type 2', 'type 3'],
-          required: false,
-          pattern: 'type\\s\\d',
-          minLength: 5,
-          maxLength: 6,
-          default: 'type 1',
-          examples: ['type 2'],
-          displayName: 'Per page',
-          key: 'type',
-          name: 'type'
-        };
-        assert.deepEqual(item, compare);
-      });
-
       test('Should render uri parameteres', function() {
         var header = Polymer.dom(element.root).querySelector('.params-table-header.path');
         assert.isOk(header);
@@ -143,6 +111,227 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       test('Computes hasParameters without uriParameters', function() {
         element.uriParameters = undefined;
         assert.isTrue(element.hasParameters);
+      });
+
+      test('hiddes the element', function() {
+        element.uriParameters = undefined;
+        element.queryParameters = undefined;
+        TestHelpers.forceXIfStamp(element);
+        assert.isTrue(element.hasAttribute('hidden'));
+      });
+    });
+
+    suite('uriParameters render', function() {
+      var raml;
+      var element;
+      suiteSetup(function(done) {
+        this.timeout(120000);
+        var baseUrl = location.href.substr(0, location.href.lastIndexOf('/') + 1);
+        var parser = fixture('parser');
+        var enhancer = fixture('enhancer');
+        enhancer.addEventListener('raml-json-enhance-ready', function(e) {
+          raml = e.detail.json;
+          done();
+        });
+        parser.loadApi(baseUrl + 'docs-parameters-table.raml')
+        .then(function(data) {
+          enhancer.json = data.json.specification;
+        })
+        .catch(function(e) {
+          done(new Error('Parser error: ' + (e.message || 'Some error happened...')));
+        });
+      });
+
+      setup(function() {
+        element = fixture('basic');
+        element.uriParameters = raml.resources[0].methods[0].allUriParameters;
+        TestHelpers.forceXIfStamp(element);
+      });
+
+      test('Computes hasUriParameteres', function() {
+        assert.isTrue(element.hasUriParameteres);
+      });
+
+      test('Computes hasQueryParameteres', function() {
+        assert.isFalse(element.hasQueryParameteres);
+      });
+
+      test('Computes hasParameters', function() {
+        assert.isTrue(element.hasParameters);
+      });
+
+      test('Renders name', function() {
+        var node = Polymer.dom(element.root).querySelectorAll('tbody > tr.uri-parameter')[0].querySelector('span.name');
+        var property = element.uriParameters[0];
+        assert.equal(node.textContent, property.name);
+      });
+
+      test('Renders required label', function() {
+        var node = Polymer.dom(element.root).querySelectorAll('tbody > tr.uri-parameter')[0].querySelector('.required-label');
+        assert.ok(node);
+      });
+
+      test('Renders type', function() {
+        var node = Polymer.dom(element.root).querySelectorAll('tbody > tr.uri-parameter')[0].querySelector('.param-type .type');
+        var property = element.uriParameters[0];
+        assert.equal(node.textContent, property.type);
+      });
+
+      test('Renders enum label', function() {
+        var node = Polymer.dom(element.root).querySelectorAll('tbody > tr.uri-parameter')[2].querySelector('.enum-label');
+        assert.ok(node);
+      });
+
+      test('Renders description', function() {
+        var node = Polymer.dom(element.root).querySelectorAll('tbody > tr.uri-parameter')[0].querySelector('.param-desc marked-element');
+        assert.ok(node);
+      });
+
+      test('Renders display name', function() {
+        var node = Polymer.dom(element.root).querySelectorAll('tbody > tr.uri-parameter')[1].querySelector('.param-desc .property-display-name');
+        assert.ok(node);
+      });
+
+      test('Renders default value', function() {
+        var node = Polymer.dom(element.root).querySelectorAll('tbody > tr.uri-parameter')[0].querySelector('.param-desc .meta-property.default');
+        assert.ok(node);
+      });
+
+      test('Renders examples', function() {
+        var node = Polymer.dom(element.root).querySelectorAll('tbody > tr.uri-parameter')[0].querySelector('.param-desc .meta-property.example');
+        assert.ok(node);
+      });
+
+      test('Renders pattern', function() {
+        var node = Polymer.dom(element.root).querySelectorAll('tbody > tr.uri-parameter')[2].querySelector('.param-desc .meta-property.pattern');
+        assert.ok(node);
+      });
+
+      test('Renders minimum', function() {
+        var node = Polymer.dom(element.root).querySelectorAll('tbody > tr.uri-parameter')[1].querySelector('.param-desc .meta-property.min');
+        assert.ok(node);
+      });
+
+      test('Renders maximum', function() {
+        var node = Polymer.dom(element.root).querySelectorAll('tbody > tr.uri-parameter')[1].querySelector('.param-desc .meta-property.max');
+        assert.ok(node);
+      });
+
+      test('Renders enum', function() {
+        var node = Polymer.dom(element.root).querySelectorAll('tbody > tr.uri-parameter')[2].querySelector('.param-desc .meta-property.enum');
+        assert.ok(node);
+      });
+
+      test('Renders annotations', function() {
+        var node = Polymer.dom(element.root).querySelectorAll('tbody > tr.uri-parameter')[2].querySelector('.param-desc annotations-display');
+        assert.ok(node);
+      });
+    });
+
+    suite('queryParameters render', function() {
+      var raml;
+      var element;
+      suiteSetup(function(done) {
+        this.timeout(120000);
+        var baseUrl = location.href.substr(0, location.href.lastIndexOf('/') + 1);
+        var parser = fixture('parser');
+        var enhancer = fixture('enhancer');
+        enhancer.addEventListener('raml-json-enhance-ready', function(e) {
+          raml = e.detail.json;
+          done();
+        });
+        parser.loadApi(baseUrl + 'docs-parameters-table.raml')
+        .then(function(data) {
+          enhancer.json = data.json.specification;
+        })
+        .catch(function(e) {
+          done(new Error('Parser error: ' + (e.message || 'Some error happened...')));
+        });
+      });
+
+      setup(function() {
+        element = fixture('basic');
+        element.queryParameters = raml.resources[0].methods[0].queryParameters;
+        TestHelpers.forceXIfStamp(element);
+      });
+
+      test('Computes hasUriParameteres', function() {
+        assert.isFalse(element.hasUriParameteres);
+      });
+
+      test('Computes hasQueryParameteres', function() {
+        assert.isTrue(element.hasQueryParameteres);
+      });
+
+      test('Computes hasParameters', function() {
+        assert.isTrue(element.hasParameters);
+      });
+
+      test('Renders name', function() {
+        var node = Polymer.dom(element.root).querySelectorAll('tbody > tr.query-param')[0].querySelector('span.name');
+        var property = element.queryParameters[0];
+        assert.equal(node.textContent, property.name);
+      });
+
+      test('Renders required label', function() {
+        var node = Polymer.dom(element.root).querySelectorAll('tbody > tr.query-param')[0].querySelector('.required-label');
+        assert.ok(node);
+      });
+
+      test('Renders type', function() {
+        var node = Polymer.dom(element.root).querySelectorAll('tbody > tr.query-param')[0].querySelector('.param-type .type');
+        var property = element.queryParameters[0];
+        assert.equal(node.textContent, property.type);
+      });
+
+      test('Renders enum label', function() {
+        var node = Polymer.dom(element.root).querySelectorAll('tbody > tr.query-param')[2].querySelector('.enum-label');
+        assert.ok(node);
+      });
+
+      test('Renders description', function() {
+        var node = Polymer.dom(element.root).querySelectorAll('tbody > tr.query-param')[0].querySelector('.param-desc marked-element');
+        assert.ok(node);
+      });
+
+      test('Renders display name', function() {
+        var node = Polymer.dom(element.root).querySelectorAll('tbody > tr.query-param')[1].querySelector('.param-desc .property-display-name');
+        assert.ok(node);
+      });
+
+      test('Renders default value', function() {
+        var node = Polymer.dom(element.root).querySelectorAll('tbody > tr.query-param')[1].querySelector('.param-desc .meta-property.default');
+        assert.ok(node);
+      });
+
+      test('Renders examples', function() {
+        var node = Polymer.dom(element.root).querySelectorAll('tbody > tr.query-param')[0].querySelector('.param-desc .meta-property.example');
+        assert.ok(node);
+      });
+
+      test('Renders pattern', function() {
+        var node = Polymer.dom(element.root).querySelectorAll('tbody > tr.query-param')[2].querySelector('.param-desc .meta-property.pattern');
+        assert.ok(node);
+      });
+
+      test('Renders minimum', function() {
+        var node = Polymer.dom(element.root).querySelectorAll('tbody > tr.query-param')[1].querySelector('.param-desc .meta-property.min');
+        assert.ok(node);
+      });
+
+      test('Renders maximum', function() {
+        var node = Polymer.dom(element.root).querySelectorAll('tbody > tr.query-param')[1].querySelector('.param-desc .meta-property.max');
+        assert.ok(node);
+      });
+
+      test('Renders enum', function() {
+        var node = Polymer.dom(element.root).querySelectorAll('tbody > tr.query-param')[2].querySelector('.param-desc .meta-property.enum');
+        assert.ok(node);
+      });
+
+      test('Renders annotations', function() {
+        var node = Polymer.dom(element.root).querySelectorAll('tbody > tr.query-param')[2].querySelector('.param-desc annotations-display');
+        assert.ok(node);
       });
     });
     </script>
