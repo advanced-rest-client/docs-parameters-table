@@ -233,7 +233,10 @@ Custom property | Description | Default
         type: Object,
         computed: '_computeSelectedBody(selectedBodyType)'
       },
-      // If true then the schema / sxamples section is displayed.
+      /**
+       * True when the schema / examples section is displayed.
+       * Set this value to change the state.
+       */
       structureDisplayOpened: {
         type: Boolean,
         value: true
