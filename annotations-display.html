@@ -116,16 +116,7 @@ Custom property | Description | Default
       _model: {
         type: Array,
         computed: '_computeModel(annotations.*)'
-      },
-      /**
-       * True if `annotations` are set and valid. The value is computed
-       * from generated model and not the `annotations`.
-       */
-      hasAnnotations: {
-        type: Boolean,
-        computed: '_computeHasAnnotations(_model.*)',
-        value: false
-      },
+      }
     },
 
     _computeHasAnnotations: function(record) {
