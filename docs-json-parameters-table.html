@@ -146,8 +146,8 @@ Custom property | Description | Default
                       <div class="markdown-html markdown-body"></div>
                     </marked-element>
                   </template>
-                  <template is="dom-if" if="[[item.default]]">
-                    <div class="default">Default value: <span>[[item.default]]</span></div>
+                  <template is="dom-if" if="[[hasValue(item.default)]]">
+                    <div class="meta-property default">Default value: <span>[[getValue(item.default)]]</span></div>
                   </template>
                   <template is="dom-if" if="[[item.hasExamples]]">
                     <div class="meta-property example">Example value: <span>[[item.examples]]</span></div>

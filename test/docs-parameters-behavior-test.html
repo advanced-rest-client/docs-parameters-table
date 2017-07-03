@@ -58,7 +58,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       });
 
       test('hasValue() of ""', function() {
-        assert.isFalse(element.hasValue(''));
+        assert.isTrue(element.hasValue(''));
       });
 
       test('hasValue() of undefined', function() {
