@@ -3,9 +3,6 @@
 'use strict';
 
 process.title = 'arc-ci';
-if (process.env.TRAVIS_PULL_REQUEST) {
-  return;
-}
 
 const http = require('http');
 const options = {
