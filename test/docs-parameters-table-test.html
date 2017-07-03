@@ -156,94 +156,107 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     });
 
     test('Renders name', function() {
-      var node = Polymer.dom(element.root)
-        .querySelectorAll('.tbody > .tr.uri-parameter')[0]
-        .querySelector('span.name');
+      var row = Polymer.dom(element.root)
+        .querySelectorAll('.tbody > .tr.uri-parameter')[0];
+      var node = Polymer.dom(row.root)
+      .querySelector('span.name');
       var property = element.uriParameters[0];
       assert.equal(node.textContent, property.name);
     });
 
     test('Renders required label', function() {
-      var node = Polymer.dom(element.root)
-        .querySelectorAll('.tbody > .tr.uri-parameter')[0]
+      var row = Polymer.dom(element.root)
+        .querySelectorAll('.tbody > .tr.uri-parameter')[0];
+      var node = Polymer.dom(row.root)
         .querySelector('.required-label');
       assert.ok(node);
     });
 
     test('Renders type', function() {
-      var node = Polymer.dom(element.root)
-        .querySelectorAll('.tbody > .tr.uri-parameter')[0]
+      var row = Polymer.dom(element.root)
+        .querySelectorAll('.tbody > .tr.uri-parameter')[0];
+      var node = Polymer.dom(row.root)
         .querySelector('.param-type .type');
       var property = element.uriParameters[0];
       assert.equal(node.textContent, property.type);
     });
 
     test('Renders enum label', function() {
-      var node = Polymer.dom(element.root)
-        .querySelectorAll('.tbody > .tr.uri-parameter')[2]
+      var row = Polymer.dom(element.root)
+        .querySelectorAll('.tbody > .tr.uri-parameter')[2];
+      var node = Polymer.dom(row.root)
         .querySelector('.enum-label');
       assert.ok(node);
     });
 
     test('Renders description', function() {
-      var node = Polymer.dom(element.root)
-        .querySelectorAll('.tbody > .tr.uri-parameter')[0]
+      var row = Polymer.dom(element.root)
+        .querySelectorAll('.tbody > .tr.uri-parameter')[0];
+      var node = Polymer.dom(row.root)
         .querySelector('.param-desc marked-element');
       assert.ok(node);
     });
 
     test('Renders display name', function() {
-      var node = Polymer.dom(element.root)
-        .querySelectorAll('.tbody > .tr.uri-parameter')[1]
+      var row = Polymer.dom(element.root)
+        .querySelectorAll('.tbody > .tr.uri-parameter')[1];
+      var node = Polymer.dom(row.root)
         .querySelector('.param-desc .property-display-name');
       assert.ok(node);
     });
 
     test('Renders default value', function() {
-      var node = Polymer.dom(element.root)
-        .querySelectorAll('.tbody > .tr.uri-parameter')[0]
+      var row = Polymer.dom(element.root)
+        .querySelectorAll('.tbody > .tr.uri-parameter')[0];
+      var node = Polymer.dom(row.root)
         .querySelector('.param-desc .meta-property.default');
       assert.ok(node);
     });
 
     test('Renders examples', function() {
-      var node = Polymer.dom(element.root)
-        .querySelectorAll('.tbody > .tr.uri-parameter')[0]
+      var row = Polymer.dom(element.root)
+        .querySelectorAll('.tbody > .tr.uri-parameter')[0];
+      var node = Polymer.dom(row.root)
         .querySelector('.param-desc .meta-property.example');
       assert.ok(node);
     });
 
     test('Renders pattern', function() {
-      var node = Polymer.dom(element.root)
-        .querySelectorAll('.tbody > .tr.uri-parameter')[2]
+      var row = Polymer.dom(element.root)
+        .querySelectorAll('.tbody > .tr.uri-parameter')[2];
+      var node = Polymer.dom(row.root)
         .querySelector('.param-desc .meta-property.pattern');
       assert.ok(node);
     });
 
     test('Renders minimum', function() {
-      var node = Polymer.dom(element.root)
-        .querySelectorAll('.tbody > .tr.uri-parameter')[1]
+      var row = Polymer.dom(element.root)
+        .querySelectorAll('.tbody > .tr.uri-parameter')[1];
+      var node = Polymer.dom(row.root)
         .querySelector('.param-desc .meta-property.min');
       assert.ok(node);
     });
 
     test('Renders maximum', function() {
-      var node = Polymer.dom(element.root)
-        .querySelectorAll('.tbody > .tr.uri-parameter')[1]
+      var row = Polymer.dom(element.root)
+        .querySelectorAll('.tbody > .tr.uri-parameter')[1];
+      var node = Polymer.dom(row.root)
         .querySelector('.param-desc .meta-property.max');
       assert.ok(node);
     });
 
     test('Renders enum', function() {
-      var node = Polymer.dom(element.root)
-        .querySelectorAll('.tbody > .tr.uri-parameter')[2]
+      var row = Polymer.dom(element.root)
+        .querySelectorAll('.tbody > .tr.uri-parameter')[2];
+      var node = Polymer.dom(row.root)
         .querySelector('.param-desc .meta-property.enum');
       assert.ok(node);
     });
 
     test('Renders annotations', function() {
-      var node = Polymer.dom(element.root)
-        .querySelectorAll('.tbody > .tr.uri-parameter')[2]
+      var row = Polymer.dom(element.root)
+        .querySelectorAll('.tbody > .tr.uri-parameter')[2];
+      var node = Polymer.dom(row.root)
         .querySelector('.param-desc annotations-display');
       assert.ok(node);
     });
@@ -289,94 +302,107 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     });
 
     test('Renders name', function() {
-      var node = Polymer.dom(element.root)
-      .querySelectorAll('.tbody > .tr.query-param')[0]
+      var row = Polymer.dom(element.root)
+      .querySelectorAll('.tbody > .tr.query-param')[0];
+      var node = Polymer.dom(row.root)
       .querySelector('span.name');
       var property = element.queryParameters[0];
       assert.equal(node.textContent, property.name);
     });
 
     test('Renders required label', function() {
-      var node = Polymer.dom(element.root)
-      .querySelectorAll('.tbody > .tr.query-param')[0]
+      var row = Polymer.dom(element.root)
+      .querySelectorAll('.tbody > .tr.query-param')[0];
+      var node = Polymer.dom(row.root)
       .querySelector('.required-label');
       assert.ok(node);
     });
 
     test('Renders type', function() {
-      var node = Polymer.dom(element.root)
-      .querySelectorAll('.tbody > .tr.query-param')[0]
+      var row = Polymer.dom(element.root)
+      .querySelectorAll('.tbody > .tr.query-param')[0];
+      var node = Polymer.dom(row.root)
       .querySelector('.param-type .type');
       var property = element.queryParameters[0];
       assert.equal(node.textContent, property.type);
     });
 
     test('Renders enum label', function() {
-      var node = Polymer.dom(element.root)
-      .querySelectorAll('.tbody > .tr.query-param')[2]
+      var row = Polymer.dom(element.root)
+      .querySelectorAll('.tbody > .tr.query-param')[2];
+      var node = Polymer.dom(row.root)
       .querySelector('.enum-label');
       assert.ok(node);
     });
 
     test('Renders description', function() {
-      var node = Polymer.dom(element.root)
-      .querySelectorAll('.tbody > .tr.query-param')[0]
+      var row = Polymer.dom(element.root)
+      .querySelectorAll('.tbody > .tr.query-param')[0];
+      var node = Polymer.dom(row.root)
       .querySelector('.param-desc marked-element');
       assert.ok(node);
     });
 
     test('Renders display name', function() {
-      var node = Polymer.dom(element.root)
-      .querySelectorAll('.tbody > .tr.query-param')[1]
+      var row = Polymer.dom(element.root)
+      .querySelectorAll('.tbody > .tr.query-param')[1];
+      var node = Polymer.dom(row.root)
       .querySelector('.param-desc .property-display-name');
       assert.ok(node);
     });
 
     test('Renders default value', function() {
-      var node = Polymer.dom(element.root)
-      .querySelectorAll('.tbody > .tr.query-param')[1]
+      var row = Polymer.dom(element.root)
+      .querySelectorAll('.tbody > .tr.query-param')[1];
+      var node = Polymer.dom(row.root)
       .querySelector('.param-desc .meta-property.default');
       assert.ok(node);
     });
 
     test('Renders examples', function() {
-      var node = Polymer.dom(element.root)
-      .querySelectorAll('.tbody > .tr.query-param')[0]
+      var row = Polymer.dom(element.root)
+      .querySelectorAll('.tbody > .tr.query-param')[0];
+      var node = Polymer.dom(row.root)
       .querySelector('.param-desc .meta-property.example');
       assert.ok(node);
     });
 
     test('Renders pattern', function() {
-      var node = Polymer.dom(element.root)
-      .querySelectorAll('.tbody > .tr.query-param')[2]
+      var row = Polymer.dom(element.root)
+      .querySelectorAll('.tbody > .tr.query-param')[2];
+      var node = Polymer.dom(row.root)
       .querySelector('.param-desc .meta-property.pattern');
       assert.ok(node);
     });
 
     test('Renders minimum', function() {
-      var node = Polymer.dom(element.root)
-      .querySelectorAll('.tbody > .tr.query-param')[1]
+      var row = Polymer.dom(element.root)
+      .querySelectorAll('.tbody > .tr.query-param')[1];
+      var node = Polymer.dom(row.root)
       .querySelector('.param-desc .meta-property.min');
       assert.ok(node);
     });
 
     test('Renders maximum', function() {
-      var node = Polymer.dom(element.root)
-      .querySelectorAll('.tbody > .tr.query-param')[1]
+      var row = Polymer.dom(element.root)
+      .querySelectorAll('.tbody > .tr.query-param')[1];
+      var node = Polymer.dom(row.root)
       .querySelector('.param-desc .meta-property.max');
       assert.ok(node);
     });
 
     test('Renders enum', function() {
-      var node = Polymer.dom(element.root)
-      .querySelectorAll('.tbody > .tr.query-param')[2]
+      var row = Polymer.dom(element.root)
+      .querySelectorAll('.tbody > .tr.query-param')[2];
+      var node = Polymer.dom(row.root)
       .querySelector('.param-desc .meta-property.enum');
       assert.ok(node);
     });
 
     test('Renders annotations', function() {
-      var node = Polymer.dom(element.root)
-      .querySelectorAll('.tbody > .tr.query-param')[2]
+      var row = Polymer.dom(element.root)
+      .querySelectorAll('.tbody > .tr.query-param')[2];
+      var node = Polymer.dom(row.root)
       .querySelector('.param-desc annotations-display');
       assert.ok(node);
     });
