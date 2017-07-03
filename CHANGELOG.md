@@ -1,3 +1,17 @@
+<a name="1.1.20"></a>
+## [1.1.20](https://github.com/advanced-rest-client/docs-parameters-table/compare/1.1.19...v1.1.20) (2017-07-03)
+
+
+### New
+
+* Added one common element to display table row. ([5e766fc2d0caaf82c19077bea7bc5c25acd3d5c8](https://github.com/advanced-rest-client/docs-parameters-table/commit/5e766fc2d0caaf82c19077bea7bc5c25acd3d5c8))
+
+### Update
+
+* Updated CI script to not run for PRs. ([6738814b65734ddcabaf4875367d214f22216a8d](https://github.com/advanced-rest-client/docs-parameters-table/commit/6738814b65734ddcabaf4875367d214f22216a8d))
+
+
+
 <a name="1.1.19"></a>
 ## [1.1.19](https://github.com/advanced-rest-client/docs-parameters-table/compare/1.1.18...v1.1.19) (2017-06-27)
 

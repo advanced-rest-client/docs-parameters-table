@@ -77,82 +77,108 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     });
 
     test('Renders name', function() {
-      var node = Polymer.dom(element.root)
-      .querySelector('.params-table .tbody .tr:nth-child(1) span.name');
+      var row = Polymer.dom(element.root)
+      .querySelector('.params-table .tbody .tr:nth-child(1)');
+      var node = Polymer.dom(row.root)
+      .querySelector('span.name');
       var property = element.headers[0];
       assert.equal(node.textContent, property.name);
     });
 
     test('Renders required label', function() {
-      var node = Polymer.dom(element.root)
-      .querySelector('.params-table .tbody .tr:nth-child(1) .required-label');
+      var row = Polymer.dom(element.root)
+      .querySelector('.params-table .tbody .tr:nth-child(1)');
+      var node = Polymer.dom(row.root)
+      .querySelector('.required-label');
       assert.ok(node);
     });
 
     test('Renders type', function() {
-      var node = Polymer.dom(element.root)
-      .querySelector('.params-table .tbody .tr:nth-child(1) .param-type .type');
+      var row = Polymer.dom(element.root)
+      .querySelector('.params-table .tbody .tr:nth-child(1)');
+      var node = Polymer.dom(row.root)
+      .querySelector('.param-type .type');
       var property = element.headers[0];
       assert.equal(node.textContent, property.type);
     });
 
     test('Renders enum label', function() {
-      var node = Polymer.dom(element.root)
-      .querySelector('.params-table .tbody .tr:nth-child(3) .enum-label');
+      var row = Polymer.dom(element.root)
+      .querySelector('.params-table .tbody .tr:nth-child(3)');
+      var node = Polymer.dom(row.root)
+      .querySelector('.enum-label');
       assert.ok(node);
     });
 
     test('Renders description', function() {
-      var node = Polymer.dom(element.root)
-      .querySelector('.params-table .tbody .tr:nth-child(1) .param-desc marked-element');
+      var row = Polymer.dom(element.root)
+      .querySelector('.params-table .tbody .tr:nth-child(1)');
+      var node = Polymer.dom(row.root)
+      .querySelector('.param-desc marked-element');
       assert.ok(node);
     });
 
     test('Renders display name', function() {
-      var node = Polymer.dom(element.root)
-      .querySelector('.params-table .tbody .tr:nth-child(2) .param-desc .property-display-name');
+      var row = Polymer.dom(element.root)
+      .querySelector('.params-table .tbody .tr:nth-child(2)');
+      var node = Polymer.dom(row.root)
+      .querySelector('.param-desc .property-display-name');
       assert.ok(node);
     });
 
     test('Renders detaul value', function() {
-      var node = Polymer.dom(element.root)
-      .querySelector('.params-table .tbody .tr:nth-child(2) .param-desc .meta-property.default');
+      var row = Polymer.dom(element.root)
+      .querySelector('.params-table .tbody .tr:nth-child(2)');
+      var node = Polymer.dom(row.root)
+      .querySelector('.param-desc .meta-property.default');
       assert.ok(node);
     });
 
     test('Renders examples', function() {
-      var node = Polymer.dom(element.root)
-      .querySelector('.params-table .tbody .tr:nth-child(1) .param-desc .meta-property.example');
+      var row = Polymer.dom(element.root)
+      .querySelector('.params-table .tbody .tr:nth-child(1)');
+      var node = Polymer.dom(row.root)
+      .querySelector('.param-desc .meta-property.example');
       assert.ok(node);
     });
 
     test('Renders pattern', function() {
-      var node = Polymer.dom(element.root)
-      .querySelector('.params-table .tbody .tr:nth-child(3) .param-desc .meta-property.pattern');
+      var row = Polymer.dom(element.root)
+      .querySelector('.params-table .tbody .tr:nth-child(3)');
+      var node = Polymer.dom(row.root)
+      .querySelector('.param-desc .meta-property.pattern');
       assert.ok(node);
     });
 
     test('Renders minimum', function() {
-      var node = Polymer.dom(element.root)
-      .querySelector('.params-table .tbody .tr:nth-child(2) .param-desc .meta-property.min');
+      var row = Polymer.dom(element.root)
+      .querySelector('.params-table .tbody .tr:nth-child(2)');
+      var node = Polymer.dom(row.root)
+      .querySelector('.param-desc .meta-property.min');
       assert.ok(node);
     });
 
     test('Renders maximum', function() {
-      var node = Polymer.dom(element.root)
-      .querySelector('.params-table .tbody .tr:nth-child(2) .param-desc .meta-property.max');
+      var row = Polymer.dom(element.root)
+      .querySelector('.params-table .tbody .tr:nth-child(2)');
+      var node = Polymer.dom(row.root)
+      .querySelector('.param-desc .meta-property.max');
       assert.ok(node);
     });
 
     test('Renders enum', function() {
-      var node = Polymer.dom(element.root)
-      .querySelector('.params-table .tbody .tr:nth-child(3) .param-desc .meta-property.enum');
+      var row = Polymer.dom(element.root)
+      .querySelector('.params-table .tbody .tr:nth-child(3)');
+      var node = Polymer.dom(row.root)
+      .querySelector('.param-desc .meta-property.enum');
       assert.ok(node);
     });
 
     test('Renders annotations', function() {
-      var node = Polymer.dom(element.root)
-      .querySelector('.params-table .tbody .tr:nth-child(1) .param-desc annotations-display');
+      var row = Polymer.dom(element.root)
+      .querySelector('.params-table .tbody .tr:nth-child(1)');
+      var node = Polymer.dom(row.root)
+      .querySelector('.param-desc annotations-display');
       assert.ok(node);
     });
 

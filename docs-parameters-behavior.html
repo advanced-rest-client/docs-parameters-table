@@ -61,19 +61,38 @@ the License.
       }
     },
     /**
-     * Check if passed object is not empty.
+     * Check if passed object is set.
      * 0 (zero) returns true while empty string returns false.
      *
      * @return {Boolean} True/False depending if passed object has a value.
      */
     hasValue: function(obj) {
-      if (typeof obj === 'number' && obj === 0) {
+      var type = typeof obj;
+      if (type === 'number' && obj === 0) {
         return true;
       }
-      if (typeof obj === 'boolean') {
+      if (type === 'boolean') {
+        return true;
+      }
+      if (type === 'string' && obj === '') {
         return true;
       }
       return !!obj;
+    },
+    /**
+     * Gets a value of an object.
+     * It returns the same object except if the value is empty string. Then it
+     * return `(empty string)` label.
+     *
+     * @param {any} obj Object to evaludate
+     * @return {any} the same object
+     */
+    getValue: function(obj) {
+      var type = typeof obj;
+      if (type === 'string' && obj === '') {
+        return '(empty string)';
+      }
+      return obj;
     },
     /**
      * in RAML `properties` property of the type object is an object.

@@ -21,8 +21,6 @@ const payload = {
   'buildNumber': process.env.TRAVIS_BUILD_NUMBER || 'dev',
   'commit': process.env.TRAVIS_COMMIT || 'test',
   'jobNumber': process.env.TRAVIS_JOB_NUMBER || 'dev',
-  'pullRequest': process.env.TRAVIS_PULL_REQUEST || false,
-  'pullRequestSha': process.env.TRAVIS_PULL_REQUEST_SHA || 'none',
   'slug': process.env.TRAVIS_REPO_SLUG || 'unknown'
 };
 
