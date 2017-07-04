@@ -252,8 +252,7 @@ Use `paper-tabs`, `paper-tab` and `structure-display` mixins to style this eleme
         } else {
           structure = type; //item.example || type;
         }
-
-        base[item.key] = structure;
+        base[item.key || item.name] = structure;
       }
       return base;
     },
