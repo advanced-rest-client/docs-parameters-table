@@ -1,3 +1,26 @@
+<a name="1.1.24"></a>
+## [1.1.24](https://github.com/advanced-rest-client/docs-parameters-table/compare/1.1.23...v1.1.24) (2017-07-04)
+
+
+### Fix
+
+* Added type check for the `key` property to avoid issues with `undefined` key values. ([63b9130f9d8feb5996ee86c990800efcc04aba66](https://github.com/advanced-rest-client/docs-parameters-table/commit/63b9130f9d8feb5996ee86c990800efcc04aba66))
+* Created at runtime properties will not contain a key property to match enhancer model. ([4558b26da3dbac66c22ef4b37d9cf9cbcf3b26a7](https://github.com/advanced-rest-client/docs-parameters-table/commit/4558b26da3dbac66c22ef4b37d9cf9cbcf3b26a7))
+* Fixed array items model creating. ([20395f3c7ad5bee5f69cef1874416fbab95ee620](https://github.com/advanced-rest-client/docs-parameters-table/commit/20395f3c7ad5bee5f69cef1874416fbab95ee620))
+* Fixed array type table header. ([33ba898246fe7ae9bbc5358056f9a4937ffdd69a](https://github.com/advanced-rest-client/docs-parameters-table/commit/33ba898246fe7ae9bbc5358056f9a4937ffdd69a))
+* Fixed linter errors. ([045bb4ee1e5d24c7839cecffa4e412db2a1798e5](https://github.com/advanced-rest-client/docs-parameters-table/commit/045bb4ee1e5d24c7839cecffa4e412db2a1798e5))
+
+### New
+
+* Added new element to display signle property infromation. ([f825d939beb8deb2a042c871ea28aa82c98c52ee](https://github.com/advanced-rest-client/docs-parameters-table/commit/f825d939beb8deb2a042c871ea28aa82c98c52ee))
+
+### Update
+
+* Updated styles for properties values. ([70b3a96fc322d614edd440e2fa42f4e8ba478a1b](https://github.com/advanced-rest-client/docs-parameters-table/commit/70b3a96fc322d614edd440e2fa42f4e8ba478a1b))
+* Updated tests for new API. ([0856560b1913613bf58849d046561ee2430d46b6](https://github.com/advanced-rest-client/docs-parameters-table/commit/0856560b1913613bf58849d046561ee2430d46b6))
+
+
+
 <a name="1.1.23"></a>
 ## [1.1.23](https://github.com/advanced-rest-client/docs-parameters-table/compare/1.1.22...v1.1.23) (2017-07-04)
 
