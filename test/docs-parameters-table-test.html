@@ -257,7 +257,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       var row = Polymer.dom(element.root)
         .querySelectorAll('.tbody > .tr.uri-parameter')[2];
       var node = Polymer.dom(row.root)
-        .querySelector('.param-desc annotations-display');
+        .querySelector('.param-desc raml-annotations-display');
       assert.ok(node);
     });
   });
@@ -403,7 +403,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       var row = Polymer.dom(element.root)
       .querySelectorAll('.tbody > .tr.query-param')[2];
       var node = Polymer.dom(row.root)
-      .querySelector('.param-desc annotations-display');
+      .querySelector('.param-desc raml-annotations-display');
       assert.ok(node);
     });
   });

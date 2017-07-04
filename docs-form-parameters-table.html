@@ -13,9 +13,10 @@ the License.
 -->
 <link rel="import" href="../polymer/polymer.html">
 <link rel="import" href="../marked-element/marked-element.html">
+<link rel="import" href="../raml-annotations-display/raml-annotations-display.html">
 <link rel="import" href="docs-parameters-behavior.html">
 <link rel="import" href="docs-parameters-table-shared-styles.html">
-<link rel="import" href="annotations-display.html">
+
 <!--
 `<docs-form-parameters-table>` Displays a list of parameters for the
 `x-www-form-urlencoded` form type.
@@ -112,7 +113,7 @@ Custom property | Description | Default
                   <div class="meta-property enum">Possible values: <span>[[_computeEnumValue(item.enum)]]</span></div>
                 </template>
                 <template is="dom-if" if="[[hasValue(item.annotations)]]">
-                  <annotations-display annotations="[[item.annotations]]"></annotations-display>
+                  <raml-annotations-display annotations="[[item.annotations]]"></raml-annotations-display>
                 </template>
               </div>
             </section>
