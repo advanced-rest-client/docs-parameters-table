@@ -1,3 +1,23 @@
+<a name="1.1.23"></a>
+## [1.1.23](https://github.com/advanced-rest-client/docs-parameters-table/compare/1.1.22...v1.1.23) (2017-07-04)
+
+
+
+
+<a name="1.1.22"></a>
+## [1.1.22](https://github.com/advanced-rest-client/docs-parameters-table/compare/1.1.21...v1.1.22) (2017-07-04)
+
+
+### Breaking
+
+* Promoted annotations-display.html element to its own repository advanced-rest-client/raml-annotations-display ([22bf32fc964fd927a97e27848020a75007b52bbb](https://github.com/advanced-rest-client/docs-parameters-table/commit/22bf32fc964fd927a97e27848020a75007b52bbb))
+
+### Update
+
+* Added `prism-element` to dependencies list. ([55415dd1c7a06b83631375e3294fb44ff7debdd9](https://github.com/advanced-rest-client/docs-parameters-table/commit/55415dd1c7a06b83631375e3294fb44ff7debdd9))
+
+
+
 <a name="1.1.21"></a>
 ## [1.1.21](https://github.com/advanced-rest-client/docs-parameters-table/compare/1.1.20...v1.1.21) (2017-07-03)
 
