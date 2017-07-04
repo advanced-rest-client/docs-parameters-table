@@ -353,20 +353,25 @@ Custom property | Description | Default
       model.push(modelItem);
 
       if (hasChildren) {
+        var list;
         var children = property.properties || property.items.properties || property.items;
+        var childrenType = typeof children;
+        if (!children.type && childrenType !== 'string') {
+          children = this.readProperties(children);
+        }
         if (children instanceof Array) {
           for (var j = 0, cLen = children.length; j < cLen; j++) {
             options = Object.assign({}, opts, {
               parent: property,
               hasChildren: hasChildren
             });
-            var list = this.__computeModel(children[j], options);
+            list = this.__computeModel(children[j], options);
             if (list) {
               model = model.concat(list);
             }
           }
         } else if (typeof children === 'string') {
-          //
+
         } else {
           if (children.type === 'any' && !children.enum) {
             return model;
