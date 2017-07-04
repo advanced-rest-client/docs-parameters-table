@@ -21,7 +21,6 @@
     "docs-parameters-behavior.html",
     "example-display.html",
     "structure-display.html",
-    "annotations-display.html",
     "docs-json-structure-view.html"
   ],
   "repository": {
@@ -46,7 +45,8 @@
     "json-table": "advanced-rest-client/json-table#^0.1.7",
     "arc-polyfills": "advanced-rest-client/arc-polyfills#^0.1.8",
     "iron-flex-layout": "PolymerElements/iron-flex-layout#^1.3.3",
-    "paper-tooltip": "PolymerElements/paper-tooltip#^1.1.4"
+    "paper-tooltip": "PolymerElements/paper-tooltip#^1.1.4",
+    "raml-annotations-display": "advanced-rest-client/raml-annotations-display#^0.1.1"
   },
   "devDependencies": {
     "iron-component-page": "polymerelements/iron-component-page#1.0.0",
