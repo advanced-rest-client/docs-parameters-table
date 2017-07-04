@@ -266,9 +266,11 @@ Custom property | Description | Default
       var len;
       var property;
       var options;
+      var list;
+      var modelItem;
       if (this.baseTypes.indexOf(object.type) !== -1 &&
         object.type !== 'object' && object.type !== 'array') {
-        var modelItem = this.__createModelForItem(object, opts);
+        modelItem = this.__createModelForItem(object, opts);
         model.push(modelItem);
         return model;
       }
@@ -276,7 +278,7 @@ Custom property | Description | Default
       if (object.properties && object.properties.length) {
         for (i = 0, len = object.properties.length; i < len; i++) {
           property = object.properties[i];
-          var list = this.__handleModelProperty(property, opts);
+          list = this.__handleModelProperty(property, opts);
           if (list) {
             model = model.concat(list);
           }
@@ -286,7 +288,7 @@ Custom property | Description | Default
       if (object.items && object.items.properties && object.items.properties.length) {
         var isEmptyTable = (model.length === 0 && (!opts || !opts.parent));
         if (isEmptyTable) {
-          var modelItem = this.__createModelForArrayHeader(object, opts);
+          modelItem = this.__createModelForArrayHeader(object, opts);
           model.push(modelItem);
           // Forces children to render a parent as "item."
           var currentCopy = Object.assign({}, object);
@@ -295,7 +297,7 @@ Custom property | Description | Default
             parent: currentCopy
           });
         } else {
-          var modelItem = this.__createModelForItem(object, opts);
+          modelItem = this.__createModelForItem(object, opts);
           model.push(modelItem);
           options = Object.assign({}, opts, {
             parent: object
@@ -303,7 +305,7 @@ Custom property | Description | Default
         }
         for (i = 0, len = object.items.properties.length; i < len; i++) {
           property = object.items.properties[i];
-          var list = this.__handleModelProperty(property, options);
+          list = this.__handleModelProperty(property, options);
           if (list) {
             model = model.concat(list);
           }
@@ -313,7 +315,7 @@ Custom property | Description | Default
         if (!object.anyOf.length) {
           return model;
         }
-        var modelItem = this.__createModelForUnion(object.anyOf.length);
+        modelItem = this.__createModelForUnion(object.anyOf.length);
         model.push(modelItem);
         for (i = 0, len = object.anyOf.length; i < len; i++) {
           for (var j = 0, pLen = object.anyOf[i].properties.length; j < pLen; j++) {
@@ -324,7 +326,7 @@ Custom property | Description | Default
               variantIndex: i,
               childIndex: j
             };
-            var list = this.__handleModelProperty(property, options);
+            list = this.__handleModelProperty(property, options);
             if (list) {
               model = model.concat(list);
             }
@@ -381,7 +383,7 @@ Custom property | Description | Default
               parent: property,
               hasChildren: hasChildren
             });
-            var list = this.__computeModel(children, options);
+            list = this.__computeModel(children, options);
             if (list) {
               model = model.concat(list);
             }
@@ -402,7 +404,7 @@ Custom property | Description | Default
       if (opts.hasChildren) {
         item.hasChildren = true;
       } else {
-        item.hasChildren = true;
+        item.hasChildren = false;
       }
       var fillParentInfo = true;
       if (opts.inUnion) {
@@ -469,7 +471,7 @@ Custom property | Description | Default
      * Creates a model item for an array resource which have first element
      * described as an array.
      */
-    __createModelForArrayHeader: function(item, opts) {
+    __createModelForArrayHeader: function(item) {
       var type;
       if (typeof item.items === 'string') {
         type = item.items;
