@@ -138,7 +138,11 @@ the License.
       if (!names) {
         return [];
       }
-      return names.map(function(i) { return obj[i]; });
+      return names.map(function(i) {
+        var _obj = obj[i];
+        _obj.key = i;
+        return _obj; 
+      });
     },
 
     _computeEnumValue: function(enumValue) {

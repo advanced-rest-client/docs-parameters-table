@@ -104,7 +104,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           b: {name: 'b'},
           c: {name: 'c'}
         };
-        var compare = [{name: 'a'}, {name: 'b'}, {name: 'c'}];
+        var compare = [{name: 'a', 'key': 'a'}, {name: 'b', 'key': 'b'}, {name: 'c', 'key': 'c'}];
         assert.deepEqual(element.readProperties(arr), compare);
       });
     });

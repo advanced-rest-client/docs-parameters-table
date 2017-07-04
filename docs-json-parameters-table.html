@@ -12,15 +12,14 @@ License for the specific language governing permissions and limitations under
 the License.
 -->
 <link rel="import" href="../polymer/polymer.html">
-<link rel="import" href="../marked-element/marked-element.html">
 <link rel="import" href="../iron-collapse/iron-collapse.html">
 <link rel="import" href="../paper-dropdown-menu/paper-dropdown-menu.html">
 <link rel="import" href="../paper-listbox/paper-listbox.html">
 <link rel="import" href="../paper-item/paper-item.html">
-<link rel="import" href="../raml-annotations-display/raml-annotations-display.html">
 <link rel="import" href="docs-parameters-behavior.html">
 <link rel="import" href="docs-parameters-table-shared-styles.html">
 <link rel="import" href="docs-json-structure-view.html">
+<link rel="import" href="raml-type-property-description.html">
 <!--
 `<docs-json-parameters-table>` displays a documentation view for JSON structured body.
 
@@ -55,10 +54,8 @@ Custom property | Description | Default
 -->
 <dom-module id="docs-json-parameters-table">
   <template>
-    <style include="prism-theme-default"></style>
     <style include="docs-parameters-table-shared-styles"></style>
     <style>
-
     .parent-prefix {
       color: var(--params-table-subproperty-prefix-color, rgba(0, 0, 0, 0.54));
     }
@@ -97,9 +94,9 @@ Custom property | Description | Default
           <template is="dom-repeat" items="[[model]]">
             <template is="dom-if" if="[[item.isArrayHeader]]">
               <section class="tr">
-                <div class="td param-type" colspan="3">
-                  Array of [[item.type]] items
-                </div>
+                <div class="td param-type"></div>
+                <div class="td param-type"></div>
+                <div class="td param-type">Array of [[item.type]] items</div>
               </section>
             </template>
             <template is="dom-if" if="[[item.isUnionSelector]]">
@@ -138,35 +135,7 @@ Custom property | Description | Default
                   </template>
                 </div>
                 <div class="td param-desc">
-                  <template is="dom-if" if="[[item.hasDisplaName]]">
-                    <p class="property-display-name">[[item.displayName]]</p>
-                  </template>
-                  <template is="dom-if" if="[[item.description]]">
-                    <marked-element markdown="[[item.description]]">
-                      <div class="markdown-html markdown-body"></div>
-                    </marked-element>
-                  </template>
-                  <template is="dom-if" if="[[hasValue(item.default)]]">
-                    <div class="meta-property default">Default value: <span>[[getValue(item.default)]]</span></div>
-                  </template>
-                  <template is="dom-if" if="[[item.hasExamples]]">
-                    <div class="meta-property example">Example value: <span>[[item.examples]]</span></div>
-                  </template>
-                  <template is="dom-if" if="[[item.pattern]]">
-                    <div class="meta-property pattern">Validation pattern: <span>[[item.pattern]]</span></div>
-                  </template>
-                  <template is="dom-if" if="[[item.hasMinimum]]">
-                    <div class="meta-property min">Minimum value: <span>[[item.minimum]]</span></div>
-                  </template>
-                  <template is="dom-if" if="[[item.hasMaximum]]">
-                    <div class="meta-property max">Maximum value: <span>[[item.maximum]]</span></div>
-                  </template>
-                  <template is="dom-if" if="[[item.hasEnum]]">
-                    <div class="meta-property enum">Possible values: <span>[[item.enum]]</span></div>
-                  </template>
-                  <template is="dom-if" if="[[item.hasAnnotations]]">
-                    <raml-annotations-display annotations="[[item.annotations]]"></raml-annotations-display>
-                  </template>
+                  <raml-type-property-description item="[[item]]"></raml-type-property-description>
                 </div>
               </section>
             </template>
@@ -297,9 +266,11 @@ Custom property | Description | Default
       var len;
       var property;
       var options;
+      var list;
+      var modelItem;
       if (this.baseTypes.indexOf(object.type) !== -1 &&
         object.type !== 'object' && object.type !== 'array') {
-        var modelItem = this.__createModelForItem(object, opts);
+        modelItem = this.__createModelForItem(object, opts);
         model.push(modelItem);
         return model;
       }
@@ -307,7 +278,7 @@ Custom property | Description | Default
       if (object.properties && object.properties.length) {
         for (i = 0, len = object.properties.length; i < len; i++) {
           property = object.properties[i];
-          var list = this.__handleModelProperty(property, opts);
+          list = this.__handleModelProperty(property, opts);
           if (list) {
             model = model.concat(list);
           }
@@ -317,7 +288,7 @@ Custom property | Description | Default
       if (object.items && object.items.properties && object.items.properties.length) {
         var isEmptyTable = (model.length === 0 && (!opts || !opts.parent));
         if (isEmptyTable) {
-          var modelItem = this.__createModelForArrayHeader(object, opts);
+          modelItem = this.__createModelForArrayHeader(object, opts);
           model.push(modelItem);
           // Forces children to render a parent as "item."
           var currentCopy = Object.assign({}, object);
@@ -326,7 +297,7 @@ Custom property | Description | Default
             parent: currentCopy
           });
         } else {
-          var modelItem = this.__createModelForItem(object, opts);
+          modelItem = this.__createModelForItem(object, opts);
           model.push(modelItem);
           options = Object.assign({}, opts, {
             parent: object
@@ -334,7 +305,7 @@ Custom property | Description | Default
         }
         for (i = 0, len = object.items.properties.length; i < len; i++) {
           property = object.items.properties[i];
-          var list = this.__handleModelProperty(property, options);
+          list = this.__handleModelProperty(property, options);
           if (list) {
             model = model.concat(list);
           }
@@ -344,7 +315,7 @@ Custom property | Description | Default
         if (!object.anyOf.length) {
           return model;
         }
-        var modelItem = this.__createModelForUnion(object.anyOf.length);
+        modelItem = this.__createModelForUnion(object.anyOf.length);
         model.push(modelItem);
         for (i = 0, len = object.anyOf.length; i < len; i++) {
           for (var j = 0, pLen = object.anyOf[i].properties.length; j < pLen; j++) {
@@ -355,7 +326,7 @@ Custom property | Description | Default
               variantIndex: i,
               childIndex: j
             };
-            var list = this.__handleModelProperty(property, options);
+            list = this.__handleModelProperty(property, options);
             if (list) {
               model = model.concat(list);
             }
@@ -384,20 +355,25 @@ Custom property | Description | Default
       model.push(modelItem);
 
       if (hasChildren) {
+        var list;
         var children = property.properties || property.items.properties || property.items;
+        var childrenType = typeof children;
+        if (!children.type && childrenType !== 'string') {
+          children = this.readProperties(children);
+        }
         if (children instanceof Array) {
           for (var j = 0, cLen = children.length; j < cLen; j++) {
             options = Object.assign({}, opts, {
               parent: property,
               hasChildren: hasChildren
             });
-            var list = this.__computeModel(children[j], options);
+            list = this.__computeModel(children[j], options);
             if (list) {
               model = model.concat(list);
             }
           }
         } else if (typeof children === 'string') {
-          //
+
         } else {
           if (children.type === 'any' && !children.enum) {
             return model;
@@ -407,7 +383,7 @@ Custom property | Description | Default
               parent: property,
               hasChildren: hasChildren
             });
-            var list = this.__computeModel(children, options);
+            list = this.__computeModel(children, options);
             if (list) {
               model = model.concat(list);
             }
@@ -428,7 +404,7 @@ Custom property | Description | Default
       if (opts.hasChildren) {
         item.hasChildren = true;
       } else {
-        item.hasChildren = true;
+        item.hasChildren = false;
       }
       var fillParentInfo = true;
       if (opts.inUnion) {
@@ -495,7 +471,7 @@ Custom property | Description | Default
      * Creates a model item for an array resource which have first element
      * described as an array.
      */
-    __createModelForArrayHeader: function(item, opts) {
+    __createModelForArrayHeader: function(item) {
       var type;
       if (typeof item.items === 'string') {
         type = item.items;

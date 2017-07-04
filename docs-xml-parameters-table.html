@@ -164,6 +164,9 @@ Use `paper-tabs`, `paper-tab` and `structure-display` mixins to style this eleme
       if (!object) {
         return undefined;
       }
+      if (object.type === 'xml') {
+        return object.content;
+      }
       if (object.schema && object.schemaContent) {
         return object.schemaContent;
       }
