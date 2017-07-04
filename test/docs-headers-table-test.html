@@ -40,6 +40,16 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   </test-fixture>
   <script>
   /* global fixture, assert, TestHelpers */
+
+  function getDescriptionElement(element, rowIndex, elementPath) {
+    var row = Polymer.dom(element.root)
+      .querySelector('.params-table .tbody .tr:nth-child(' + rowIndex + ')');
+    var display = Polymer.dom(row.root)
+      .querySelector('raml-type-property-description');
+    return Polymer.dom(display.root)
+      .querySelector(elementPath);
+  }
+
   suite('docs-headers-table', function() {
     var raml;
     var element;
@@ -110,76 +120,38 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       assert.ok(node);
     });
 
-    test('Renders description', function() {
-      var row = Polymer.dom(element.root)
-      .querySelector('.params-table .tbody .tr:nth-child(1)');
-      var node = Polymer.dom(row.root)
-      .querySelector('.param-desc marked-element');
-      assert.ok(node);
-    });
-
-    test('Renders display name', function() {
-      var row = Polymer.dom(element.root)
-      .querySelector('.params-table .tbody .tr:nth-child(2)');
-      var node = Polymer.dom(row.root)
-      .querySelector('.param-desc .property-display-name');
-      assert.ok(node);
-    });
-
-    test('Renders detaul value', function() {
-      var row = Polymer.dom(element.root)
-      .querySelector('.params-table .tbody .tr:nth-child(2)');
-      var node = Polymer.dom(row.root)
-      .querySelector('.param-desc .meta-property.default');
-      assert.ok(node);
-    });
-
-    test('Renders examples', function() {
-      var row = Polymer.dom(element.root)
-      .querySelector('.params-table .tbody .tr:nth-child(1)');
-      var node = Polymer.dom(row.root)
-      .querySelector('.param-desc .meta-property.example');
-      assert.ok(node);
-    });
-
-    test('Renders pattern', function() {
-      var row = Polymer.dom(element.root)
-      .querySelector('.params-table .tbody .tr:nth-child(3)');
-      var node = Polymer.dom(row.root)
-      .querySelector('.param-desc .meta-property.pattern');
-      assert.ok(node);
-    });
-
-    test('Renders minimum', function() {
-      var row = Polymer.dom(element.root)
-      .querySelector('.params-table .tbody .tr:nth-child(2)');
-      var node = Polymer.dom(row.root)
-      .querySelector('.param-desc .meta-property.min');
-      assert.ok(node);
-    });
-
-    test('Renders maximum', function() {
-      var row = Polymer.dom(element.root)
-      .querySelector('.params-table .tbody .tr:nth-child(2)');
-      var node = Polymer.dom(row.root)
-      .querySelector('.param-desc .meta-property.max');
-      assert.ok(node);
-    });
-
-    test('Renders enum', function() {
-      var row = Polymer.dom(element.root)
-      .querySelector('.params-table .tbody .tr:nth-child(3)');
-      var node = Polymer.dom(row.root)
-      .querySelector('.param-desc .meta-property.enum');
-      assert.ok(node);
-    });
-
-    test('Renders annotations', function() {
-      var row = Polymer.dom(element.root)
-      .querySelector('.params-table .tbody .tr:nth-child(1)');
-      var node = Polymer.dom(row.root)
-      .querySelector('.param-desc raml-annotations-display');
-      assert.ok(node);
+    [{
+      property: 'description',
+      args: [1, 'marked-element']
+    }, {
+      property: 'display name',
+      args: [2, '.property-display-name']
+    }, {
+      property: 'default value',
+      args: [2, '.meta-property.default']
+    }, {
+      property: 'examples',
+      args: [1, '.meta-property.example']
+    }, {
+      property: 'pattern',
+      args: [3, '.meta-property.pattern']
+    }, {
+      property: 'minimum',
+      args: [2, '.meta-property.min']
+    }, {
+      property: 'maximum',
+      args: [2, '.meta-property.max']
+    }, {
+      property: 'enum',
+      args: [3, '.meta-property.enum']
+    }, {
+      property: 'annotations',
+      args: [1, 'raml-annotations-display']
+    }].forEach(function(item) {
+      test('Renders ' + item.property, function() {
+        var node = getDescriptionElement(element, item.args[0], item.args[1]);
+        assert.ok(node);
+      });
     });
 
     test('hiddes the element', function() {

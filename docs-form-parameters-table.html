@@ -12,11 +12,9 @@ License for the specific language governing permissions and limitations under
 the License.
 -->
 <link rel="import" href="../polymer/polymer.html">
-<link rel="import" href="../marked-element/marked-element.html">
-<link rel="import" href="../raml-annotations-display/raml-annotations-display.html">
 <link rel="import" href="docs-parameters-behavior.html">
 <link rel="import" href="docs-parameters-table-shared-styles.html">
-
+<link rel="import" href="raml-type-property-description.html">
 <!--
 `<docs-form-parameters-table>` Displays a list of parameters for the
 `x-www-form-urlencoded` form type.
@@ -52,11 +50,9 @@ Custom property | Description | Default
 -->
 <dom-module id="docs-form-parameters-table">
   <template>
-    <style include="prism-theme-default"></style>
-    <style include="markdown-styles"></style>
     <style include="docs-parameters-table-shared-styles"></style>
     <style>
-     :host {
+    :host {
       display: block;
     }
     </style>
@@ -86,35 +82,7 @@ Custom property | Description | Default
                 </template>
               </div>
               <div class="td param-desc">
-                <template is="dom-if" if="[[_hasDisplayName(item)]]">
-                  <p class="property-display-name">[[item.displayName]]</p>
-                </template>
-                <template is="dom-if" if="[[item.description]]">
-                  <marked-element markdown="[[item.description]]">
-                    <div class="markdown-html markdown-body"></div>
-                  </marked-element>
-                </template>
-                <template is="dom-if" if="[[item.default]]">
-                  <div class="meta-property default">Default value: <span>[[item.default]]</span></div>
-                </template>
-                <template is="dom-if" if="[[_hasExamples(item)]]">
-                  <div class="meta-property example">Example value: <span>[[_getExamples(item)]]</span></div>
-                </template>
-                <template is="dom-if" if="[[item.pattern]]">
-                  <div class="meta-property pattern">Validation pattern: <span>[[item.pattern]]</span></div>
-                </template>
-                <template is="dom-if" if="[[_hasMinimum(item)]]">
-                  <div class="meta-property min">Minimum value: <span>[[_getMinimum(item)]]</span></div>
-                </template>
-                <template is="dom-if" if="[[_hasMaximum(item)]]">
-                  <div class="meta-property max">Maximum value: <span>[[_getMaximum(item)]]</span></div>
-                </template>
-                <template is="dom-if" if="[[hasValue(item.enum)]]">
-                  <div class="meta-property enum">Possible values: <span>[[_computeEnumValue(item.enum)]]</span></div>
-                </template>
-                <template is="dom-if" if="[[hasValue(item.annotations)]]">
-                  <raml-annotations-display annotations="[[item.annotations]]"></raml-annotations-display>
-                </template>
+                <raml-type-property-description item="[[item]]"></raml-type-property-description>
               </div>
             </section>
           </template>

@@ -136,26 +136,31 @@ Custom property | Description | Default
       vertical-align: top;
     }
 
-    .param-desc .pattern,
-    .param-desc .example,
-    .param-desc .enum,
-    .param-desc .min,
-    .param-desc .max,
-    .param-desc .default,
-    .param-desc raml-annotations-display  {
+    .meta-property.pattern,
+    .meta-property.example,
+    .meta-property.enum,
+    .meta-property.min,
+    .meta-property.max,
+    .meta-property.default,
+    .meta-property.annotations,
+    .meta-property.type  {
       color: var(--params-table-meta-color, rgba(0, 0, 0, 0.64));
       margin: 0px 0 12px 20px;
       @apply(--docs-parameters-table-meta);
     }
 
-    .param-desc .pattern span,
-    .param-desc .example span,
-    .param-desc .enum span,
-    .param-desc .min span,
-    .param-desc .max span,
-    .param-desc .default span  {
+    .meta-property.pattern span,
+    .meta-property.example span,
+    .meta-property.enum span,
+    .meta-property.min span,
+    .meta-property.max span,
+    .meta-property.default span,
+    .meta-property.annotations span,
+    .meta-property.type span {
       font-weight: var(--params-table-meta-value-font-weight, 500);
       margin-left: 8px;
+      white-space: pre-wrap;
+      word-break: break-all;
     }
 
     .display ~ .value {
