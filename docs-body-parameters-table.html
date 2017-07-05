@@ -164,7 +164,15 @@ Custom property | Description | Default
     is: 'docs-body-parameters-table',
 
     behaviors: [RamlBehaviors.DocsParametersBehavior],
-
+    /**
+     * Fired when selected body content type have changed.
+     * It is not fired if value is not set or if change was caused by
+     * computation of available content types automatically set fist available
+     * content type.
+     *
+     * @event raml-docs-content-type-changed
+     * @param {String} value Selected body content type.
+     */
     properties: {
       /**
        * An array of the `body` part of the method part of the RAML definition.
