@@ -1,3 +1,17 @@
+<a name="1.1.26"></a>
+## [1.1.26](https://github.com/advanced-rest-client/docs-parameters-table/compare/1.1.25...v1.1.26) (2017-07-05)
+
+
+### Docs
+
+* Updated documentation for the event. ([31ab02d5caef311f87f6869bb85035f7907d37c5](https://github.com/advanced-rest-client/docs-parameters-table/commit/31ab02d5caef311f87f6869bb85035f7907d37c5))
+
+### Fix
+
+* Fixes #2 should support event for content type change ([6c6aa4d1156723462f896edb07f20476e8a20ec0](https://github.com/advanced-rest-client/docs-parameters-table/commit/6c6aa4d1156723462f896edb07f20476e8a20ec0)), closes [#2](https://github.com/advanced-rest-client/docs-parameters-table/issues/2)
+
+
+
 <a name="1.1.25"></a>
 ## [1.1.25](https://github.com/advanced-rest-client/docs-parameters-table/compare/1.1.24...v1.1.25) (2017-07-04)
 
