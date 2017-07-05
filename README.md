@@ -138,6 +138,12 @@ Custom property | Description | Default
 `--toggle-button` | Mixin applied to toggle button | `{}`
 `--toggle-button-hover` | Mixin applied to the :hover state of toggle button | `{}`
 
+
+
+### Events
+| Name | Description | Params |
+| --- | --- | --- |
+| raml-docs-content-type-changed | Fired when selected body content type have changed. It is not fired if value is not set or if change was caused by computation of available content types automatically set fist available content type. | value **String** - Selected body content type. |
 # docs-xml-parameters-table
 
 `<docs-xml-parameters-table>` displays a documentation view for XML structured body.
