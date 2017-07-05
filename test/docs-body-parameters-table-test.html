@@ -42,7 +42,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     </test-fixture>
 
     <script>
-    /* global fixture, assert, TestHelpers */
+    /* global fixture, assert, TestHelpers, sinon */
     suite('docs-body-parameters-table', function() {
       var raml;
       var element;
@@ -144,6 +144,47 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         TestHelpers.forceXIfStamp(element);
         var node = Polymer.dom(element.root).querySelector('.type-title h4 > span');
         assert.isTrue(node.hasAttribute('hidden'));
+      });
+
+      test('Fires raml-docs-content-type-changed event', function() {
+        var spy = sinon.spy();
+        element.addEventListener('raml-docs-content-type-changed', spy);
+        element.selectedBodyType = 'application/xml';
+        assert.isTrue(spy.called);
+      });
+
+      test('Do not fires raml-docs-content-type-changed event when RAML changes', function() {
+        element.body = undefined;
+        var spy = sinon.spy();
+        element.addEventListener('raml-docs-content-type-changed', spy);
+        element.body = raml.resources[0].methods[0].body;
+        assert.isFalse(spy.called);
+      });
+
+      test('The raml-docs-content-type-changed event changes selected content type', function() {
+        var event = new CustomEvent('raml-docs-content-type-changed', {
+          detail: {
+            value: 'application/xml'
+          },
+          bubbles: true,
+          composed: true
+        });
+        document.body.dispatchEvent(event);
+        assert.equal(element.selectedBodyType, 'application/xml');
+      });
+
+      test('The raml-docs-content-type-changed event handler do not re-fire event', function() {
+        var event = new CustomEvent('raml-docs-content-type-changed', {
+          detail: {
+            value: 'application/xml'
+          },
+          bubbles: true,
+          composed: true
+        });
+        var spy = sinon.spy();
+        element.addEventListener('raml-docs-content-type-changed', spy);
+        document.body.dispatchEvent(event);
+        assert.isFalse(spy.called);
       });
     });
     </script>

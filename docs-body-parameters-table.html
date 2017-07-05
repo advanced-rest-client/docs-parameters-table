@@ -164,7 +164,15 @@ Custom property | Description | Default
     is: 'docs-body-parameters-table',
 
     behaviors: [RamlBehaviors.DocsParametersBehavior],
-
+    /**
+     * Fired when selected body content type have changed.
+     * It is not fired if value is not set or if change was caused by
+     * computation of available content types automatically set fist available
+     * content type.
+     *
+     * @event raml-docs-content-type-changed
+     * @param {String} value Selected body content type.
+     */
     properties: {
       /**
        * An array of the `body` part of the method part of the RAML definition.
@@ -246,12 +254,52 @@ Custom property | Description | Default
       '_computeBodyTypes(body.*)',
       '_autoHide(autoHide, hasBody)',
       '_computeContentType(selectedBody.*)',
-      '_bodyTypesChanged(bodyTypes.*)'
+      '_bodyTypesChanged(bodyTypes.*)',
+      '_selectedBodyTypeChanged(selectedBodyType)'
     ],
 
+    attached: function() {
+      this.listen(window, 'raml-docs-content-type-changed',
+        '_bodyContentTypeHandler');
+    },
+
+    detached: function() {
+      this.unlisten(window, 'raml-docs-content-type-changed',
+        '_bodyContentTypeHandler');
+    },
+    /**
+     * Handler for `raml-docs-content-type-changed` to change `selectedBodyType`
+     * value.
+     */
+    _bodyContentTypeHandler: function(e) {
+      if (e.target === this) {
+        return;
+      }
+      var ct = e.detail.value;
+      this._cancelBodyContentTypeEvent = true;
+      this.set('selectedBodyType', ct);
+      this._cancelBodyContentTypeEvent = false;
+    },
+    /**
+     * Fires the `raml-docs-content-type-changed` event when selected body
+     * content type changes.
+     * It will not be fired if `_cancelBodyContentTypeEvent` is set
+     * or if current selection does not have a value.
+     */
+    _selectedBodyTypeChanged: function(selectedBodyType) {
+      if (this._cancelBodyContentTypeEvent || !selectedBodyType) {
+        return;
+      }
+      this.fire('raml-docs-content-type-changed', {
+        value: selectedBodyType
+      });
+    },
+    /**
+     * Resets states of computed variables.
+     */
     reset: function() {
       this._setBodyTypes([]);
-      this.selectedBodyType = '';
+      this.set('selectedBodyType', '');
       this._setIsJson(false);
       this._setIsXml(false);
     },
@@ -263,7 +311,7 @@ Custom property | Description | Default
       var state = !hasBody;
       this.toggleAttribute('hidden', state);
     },
-
+    // Computes display name for selected body.
     _computeDisplayName: function(selectedBodyType, displayBodySelector, record) {
       var body = record && record.base;
       if (!body || !selectedBodyType) {
@@ -275,7 +323,9 @@ Custom property | Description | Default
       }
       return type;
     },
-
+    /**
+     * Computes current selection content type.
+     */
     _computeContentType: function(record) {
       var type = record.base;
       var isXml = false;
@@ -358,12 +408,14 @@ Custom property | Description | Default
      * When the `bodyTypes` change it will set a default (first) mime as
      * selected.
      */
-    _bodyTypesChanged: function() {
+    _bodyTypesChanged: function(record) {
       var bt;
-      if (this.bodyTypes && this.bodyTypes.length) {
-        bt = this.bodyTypes[0];
+      if (record && record.base && record.base.length) {
+        bt = record.base[0];
       }
+      this._cancelBodyContentTypeEvent = true;
       this.set('selectedBodyType', bt);
+      this._cancelBodyContentTypeEvent = false;
     },
 
     // Toggles type
