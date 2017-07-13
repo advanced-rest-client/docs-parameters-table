@@ -87,16 +87,11 @@ Custom property | Description | Default
     }
 
     h4 {
-      padding: 0 12px;
       @apply(--docs-body-parameters-table-type-name);
     }
 
     paper-listbox paper-item {
       cursor: pointer;
-    }
-
-    .body-selector {
-      margin: 0 12px;
     }
 
     .type-title {
@@ -130,14 +125,11 @@ Custom property | Description | Default
 
     .type-desc {
       margin-bottom: 28px;
-      padding: 0 12px;
       color: rgba(0, 0, 0, 0.74);
       @apply(--arc-font-body1);
       @apply(--raml-docs-item-description);
     }
     </style>
-    <prism-highlighter></prism-highlighter>
-
     <docs-body-media-type-selector hidden$="[[!renderMediaTypeSelector]]" selected-type="{{selectedType}}" body="[[body]]" media-type="{{selectedMediaType}}"></docs-body-media-type-selector>
 
     <div class="type-title">
