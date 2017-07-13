@@ -302,3 +302,28 @@ Custom property | Description | Default
 
 Use `paper-tabs`, `paper-tab` and `structure-display` mixins to style this element.
 
+# docs-body-media-type-selector
+
+A dropdown with media types selector for RAML body declaration.
+
+It extracts media types for provided `body` and displays a dropdown. When value
+of the dropdown changes then it sets `selectedType` property to type declaration
+for selected body.
+
+By default first media type is selected.
+
+
+### Styling
+`<docs-body-media-type-selector>` provides the following custom properties and mixins for styling:
+
+Custom property | Description | Default
+----------------|-------------|----------
+`--docs-body-media-type-selector` | Mixin applied to this elements | `{}`
+`--docs-body-media-type-selector` | Mixin applied to the dropdown element | `{}`
+
+
+
+### Events
+| Name | Description | Params |
+| --- | --- | --- |
+| raml-docs-media-type-changed | Fired when selected body content type have changed. It is not fired if value is not set or if change was caused by computation of available content types automatically set fist available content type. | value **String** - Newly selected media type. |
