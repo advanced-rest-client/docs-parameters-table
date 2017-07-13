@@ -1,3 +1,23 @@
+<a name="1.1.28"></a>
+## [1.1.28](https://github.com/advanced-rest-client/docs-parameters-table/compare/1.1.27...v1.1.28) (2017-07-13)
+
+
+### Fix
+
+* Added missing import of the marked-element ([2f82919edc548a119bbabe4250a9e9a5f0c91f11](https://github.com/advanced-rest-client/docs-parameters-table/commit/2f82919edc548a119bbabe4250a9e9a5f0c91f11))
+
+### New
+
+* Added polymer configuration file. ([47ecfbd417114c5961708da877fa684b1d790d32](https://github.com/advanced-rest-client/docs-parameters-table/commit/47ecfbd417114c5961708da877fa684b1d790d32))
+
+### Update
+
+* Removed padding declaration for a title. ([f4e26a8b137a82a3852464643782d937652cf319](https://github.com/advanced-rest-client/docs-parameters-table/commit/f4e26a8b137a82a3852464643782d937652cf319))
+* Removed unused element and margins from labels. ([4c70bceedc80ec4083290bd99a0c2290dbfcc126](https://github.com/advanced-rest-client/docs-parameters-table/commit/4c70bceedc80ec4083290bd99a0c2290dbfcc126))
+* Rewrite of the body parameters table to support variety of types. ([162b4945b3c8eb906ae95c83f261693640ef04d9](https://github.com/advanced-rest-client/docs-parameters-table/commit/162b4945b3c8eb906ae95c83f261693640ef04d9))
+
+
+
 <a name="1.1.27"></a>
 ## [1.1.27](https://github.com/advanced-rest-client/docs-parameters-table/compare/1.1.26...v1.1.27) (2017-07-05)
 
