@@ -12,22 +12,19 @@ License for the specific language governing permissions and limitations under
 the License.
 -->
 <link rel="import" href="../polymer/polymer.html">
-<link rel="import" href="../iron-pages/iron-pages.html">
 <link rel="import" href="../iron-flex-layout/iron-flex-layout.html">
-<link rel="import" href="../paper-tabs/paper-tabs.html">
-<link rel="import" href="../paper-tabs/paper-tab.html">
-<link rel="import" href="../paper-dropdown-menu/paper-dropdown-menu.html">
-<link rel="import" href="../paper-listbox/paper-listbox.html">
-<link rel="import" href="../paper-item/paper-item.html">
 <link rel="import" href="../paper-icon-button/paper-icon-button.html">
 <link rel="import" href="../arc-icons/arc-icons.html">
 <link rel="import" href="../iron-media-query/iron-media-query.html">
+<link rel="import" href="../arc-polyfills/arc-polyfills.html">
+<link rel="import" href="../paper-tooltip/paper-tooltip.html">
 <link rel="import" href="docs-parameters-behavior.html">
 <link rel="import" href="docs-parameters-table-shared-styles.html">
-<link rel="import" href="structure-display.html">
 <link rel="import" href="docs-json-parameters-table.html">
 <link rel="import" href="docs-xml-parameters-table.html">
 <link rel="import" href="docs-form-parameters-table.html">
+<link rel="import" href="docs-body-media-type-selector.html">
+<link rel="import" href="raml-type-property-description.html">
 <!--
 `<docs-parameters-table>` A parameters list and description table for the RAML documentation view
 
@@ -84,8 +81,6 @@ Custom property | Description | Default
     <style include="docs-parameters-table-shared-styles"></style>
     <style>
     :host {
-      --paper-tabs-selection-bar-color: var(--params-table-header-background-color, #00A1DF);
-      --paper-tab-ink: var(--params-table-header-background-color, #00A1DF);
       display: block;
       overflow: auto;
       width: 100%;
@@ -132,30 +127,50 @@ Custom property | Description | Default
     *[hidden] {
       display: none !important;
     }
+
+    .type-desc {
+      margin-bottom: 28px;
+      padding: 0 12px;
+      color: rgba(0, 0, 0, 0.74);
+      @apply(--arc-font-body1);
+      @apply(--raml-docs-item-description);
+    }
     </style>
     <prism-highlighter></prism-highlighter>
 
-    <template is="dom-if" if="[[displayBodySelector]]">
-      <paper-dropdown-menu label="Body type" class="body-selector">
-        <paper-listbox class="dropdown-content" attr-for-selected="data-type" selected="{{selectedBodyType}}">
-          <template is="dom-repeat" items="[[bodyTypes]]">
-            <paper-item data-type$="[[item]]">[[item]]</paper-item>
-          </template>
-        </paper-listbox>
-      </paper-dropdown-menu>
-    </template>
+    <docs-body-media-type-selector hidden$="[[!renderMediaTypeSelector]]" selected-type="{{selectedType}}" body="[[body]]" media-type="{{selectedMediaType}}"></docs-body-media-type-selector>
+
     <div class="type-title">
-      <h4><span hidden$="[[!displayName]]">Type: [[displayName]]</span></h4>
-      <paper-icon-button class$="toggle-button[[_computeToggleClass(structureDisplayOpened)]]" icon="arc:expand-more" on-tap="toggleOpened" title="Toggle structure display" hidden$="[[isFormUrlEncoded]]"></paper-icon-button>
+      <h4>
+        <span class="label">Type</span>
+        <span class="value">[[_computeTypeLabel(selectedType)]]</span>
+      </h4>
+      <span hidden$="[[hideStructureToggle]]">
+        <paper-icon-button class$="toggle-button[[_computeToggleClass(structureDisplayOpened)]]" icon="arc:expand-more" on-tap="toggleOpened"></paper-icon-button>
+        <paper-tooltip animation-delay="200" position="left">Toggle structure display</paper-tooltip>
+      </span>
     </div>
-    <template is="dom-if" if="[[isJson]]">
-      <docs-json-parameters-table type="[[selectedBody]]" structure-display-opened="[[structureDisplayOpened]]" narrow="[[narrow]]"></docs-json-parameters-table>
+
+    <template is="dom-if" if="[[!isPrimitive]]" restamp>
+      <template is="dom-if" if="[[hasValue(selectedType.description)]]" restamp>
+        <div class="type-desc">
+          <marked-element markdown="[[selectedType.description]]">
+            <div class="markdown-html markdown-body"></div>
+          </marked-element>
+        </div>
+      </template>
     </template>
-    <template is="dom-if" if="[[isXml]]">
-      <docs-xml-parameters-table type="[[selectedBody]]" structure-display-opened="[[structureDisplayOpened]]" narrow="[[narrow]]"></docs-xml-parameters-table>
+    <template is="dom-if" if="[[isObject]]" restamp>
+      <docs-json-parameters-table type="[[_computeTypeProperties(selectedType)]]" structure-display-opened="[[structureDisplayOpened]]" narrow="[[narrow]]"></docs-json-parameters-table>
     </template>
-    <template is="dom-if" if="[[isFormUrlEncoded]]">
-      <docs-form-parameters-table type="[[selectedBody]]" narrow="[[narrow]]"><docs-form-parameters-table>
+    <template is="dom-if" if="[[isJson]]" restamp>
+      <docs-json-structure-view type="[[selectedType]]" has-type narrow="[[narrow]]"></docs-json-structure-view>
+    </template>
+    <template is="dom-if" if="[[isXml]]" restamp>
+      <docs-xml-parameters-table type="[[selectedType]]" structure-display-opened="[[structureDisplayOpened]]" narrow="[[narrow]]"></docs-xml-parameters-table>
+    </template>
+    <template is="dom-if" if="[[isPrimitive]]" restamp>
+      <raml-type-property-description item="[[selectedType]]" display-type></raml-type-property-description>
     </template>
     <iron-media-query query="max-width: 640px" query-matches="{{narrow}}"></iron-media-query>
   </template>
@@ -181,13 +196,43 @@ Custom property | Description | Default
        * element.
        */
       body: Array,
-      // Display name of the property.
-      displayName: {
-        type: String,
-        computed: '_computeDisplayName(selectedBodyType, ' +
-          'displayBodySelector, selectedBody.*)'
+      /**
+       * Computed value, true if body is set and has any item.
+       */
+      hasBody: {
+        value: false,
+        type: Boolean,
+        computed: '_computeHasBody(body)',
+        notify: true
       },
-      // Computed value, true if current type is a JSON type object
+      /**
+       * Computed value depended on number of media types declared in `body`.
+       * It is set to true if `body` contains more than one media type.
+       *
+       * Note, media type selector is always in the DOM and computes
+       * `selectedType` property.
+       */
+      renderMediaTypeSelector: {
+        type: Boolean,
+        computed: '_computeRenderMediaSelector(body)'
+      },
+      /**
+       * Computed selected type value to display.
+       * This value is set by the media types selector.
+       */
+      selectedType: Object,
+      /**
+       * Computed selected value of media type.
+       * This value is set by the media types selector.
+       */
+      selectedMediaType: String,
+      // Computed value, true if current type is a RAML type definition
+      isObject: {
+        type: Object,
+        value: false,
+        readOnly: true
+      },
+      // Computed value, true if current type is a JSON schema
       isJson: {
         type: Object,
         value: false,
@@ -199,44 +244,11 @@ Custom property | Description | Default
         value: false,
         readOnly: true
       },
-      isFormUrlEncoded: {
+      // Computed value, true if current type is a primitive
+      isPrimitive: {
         type: Object,
         value: false,
         readOnly: true
-      },
-      // True if body is set.
-      hasBody: {
-        value: false,
-        type: Boolean,
-        computed: '_computeHasBody(body)',
-        notify: true
-      },
-      // Computed list of names of the body content types.
-      bodyTypes: {
-        type: Array,
-        readOnly: true,
-        value: function() {
-          return [];
-        }
-      },
-      /**
-       * Computed value, true if the body selector can be shown.
-       * Body selector can be shown if there is more than one body defined
-       * (many media types).
-       */
-      displayBodySelector: {
-        type: Boolean,
-        computed: '_computeDisplayBodySelector(bodyTypes.*)'
-      },
-      // A name of the selected body type. E.g. "application/json".
-      selectedBodyType: {
-        type: String,
-        notify: true
-      },
-      // Definition of the body for `selectedBodyType`
-      selectedBody: {
-        type: Object,
-        computed: '_computeSelectedBody(selectedBodyType)'
       },
       /**
        * True when the schema / examples section is displayed.
@@ -246,64 +258,49 @@ Custom property | Description | Default
         type: Boolean,
         value: true
       },
-      // If true then the narrow layout is applied.
-      narrow: Boolean
+      // If set then the narrow layout is applied.
+      narrow: Boolean,
+      /**
+       * Computed value, if set it will hide structure display toggle button.
+       */
+      hideStructureToggle: Boolean
     },
 
     observers: [
-      '_computeBodyTypes(body.*)',
-      '_autoHide(autoHide, hasBody)',
-      '_computeContentType(selectedBody.*)',
-      '_bodyTypesChanged(bodyTypes.*)',
-      '_selectedBodyTypeChanged(selectedBodyType)'
+      '_computeType(selectedType)',
+      '_autoHide(autoHide, hasBody)'
     ],
-
-    attached: function() {
-      this.listen(window, 'raml-docs-content-type-changed',
-        '_bodyContentTypeHandler');
-    },
-
-    detached: function() {
-      this.unlisten(window, 'raml-docs-content-type-changed',
-        '_bodyContentTypeHandler');
+    /**
+     * Computes the `renderMediaTypeSelector` property value.
+     */
+    _computeRenderMediaSelector: function(body) {
+      return !!(body && body.length > 1);
     },
     /**
-     * Handler for `raml-docs-content-type-changed` to change `selectedBodyType`
-     * value.
+     * Computes if current boddy array has any value that can be presented.
+     *
+     * @param {?Array} body Body declaration for the response / method.
+     * @return {Boolean} True if body is set and has any item.
      */
-    _bodyContentTypeHandler: function(e) {
-      if (e.target === this) {
-        return;
-      }
-      var ct = e.detail.value;
-      this._cancelBodyContentTypeEvent = true;
-      this.set('selectedBodyType', ct);
-      this._cancelBodyContentTypeEvent = false;
-    },
-    /**
-     * Fires the `raml-docs-content-type-changed` event when selected body
-     * content type changes.
-     * It will not be fired if `_cancelBodyContentTypeEvent` is set
-     * or if current selection does not have a value.
-     */
-    _selectedBodyTypeChanged: function(selectedBodyType) {
-      if (this._cancelBodyContentTypeEvent || !selectedBodyType) {
-        return;
-      }
-      this.fire('raml-docs-content-type-changed', {
-        value: selectedBodyType
-      });
+    _computeHasBody: function(body) {
+      return !!(body && body.length);
     },
     /**
      * Resets states of computed variables.
      */
     reset: function() {
-      this._setBodyTypes([]);
-      this.set('selectedBodyType', '');
+      this._setIsObject(false);
       this._setIsJson(false);
       this._setIsXml(false);
+      this._setIsPrimitive(false);
     },
-
+    /**
+     * Hides the element by setting `[hidden]` attribute if body is not set
+     * and `[auto-hide]` attribute is set.
+     *
+     * @param {Boolean} autoHide Value of `autoHide` property
+     * @param {Boolean} hasBody Value of the `hasBody` property.
+     */
     _autoHide: function(autoHide, hasBody) {
       if (!autoHide) {
         return;
@@ -311,117 +308,46 @@ Custom property | Description | Default
       var state = !hasBody;
       this.toggleAttribute('hidden', state);
     },
-    // Computes display name for selected body.
-    _computeDisplayName: function(selectedBodyType, displayBodySelector, record) {
-      var body = record && record.base;
-      if (!body || !selectedBodyType) {
-        return '';
-      }
-      var type = body.displayName || body.name || body.type;
-      if (type === selectedBodyType && displayBodySelector) {
-        return '';
-      }
-      return type;
-    },
     /**
      * Computes current selection content type.
      */
-    _computeContentType: function(record) {
-      var type = record.base;
-      var isXml = false;
-      var isJson = false;
-      var isFormUrlEncoded = false;
-      if (!type) {
-        this._setIsJson(isJson);
-        this._setIsXml(isXml);
-        this._setIsFormUrlEncoded(isFormUrlEncoded);
-        return;
-      }
-      var mime;
-      if (type.contentType) {
-        mime = type.contentType;
-      } else {
-        mime = type.key;
-      }
-      if (!mime) {
-        mime = 'application/json';
-      }
-
-      if (mime.indexOf('json') !== -1) {
-        isJson = true;
-      } else if (mime.indexOf('xml') !== -1) {
-        isXml = true;
-      } else if (mime.indexOf('x-www-form-urlencoded') !== -1) {
-        isFormUrlEncoded = true;
-      } else {
-        // for now, default value;
-        isJson = true;
-      }
-      this._setIsJson(isJson);
-      this._setIsXml(isXml);
-      this._setIsFormUrlEncoded(isFormUrlEncoded);
-    },
-
-    // Computes if current boddy array has any value that can be presented.
-    _computeHasBody: function(body) {
-      return !!(body && body.length);
-    },
-
-    // Compute a list of media types for the body array
-    _computeBodyTypes: function() {
+    _computeType: function(type) {
       this.reset();
-      var body = this.body;
-      if (!body || !body.length) {
+      if (!type) {
         return;
       }
-      var mime = body.map(function(item) {
-        return item.key;
-      });
-      this._setBodyTypes(mime);
-    },
-
-    // returns true if given argument is an array and has more than 1 element.
-    _computeDisplayBodySelector: function() {
-      var size = this.bodyTypes ? this.bodyTypes.length : 0;
-      return !!(size && size > 1);
-    },
-
-    /**
-     * When the selection of body types change it will compute proper
-     * body object.
-     */
-    _computeSelectedBody: function(selectedBodyType) {
-      var body = this.body;
-      if (!selectedBodyType || !body || !body.length) {
-        return undefined;
+      switch (type.type) {
+        case 'object':
+        case 'array':
+        case 'union':
+          this._setIsObject(true);
+          break;
+        case 'xml':
+          this._setIsXml(true);
+          break;
+        case 'json':
+          this._setIsJson(true);
+          break;
+        default:
+          if (type.type && typeof type.type === 'string' &&  type.type[0] === '<') {
+            // TODO: This is an issue, probably with enhancer. At some point
+            // type becomes type content and contains schema.
+            this._setIsXml(true);
+          } else {
+            this._setIsPrimitive(true);
+          }
       }
 
-      for (var i = 0, len = body.length; i < len; i++) {
-        if (body[i].key === selectedBodyType) {
-          return body[i];
-        }
-      }
-
-      return undefined;
-    },
-    /**
-     * When the `bodyTypes` change it will set a default (first) mime as
-     * selected.
-     */
-    _bodyTypesChanged: function(record) {
-      var bt;
-      if (record && record.base && record.base.length) {
-        bt = record.base[0];
-      }
-      this._cancelBodyContentTypeEvent = true;
-      this.set('selectedBodyType', bt);
-      this._cancelBodyContentTypeEvent = false;
+      this.async(function() {
+        this._computeHideStructureToggle();
+      }, 1);
     },
 
     // Toggles type
     toggleOpened: function() {
       this.structureDisplayOpened = !this.structureDisplayOpened;
     },
+
     // Computes toggle button class name
     _computeToggleClass: function(toggleOpened) {
       var clazz = '';
@@ -429,6 +355,53 @@ Custom property | Description | Default
         clazz += ' opened';
       }
       return clazz;
+    },
+    /**
+     * Computes type name to display.
+     *
+     * @param {Object} type Selected type.
+     * @return {String} Label to display.
+     */
+    _computeTypeLabel: function(type) {
+      if (!type) {
+        return;
+      }
+      return type.displayName || type.name || type.key || undefined;
+    },
+
+    /**
+     * Computes type's properties to match required data model.
+     *
+     * @param {Object} type RAML's type definition.
+     * @return {Object} The same object with properties as array.
+     */
+    _computeTypeProperties: function(type) {
+      if (!type) {
+        return;
+      }
+      if (type.properties) {
+        if (!(type.properties instanceof Array)) {
+          var names = Object.keys(type.properties);
+          var properties = [];
+          names.forEach(function(name) {
+            var item = type.properties[name];
+            item.key = name;
+            properties.push(item);
+          });
+          type.properties = properties;
+        }
+      }
+      return type;
+    },
+
+    _computeHideStructureToggle: function() {
+      var value = false;
+      if (this.isObject) {
+        value = !this.$$('docs-json-parameters-table').hasType;
+      } else if (this.isXml) {
+        value = !this.$$('docs-xml-parameters-table').hasType;
+      }
+      this.hideStructureToggle = value;
     }
   });
   </script>

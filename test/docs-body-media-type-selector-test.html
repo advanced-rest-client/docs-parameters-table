@@ -19,13 +19,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     <script src="../../iron-test-helpers/mock-interactions.js"></script>
     <link rel="import" href="../../raml-js-parser/raml-js-parser.html">
     <link rel="import" href="../../raml-json-enhance/raml-json-enhance.html">
-    <link rel="import" href="../docs-body-parameters-table.html">
+    <link rel="import" href="../docs-body-media-type-selector.html">
   </head>
   <body>
 
     <test-fixture id="basic">
       <template>
-        <docs-body-parameters-table auto-hide></docs-body-parameters-table>
+        <docs-body-media-type-selector></docs-body-parameters-table>
       </template>
     </test-fixture>
 
@@ -43,7 +43,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
     <script>
     /* global fixture, assert, TestHelpers, sinon */
-    suite('docs-body-parameters-table', function() {
+    suite('docs-body-media-type-selector', function() {
       var raml;
       var element;
       suiteSetup(function(done) {
@@ -70,82 +70,36 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         TestHelpers.forceXIfStamp(element);
       });
 
-      test('Computes hasBody', function() {
-        assert.isTrue(element.hasBody);
+      test('The availableMediaTypes is an Array', function() {
+        assert.typeOf(element.availableMediaTypes, 'array');
       });
 
-      test('Computes renderMediaTypeSelector', function() {
-        assert.isTrue(element.renderMediaTypeSelector);
+      test('The availableMediaTypes has 3 elements', function() {
+        var compare = ['application/json', 'application/xml', 'application/x-www-form-urlencoded'];
+        assert.deepEqual(element.availableMediaTypes, compare);
       });
 
-      test('Has selectedType', function() {
-        assert.isDefined(element.selectedType);
+      test('Computes selectedType as the first body type', function() {
+        assert.equal(element.selectedType, element.body[0]);
       });
 
-      test('Computes isObject', function() {
-        assert.isTrue(element.isObject);
+      test('mediaType proeprty if first available media type', function() {
+        assert.equal(element.mediaType, 'application/json');
       });
 
-      test('Computes isXml', function() {
-        assert.isFalse(element.isXml);
-      });
-
-      test('Computes isJson', function() {
-        assert.isFalse(element.isJson);
-      });
-
-      test('Computes isPrimitive', function() {
-        assert.isFalse(element.isPrimitive);
-      });
-
-      test('structureDisplayOpened is true by default', function() {
-        assert.isTrue(element.structureDisplayOpened);
-      });
-
-      test('Computes hideStructureToggle', function(done) {
-        // This is async task
-        setTimeout(function() {
-          assert.isFalse(element.hideStructureToggle);
-          done();
-        }, 2);
-      });
-
-      test('_computeTypeLabel() computes display name', function() {
-        assert.equal(element._computeTypeLabel(element.selectedType), element.selectedType.displayName);
-      });
-
-      test('Media type selector is rendered', function() {
-        var node = Polymer.dom(element.root).querySelector('docs-body-media-type-selector');
-        assert.isFalse(node.hasAttribute('hidden'));
-      });
-
-      test('docs-json-parameters-table is rendered', function() {
-        var node = Polymer.dom(element.root).querySelector('docs-json-parameters-table');
-        assert.ok(node);
-      });
-
-      test('Changes media type', function() {
-        element.selectedMediaType = 'application/xml';
-        TestHelpers.forceXIfStamp(element);
-        var node = Polymer.dom(element.root).querySelector('docs-xml-parameters-table');
-        assert.ok(node);
-      });
-
-      test('Media type change removes previous display from the DOM', function() {
-        element.selectedMediaType = 'application/xml';
-        TestHelpers.forceXIfStamp(element);
-        var node = Polymer.dom(element.root).querySelector('docs-json-parameters-table');
-        assert.notOk(node);
+      test('mediaType change computes new selectedType', function() {
+        element.mediaType = 'application/xml';
+        assert.deepEqual(element.selectedType, element.body[1]);
       });
 
       test('Fires raml-docs-media-type-changed event', function() {
         var spy = sinon.spy();
         element.addEventListener('raml-docs-media-type-changed', spy);
-        element.selectedMediaType = 'application/xml';
+        element.mediaType = 'application/xml';
         assert.isTrue(spy.called);
       });
 
-      test('Do not fires raml-docs-media-type-changed event when RAML changes', function() {
+      test('Do not fires raml-docs-media-type-changed event when body propety change', function() {
         element.body = undefined;
         var spy = sinon.spy();
         element.addEventListener('raml-docs-media-type-changed', spy);
@@ -153,7 +107,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         assert.isFalse(spy.called);
       });
 
-      test('The raml-docs-media-type-changed event changes selected media type', function() {
+      test('The raml-docs-media-type-changed event changes mediaType property', function() {
         var event = new CustomEvent('raml-docs-media-type-changed', {
           detail: {
             value: 'application/xml'
@@ -162,7 +116,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           composed: true
         });
         document.body.dispatchEvent(event);
-        assert.equal(element.selectedMediaType, 'application/xml');
+        assert.equal(element.mediaType, 'application/xml');
       });
 
       test('The raml-docs-media-type-changed event handler do not re-fire event', function() {
