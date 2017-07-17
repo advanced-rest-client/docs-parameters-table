@@ -109,11 +109,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           done();
         }, 2);
       });
-
-      test('_computeTypeLabel() computes display name', function() {
-        assert.equal(element._computeTypeLabel(element.selectedType), element.selectedType.displayName);
-      });
-
+      
       test('Media type selector is rendered', function() {
         var node = Polymer.dom(element.root).querySelector('docs-body-media-type-selector');
         assert.isFalse(node.hasAttribute('hidden'));
