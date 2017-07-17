@@ -35,6 +35,7 @@ Custom property | Description | Default
 `--example-display-actions-container` | Mixin applied to the top actions container | `{}`
 `--example-display-button-active-background-color` | Background color of active button | `#e0e0e0`
 `--example-display-button-active` | Mixin applied to selected content button | `{}`
+`--example-display-title` | Mixin applied to the title element | `{}`
 
 @element example-display
 @demo demo/docs-body-parameters-table.html
@@ -51,6 +52,10 @@ Custom property | Description | Default
       display: none;
     }
 
+    h5 {
+      @apply --example-display-title;
+    }
+
     paper-icon-button[active] {
       background-color: var(--example-display-button-active-background-color, #e0e0e0);
       border-radius: 50%;
@@ -61,6 +66,9 @@ Custom property | Description | Default
       @apply(--example-display-actions-container);
     }
     </style>
+    <template is="dom-if" if="[[exampleTitle]]">
+      <h5>[[exampleTitle]]</h5>
+    </template>
     <div class="example-actions">
       <span>
         <paper-icon-button icon="arc:content-copy" on-tap="_copyToClipboard"></paper-icon-button>
@@ -74,12 +82,12 @@ Custom property | Description | Default
       </template>
     </div>
     <template is="dom-if" if="[[!table]]">
-      <pre is="structure-display" display="[[content]]" class="language-javascript" auto-hide></pre>
+      <pre is="structure-display" display="[[display]]" class="language-javascript" auto-hide></pre>
     </template>
     <template is="dom-if" if="[[_computeDisplayTable(isJson, table)]]">
-      <json-table json="[[content]]"></json-table>
+      <json-table json="[[display]]"></json-table>
     </template>
-    <clipboard-copy content="[[content]]"></clipboard-copy>
+    <clipboard-copy content="[[display]]"></clipboard-copy>
   </template>
   <script>
     Polymer({
@@ -92,8 +100,24 @@ Custom property | Description | Default
        * @param {Boolean} enabled If true then the view is enabled.
        */
       properties: {
-        // A content to display.
+        /**
+         * A content to display. It can be either string to display an example
+         * as a siple value or an Object which is RAML's example object
+         * with `name` and `value` properties.
+         */
         content: String,
+        /**
+         * A value to display. Computed from the `content` property.
+         */
+        display: {
+          type: String,
+          computed: '_computeExampleDisplay(content)'
+        },
+        // Computed value, an example title if available
+        exampleTitle: {
+          type: String,
+          computed: '_computeExampleTitle(content)'
+        },
         // If true it will add control to display JSON in table view.
         isJson: {
           type: Boolean,
@@ -118,7 +142,28 @@ Custom property | Description | Default
         this.unlisten(window, 'storage', '_onStorageChanged');
         this.unlisten(window, 'json-table-state-changed', '_onJsonTableStateChanged');
       },
-
+      /**
+       * Computes title of named example.
+       * @param {Object|String} content The `content` property.
+       * @return {String|undefined} Title or undefined.
+       */
+      _computeExampleTitle: function(content) {
+        if (!content || typeof content === 'string' || !content.name) {
+          return;
+        }
+        return content.name;
+      },
+      /**
+       * Computes a value to display in the element.
+       * @param {Object|String} content The `content` property.
+       * @return {String|undefined} Content or undefined.
+       */
+      _computeExampleDisplay: function(content) {
+        if (!content || typeof content === 'string') {
+          return content;
+        }
+        return content.value;
+      },
       /**
        * Coppies current response text value to clipboard.
        */
