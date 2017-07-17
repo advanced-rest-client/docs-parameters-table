@@ -19,6 +19,7 @@ the License.
 <link rel="import" href="../arc-polyfills/arc-polyfills.html">
 <link rel="import" href="../paper-tooltip/paper-tooltip.html">
 <link rel="import" href="../marked-element/marked-element.html">
+<link rel="import" href="../raml-behaviors/raml-behavior.html">
 <link rel="import" href="docs-parameters-behavior.html">
 <link rel="import" href="docs-parameters-table-shared-styles.html">
 <link rel="import" href="docs-json-parameters-table.html">
@@ -136,7 +137,7 @@ Custom property | Description | Default
     <div class="type-title">
       <h4>
         <span class="label">Type</span>
-        <span class="value">[[_computeTypeLabel(selectedType)]]</span>
+        <span class="value">[[typeName(selectedType)]]</span>
       </h4>
       <span hidden$="[[hideStructureToggle]]">
         <paper-icon-button class$="toggle-button[[_computeToggleClass(structureDisplayOpened)]]" icon="arc:expand-more" on-tap="toggleOpened"></paper-icon-button>
@@ -154,7 +155,7 @@ Custom property | Description | Default
       </template>
     </template>
     <template is="dom-if" if="[[isObject]]" restamp>
-      <docs-json-parameters-table type="[[_computeTypeProperties(selectedType)]]" structure-display-opened="[[structureDisplayOpened]]" narrow="[[narrow]]"></docs-json-parameters-table>
+      <docs-json-parameters-table type="[[typeProperties(selectedType)]]" structure-display-opened="[[structureDisplayOpened]]" narrow="[[narrow]]"></docs-json-parameters-table>
     </template>
     <template is="dom-if" if="[[isJson]]" restamp>
       <docs-json-structure-view type="[[selectedType]]" has-type narrow="[[narrow]]"></docs-json-structure-view>
@@ -171,7 +172,10 @@ Custom property | Description | Default
   Polymer({
     is: 'docs-body-parameters-table',
 
-    behaviors: [RamlBehaviors.DocsParametersBehavior],
+    behaviors: [
+      RamlBehaviors.DocsParametersBehavior,
+      Polymer.RamlBehavior
+    ],
     /**
      * Fired when selected body content type have changed.
      * It is not fired if value is not set or if change was caused by
@@ -348,43 +352,6 @@ Custom property | Description | Default
         clazz += ' opened';
       }
       return clazz;
-    },
-    /**
-     * Computes type name to display.
-     *
-     * @param {Object} type Selected type.
-     * @return {String} Label to display.
-     */
-    _computeTypeLabel: function(type) {
-      if (!type) {
-        return;
-      }
-      return type.displayName || type.name || type.key || undefined;
-    },
-
-    /**
-     * Computes type's properties to match required data model.
-     *
-     * @param {Object} type RAML's type definition.
-     * @return {Object} The same object with properties as array.
-     */
-    _computeTypeProperties: function(type) {
-      if (!type) {
-        return;
-      }
-      if (type.properties) {
-        if (!(type.properties instanceof Array)) {
-          var names = Object.keys(type.properties);
-          var properties = [];
-          names.forEach(function(name) {
-            var item = type.properties[name];
-            item.key = name;
-            properties.push(item);
-          });
-          type.properties = properties;
-        }
-      }
-      return type;
     },
 
     _computeHideStructureToggle: function() {

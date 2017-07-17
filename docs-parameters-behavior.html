@@ -138,10 +138,11 @@ the License.
       if (!names) {
         return [];
       }
+      names.sort();
       return names.map(function(i) {
         var _obj = obj[i];
         _obj.key = i;
-        return _obj; 
+        return _obj;
       });
     },
 
