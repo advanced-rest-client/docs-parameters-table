@@ -243,6 +243,7 @@ Custom property | Description | Default
 `--example-display-actions-container` | Mixin applied to the top actions container | `{}`
 `--example-display-button-active-background-color` | Background color of active button | `#e0e0e0`
 `--example-display-button-active` | Mixin applied to selected content button | `{}`
+`--example-display-title` | Mixin applied to the title element | `{}`
 
 
 

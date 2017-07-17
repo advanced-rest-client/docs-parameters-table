@@ -1,3 +1,22 @@
+<a name="1.1.30"></a>
+## [1.1.30](https://github.com/advanced-rest-client/docs-parameters-table/compare/1.1.29...v1.1.30) (2017-07-17)
+
+
+### Fix
+
+* Fixed display of an example when the example is an object. ([5a3cd0f540618098ebe3eab8ffe359f7b6778811](https://github.com/advanced-rest-client/docs-parameters-table/commit/5a3cd0f540618098ebe3eab8ffe359f7b6778811))
+
+### Updat
+
+* Updated test for new API ([3fed3d7a031fbac18e3376b9b04d1d260e82a174](https://github.com/advanced-rest-client/docs-parameters-table/commit/3fed3d7a031fbac18e3376b9b04d1d260e82a174))
+
+### Update
+
+* Added common behaviors to the element. ([fc27dd66369805dfdd7004b3c832c314da628ab6](https://github.com/advanced-rest-client/docs-parameters-table/commit/fc27dd66369805dfdd7004b3c832c314da628ab6))
+* Added sort function when getting properties. ([b1781a7f98b9ff7f5695e8b460b67c3c91c6dc84](https://github.com/advanced-rest-client/docs-parameters-table/commit/b1781a7f98b9ff7f5695e8b460b67c3c91c6dc84))
+
+
+
 <a name="1.1.29"></a>
 ## [1.1.29](https://github.com/advanced-rest-client/docs-parameters-table/compare/1.1.28...v1.1.29) (2017-07-13)
 
