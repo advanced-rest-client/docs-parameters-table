@@ -326,7 +326,18 @@ Custom property | Description | Default
           this._setIsJson(true);
           break;
         default:
-          if (type.type && typeof type.type === 'string' &&  type.type[0] === '<') {
+          // In RAML 0.8 for schema types there will be no type property.
+          // Need to figure it out from the `name` property which is body's
+          // content type.
+          if (!type.type && type.schema) {
+            if (type.key.indexOf('json') !== -1) {
+              this._setIsJson(true);
+            } else if (type.key.indexOf('xml') !== -1) {
+              this._setIsXml(true);
+            } else {
+              this._setIsPrimitive(true);
+            }
+          } else if (type.type && typeof type.type === 'string' &&  type.type[0] === '<') {
             // TODO: This is an issue, probably with enhancer. At some point
             // type becomes type content and contains schema.
             this._setIsXml(true);

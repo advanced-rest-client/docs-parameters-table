@@ -1,6 +1,6 @@
 {
   "name": "docs-parameters-table",
-  "description": "Insert description here.",
+  "description": "Elements to display RAML type documentation",
   "author": "The Advanced REST client authors",
   "license": "Apache-2.0 OR CC-BY-4.0",
   "keywords": [
