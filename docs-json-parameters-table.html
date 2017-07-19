@@ -220,13 +220,14 @@ Custom property | Description | Default
         return !!object.schemaContent;
       }
       this.isSchema = false;
-      if (object.type === 'array') {
-        return !!object.items;
-      } else if (object.type === 'union') {
-        return !!(object.anyOf && object.anyOf.length);
-      } else if (object.type === 'json') {
-        this.isSchema = true;
-        return !!(object.content);
+      switch (object.type) {
+        case 'array':
+          return !!object.items;
+        case 'union':
+          return !!(object.anyOf && object.anyOf.length);
+        case 'json':
+          this.isSchema = true;
+          return !!(object.content);
       }
       var hasType = !!(object.properties && Object.keys(object.properties).length);
       return hasType;
