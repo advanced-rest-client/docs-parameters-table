@@ -77,7 +77,7 @@ Custom property | Description | Default
     }
     </style>
     <iron-collapse opened="[[structureDisplayOpened]]">
-      <docs-json-structure-view type="[[type]]" has-type="[[hasType]]" is-schema="[[isSchema]]"></docs-json-structure-view>
+      <docs-json-structure-view type="[[type]]" has-type="[[hasType]]"></docs-json-structure-view>
     </iron-collapse>
 
     <template is="dom-if" if="[[renderTable]]">
@@ -163,8 +163,12 @@ Custom property | Description | Default
         value: false,
         notify: true
       },
-      // Will be set to true
-      isSchema: Boolean,
+      // Computed value, will be set to `true` if current type contains a
+      // schema definition.
+      isSchema: {
+        type: Boolean,
+        computed: '_computeIsSchema(type)'
+      },
       // If true then the schema / sxamples section is displayed.
       structureDisplayOpened: {
         type: Boolean,
@@ -211,25 +215,36 @@ Custom property | Description | Default
 
     _computeHasType: function(record) {
       if (!record.base) {
-        this.isSchema = false;
         return false;
       }
       var object = record.base;
       if (object.schema) {
-        this.isSchema = true;
         return !!object.schemaContent;
       }
-      this.isSchema = false;
-      if (object.type === 'array') {
-        return !!object.items;
-      } else if (object.type === 'union') {
-        return !!(object.anyOf && object.anyOf.length);
-      } else if (object.type === 'json') {
-        this.isSchema = true;
-        return !!(object.content);
+      switch (object.type) {
+        case 'array':
+          return !!object.items;
+        case 'union':
+          return !!(object.anyOf && object.anyOf.length);
+        case 'json':
+          return !!(object.content);
+        default:
+          var props = object.properties;
+          return !!(props && Object.keys(props).length);
       }
-      var hasType = !!(object.properties && Object.keys(object.properties).length);
-      return hasType;
+    },
+    // Computes `isSchema` value for given type.
+    _computeIsSchema: function(object) {
+      if (!object) {
+        return false;
+      }
+      if (object.schema) {
+        return true;
+      }
+      if (object.type === 'json') {
+        return true;
+      }
+      return false;
     },
     /**
      * Generates a model for the view.

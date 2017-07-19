@@ -1,8 +1,8 @@
 {
   "name": "docs-parameters-table",
-  "version": "1.1.31",
+  "version": "1.1.32",
   "license": "Apache-2.0 OR CC-BY-4.0",
-  "description": "Insert description here.",
+  "description": "Elements to display RAML type documentation",
   "devDependencies": {
     "polymer-cli": "^1.2.0"
   },

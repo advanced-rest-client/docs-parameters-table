@@ -82,7 +82,7 @@ Custom property | Description | Default
       </template>
     </div>
     <template is="dom-if" if="[[!table]]">
-      <pre is="structure-display" display="[[display]]" class="language-javascript" auto-hide></pre>
+      <pre is="structure-display" display="[[display]]" class="[[_highlightClass]]" data-type="[[_dataType]]" auto-hide></pre>
     </template>
     <template is="dom-if" if="[[_computeDisplayTable(isJson, table)]]">
       <json-table json="[[display]]"></json-table>
@@ -123,13 +123,33 @@ Custom property | Description | Default
           type: Boolean,
           observer: '_isJsonChanged'
         },
+        // If true it will add syntax highlighting for xml.
+        isXml: {
+          type: Boolean,
+          observer: '_isXmlChanged'
+        },
         /**
          * If true it will display a table view instead of JSON code.
          * `isJson` must be set to use this option.
          */
         table: {
           type: Boolean,
+          value: false,
           observer: '_tableChanged'
+        },
+        /**
+         * CSS class name to be used with Prism highlighter.
+         */
+        _highlightClass: {
+          type: String,
+          value: 'language-javascript'
+        },
+        /**
+         * An argument passed to the `structure-display` element
+         */
+        _dataType: {
+          type: String,
+          value: 'js'
         }
       },
 
@@ -196,9 +216,26 @@ Custom property | Description | Default
         if (!isJson) {
           return;
         }
+        if (this._highlightClass !== 'language-javascript') {
+          this._highlightClass = 'language-javascript';
+        }
+        if (this._dataType !== 'js') {
+          this._dataType = 'js';
+        }
         var isTable = this._localStorageValueToBoolean(localStorage.jsonTableEnabled);
         if (this.table !== isTable) {
           this.table = isTable;
+        }
+      },
+      /**
+       * Sets `_highlightClass` property if the `isXml` property is set.
+       *
+       * @param {Boolean} isXml The `this.isXml` property.
+       */
+      _isXmlChanged: function(isXml) {
+        if (isXml) {
+          this._highlightClass = 'language-xml';
+          this._dataType = 'xml';
         }
       },
       // Handler to the `table` change, fires corresponding event and sets local storage.

@@ -23,6 +23,7 @@ the License.
 <link rel="import" href="docs-parameters-behavior.html">
 <link rel="import" href="docs-parameters-table-shared-styles.html">
 <link rel="import" href="structure-display.html">
+<link rel="import" href="example-display.html">
 <!--
 `<docs-xml-parameters-table>` displays a documentation view for XML structured body.
 
@@ -76,14 +77,14 @@ Use `paper-tabs`, `paper-tab` and `structure-display` mixins to style this eleme
       This object doesn't have a type description.
     </p>
     <div id="content">
-      <template is="dom-if" if="[[!hasExamples]]" restamp="true">
+      <template is="dom-if" if="[[!hasExamples]]" restamp>
         <iron-collapse opened="[[structureDisplayOpened]]">
           <div>
             <pre is="structure-display" display="[[schemaDisplay]]" class="language-xml" data-type="xml" auto-hide></pre>
           </div>
         </iron-collapse>
       </template>
-      <template is="dom-if" if="[[hasExamples]]" restamp="true">
+      <template is="dom-if" if="[[hasExamples]]" restamp>
         <iron-collapse opened="[[structureDisplayOpened]]">
           <div>
             <paper-tabs class="schemas" selected="{{selectedSchemaPage}}">
@@ -92,12 +93,12 @@ Use `paper-tabs`, `paper-tab` and `structure-display` mixins to style this eleme
             </paper-tabs>
             <iron-pages selected="{{selectedSchemaPage}}">
               <div class="schema">
-                <h5 hidden$="[[!type.schema]]">Schema: [[type.schema]]</h5>
+                <h5 hidden$="[[_computeSchemaTypeHidden(type)]]">Schema: [[_computeSchemaLabel(type)]]</h5>
                 <pre is="structure-display" display="[[schemaDisplay]]" class="language-xml" data-type="xml" auto-hide></pre>
               </div>
               <div class="examples">
                 <template is="dom-repeat" items="[[examples]]">
-                  <pre is="structure-display" display="[[item]]" class="language-xml" data-type="xml" auto-hide></pre>
+                  <example-display is-xml content="[[item]]"></example-display>
                 </template>
               </div>
             </iron-pages>

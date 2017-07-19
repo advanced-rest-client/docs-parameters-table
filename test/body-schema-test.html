@@ -1,0 +1,292 @@
+<!doctype html>
+<!--
+@license
+Copyright (c) 2015 The Polymer Project Authors. All rights reserved.
+This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
+The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
+The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
+Code distributed by Google as part of the polymer project is also
+subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
+-->
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes">
+
+    <script src="../../webcomponentsjs/webcomponents-lite.js"></script>
+    <script src="../../web-component-tester/browser.js"></script>
+    <script src="../../iron-test-helpers/test-helpers.js"></script>
+    <script src="../../iron-test-helpers/mock-interactions.js"></script>
+    <link rel="import" href="../../raml-js-parser/raml-js-parser.html">
+    <link rel="import" href="../../raml-json-enhance/raml-json-enhance.html">
+    <link rel="import" href="../docs-body-parameters-table.html">
+    <link rel="import" href="../docs-json-structure-view.html">
+    <link rel="import" href="../docs-xml-parameters-table.html">
+  </head>
+  <body>
+
+    <test-fixture id="body">
+      <template>
+        <docs-body-parameters-table></docs-body-parameters-table>
+      </template>
+    </test-fixture>
+
+    <test-fixture id="jsonStructure">
+      <template>
+        <docs-json-structure-view has-type></docs-json-structure-view>
+      </template>
+    </test-fixture>
+
+    <test-fixture id="xmlStructure">
+      <template>
+        <docs-xml-parameters-table has-type></docs-xml-parameters-table>
+      </template>
+    </test-fixture>
+
+    <test-fixture id="parser">
+      <template>
+        <raml-js-parser json></raml-js-parser>
+      </template>
+    </test-fixture>
+
+    <test-fixture id="enhancer">
+      <template>
+        <raml-json-enhance></raml-json-enhance>
+      </template>
+    </test-fixture>
+
+    <script>
+    /* global fixture, assert, TestHelpers */
+    suite('body-schema-test', function() {
+      suite('Without examples', function() {
+        var raml;
+        var element;
+        suiteSetup(function(done) {
+          this.timeout(120000);
+          var baseUrl = location.href.substr(0, location.href.lastIndexOf('/') + 1);
+          var parser = fixture('parser');
+          var enhancer = fixture('enhancer');
+          enhancer.addEventListener('raml-json-enhance-ready', function(e) {
+            raml = e.detail.json;
+            done();
+          });
+          parser.loadApi(baseUrl + 'schema.raml')
+          .then(function(data) {
+            enhancer.json = data.json.specification;
+          })
+          .catch(function(e) {
+            done(new Error('Parser error: ' + (e.message || 'Some error happened...')));
+          });
+        });
+
+        suite('docs-body-parameters-table', function() {
+          setup(function() {
+            element = fixture('body');
+            element.body = raml.resources[0].methods[0].responses[0].body;
+            TestHelpers.forceXIfStamp(element);
+          });
+
+          test('Computes hasBody', function() {
+            assert.isTrue(element.hasBody);
+          });
+
+          test('Computes renderMediaTypeSelector', function() {
+            assert.isTrue(element.renderMediaTypeSelector);
+          });
+
+          test('Has selectedType', function() {
+            assert.isDefined(element.selectedType);
+          });
+
+          test('Computes isJson for application/json content type', function() {
+            assert.isTrue(element.isJson);
+          });
+        });
+
+        suite('docs-json-structure-view', function() {
+          setup(function() {
+            element = fixture('jsonStructure');
+            element.type = raml.resources[0].methods[0].responses[0].body[0];
+            TestHelpers.forceXIfStamp(element);
+          });
+
+          test('Computes isSchema', function() {
+            assert.isTrue(element.isSchema);
+          });
+
+          test('Computes displayJson', function() {
+            assert.typeOf(element.displayJson, 'string');
+          });
+
+          test('Examples are undefined', function() {
+            assert.isUndefined(element.examples);
+          });
+
+          test('Computes typeOnly', function() {
+            assert.isTrue(element.typeOnly);
+          });
+
+          test('Computes exampleOnly', function() {
+            assert.isFalse(element.exampleOnly);
+          });
+
+          test('Computes typeAndExample', function() {
+            assert.isFalse(element.typeAndExample);
+          });
+
+          suite('_computeSchemaTypeHidden()', function() {
+            test('Returns true for missing type', function() {
+              assert.isTrue(element._computeSchemaTypeHidden());
+            });
+
+            test('Returns true for missing schema property', function() {
+              assert.isTrue(element._computeSchemaTypeHidden({properties: []}));
+            });
+
+            test('Returns true for 0.8 schema definition', function() {
+              var obj = {
+                schema: 'test',
+                schemaContent: 'test'
+              };
+              assert.isTrue(element._computeSchemaTypeHidden(obj));
+            });
+
+            test('Returns false for others', function() {
+              var obj = {
+                schema: 'test',
+                schemaContent: 'test-x'
+              };
+              assert.isFalse(element._computeSchemaTypeHidden(obj));
+            });
+          });
+
+          suite('_computeSchemaLabel()', function() {
+            test('Returns undefined for missing type', function() {
+              assert.isUndefined(element._computeSchemaLabel());
+            });
+
+            test('Returns undefined for missing schema property', function() {
+              assert.isUndefined(element._computeSchemaLabel({properties: []}));
+            });
+
+            test('Returns undefined for 0.8 schema definition', function() {
+              var obj = {
+                schema: 'test',
+                schemaContent: 'test'
+              };
+              assert.isUndefined(element._computeSchemaLabel(obj));
+            });
+
+            test('Returns schema value for others', function() {
+              var obj = {
+                schema: 'test',
+                schemaContent: 'test-x'
+              };
+              assert.equal(element._computeSchemaLabel(obj), obj.schema);
+            });
+          });
+
+          suite('_computeIsSchema()', function() {
+            test('Returns false for missing type', function() {
+              assert.isFalse(element._computeIsSchema());
+            });
+
+            test('Returns false for missing schema property', function() {
+              assert.isFalse(element._computeIsSchema({properties: []}));
+            });
+
+            test('Returns true if schema property is set', function() {
+              assert.isTrue(element._computeIsSchema({schema: 'test'}));
+            });
+
+            test('Returns true if type is json', function() {
+              assert.isTrue(element._computeIsSchema({type: 'json'}));
+            });
+          });
+        });
+
+        suite('docs-xml-parameters-table', function() {
+          setup(function() {
+            element = fixture('xmlStructure');
+            element.type = raml.resources[0].methods[0].responses[0].body[1];
+            TestHelpers.forceXIfStamp(element);
+          });
+
+          test('Computes schemaDisplay', function() {
+            assert.typeOf(element.schemaDisplay, 'string');
+            assert.isAbove(element.schemaDisplay.length, 0);
+          });
+
+          test('Computes hasType', function() {
+            assert.isTrue(element.hasType);
+          });
+
+          test('Examples are undefined', function() {
+            assert.isUndefined(element.examples);
+          });
+        });
+      });
+
+      suite('With examples', function() {
+        var raml;
+        var element;
+        suiteSetup(function(done) {
+          this.timeout(120000);
+          var baseUrl = location.href.substr(0, location.href.lastIndexOf('/') + 1);
+          var parser = fixture('parser');
+          var enhancer = fixture('enhancer');
+          enhancer.addEventListener('raml-json-enhance-ready', function(e) {
+            raml = e.detail.json;
+            done();
+          });
+          parser.loadApi(baseUrl + 'schema.raml')
+          .then(function(data) {
+            enhancer.json = data.json.specification;
+          })
+          .catch(function(e) {
+            done(new Error('Parser error: ' + (e.message || 'Some error happened...')));
+          });
+        });
+
+        suite('docs-json-structure-view', function() {
+          setup(function() {
+            element = fixture('jsonStructure');
+            element.type = raml.resources[0].methods[1].responses[0].body[0];
+            TestHelpers.forceXIfStamp(element);
+          });
+
+          test('Examples are not empty array', function() {
+            assert.typeOf(element.examples, 'array');
+            assert.isAbove(element.examples.length, 0);
+          });
+
+          test('Computes typeOnly', function() {
+            assert.isFalse(element.typeOnly);
+          });
+
+          test('Computes exampleOnly', function() {
+            assert.isFalse(element.exampleOnly);
+          });
+
+          test('Computes typeAndExample', function() {
+            assert.isTrue(element.typeAndExample);
+          });
+        });
+
+        suite('docs-xml-parameters-table', function() {
+          setup(function() {
+            element = fixture('xmlStructure');
+            element.type = raml.resources[0].methods[1].responses[0].body[1];
+            TestHelpers.forceXIfStamp(element);
+          });
+
+          test('Examples are not empty array', function() {
+            assert.typeOf(element.examples, 'array');
+            assert.isAbove(element.examples.length, 0);
+          });
+        });
+      });
+    });
+    </script>
+  </body>
+</html>

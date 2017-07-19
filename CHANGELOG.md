@@ -1,3 +1,22 @@
+<a name="1.1.32"></a>
+## [1.1.32](https://github.com/advanced-rest-client/docs-parameters-table/compare/1.1.31...1.1.32) (2017-07-19)
+
+
+### Fix
+
+* Fixes https://github.com/mulesoft/api-console/issues/503 ([fa612d4d78d6a9887a3ee7fd0853338a37566893](https://github.com/advanced-rest-client/docs-parameters-table/commit/fa612d4d78d6a9887a3ee7fd0853338a37566893))
+
+### Update
+
+* Added restamp options to the dom-if templates ([f84618b05fe810672437dcfc70357ae7d0148750](https://github.com/advanced-rest-client/docs-parameters-table/commit/f84618b05fe810672437dcfc70357ae7d0148750))
+* Computation of `isSchema` in it's own callback function. ([c4d7cac9556c0700b5a85215d00c6fcb4aab982b](https://github.com/advanced-rest-client/docs-parameters-table/commit/c4d7cac9556c0700b5a85215d00c6fcb4aab982b))
+* Replaces `if`s with switch for better readibility. ([e5d0d6f8031fb3756a5ed5ffa2e0ca0dca85627c](https://github.com/advanced-rest-client/docs-parameters-table/commit/e5d0d6f8031fb3756a5ed5ffa2e0ca0dca85627c))
+* Restored in element computations if the `isSchema` property. ([d71c2f52582fb7f952e5f88d18be422778f684f1](https://github.com/advanced-rest-client/docs-parameters-table/commit/d71c2f52582fb7f952e5f88d18be422778f684f1))
+* Simplified code for better readibility. ([2d60e2c6827fe8fb045e761cbe17047d1c6f2965](https://github.com/advanced-rest-client/docs-parameters-table/commit/2d60e2c6827fe8fb045e761cbe17047d1c6f2965))
+* Updated package description. ([8693c1de88477a94c799652ff55206621b905262](https://github.com/advanced-rest-client/docs-parameters-table/commit/8693c1de88477a94c799652ff55206621b905262))
+
+
+
 <a name="1.1.31"></a>
 ## [1.1.31](https://github.com/advanced-rest-client/docs-parameters-table/compare/1.1.30...v1.1.31) (2017-07-17)
 
