@@ -228,9 +228,10 @@ Custom property | Description | Default
           return !!(object.anyOf && object.anyOf.length);
         case 'json':
           return !!(object.content);
+        default:
+          var props = object.properties;
+          return !!(props && Object.keys(props).length);
       }
-      var hasType = !!(object.properties && Object.keys(object.properties).length);
-      return hasType;
     },
     // Computes `isSchema` value for given type.
     _computeIsSchema: function(object) {
