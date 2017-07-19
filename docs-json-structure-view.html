@@ -72,14 +72,14 @@ Use `paper-tabs`, `paper-tab` and `structure-display` mixins to style this eleme
         <pre is="structure-display" display="[[displayJson]]" class="language-javascript" auto-hide></pre>
       </div>
     </template>
-    <template is="dom-if" if="[[exampleOnly]]">
+    <template is="dom-if" if="[[exampleOnly]]" restamp>
       <div class="examples">
         <template is="dom-repeat" items="[[examples]]">
           <example-display is-json content="[[item]]"></example-display>
         </template>
       </div>
     </template>
-    <template is="dom-if" if="[[typeAndExample]]">
+    <template is="dom-if" if="[[typeAndExample]]" restamp>
       <div>
         <paper-tabs class="schemas" selected="{{selectedSchemaPage}}">
           <paper-tab>[[_getTypeTabName(isSchema)]]</paper-tab>
