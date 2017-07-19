@@ -87,7 +87,7 @@ Use `paper-tabs`, `paper-tab` and `structure-display` mixins to style this eleme
         </paper-tabs>
         <iron-pages selected="{{selectedSchemaPage}}">
           <div class="schema">
-            <h5 hidden$="[[!type.schema]]">Schema: [[type.schema]]</h5>
+            <h5 hidden$="[[_computeSchemaTypeHidden(type)]]">Schema: [[type.schema]]</h5>
             <pre is="structure-display" display="[[displayJson]]" class="language-javascript" auto-hide></pre>
           </div>
           <div class="examples">
@@ -114,7 +114,10 @@ Use `paper-tabs`, `paper-tab` and `structure-display` mixins to style this eleme
       // Set to true if the type has been detected
       hasType: Boolean,
       // Set to true if the type is a schema.
-      isSchema: Boolean,
+      isSchema: {
+        type: Boolean,
+        computed: '_computeIsSchema(type)'
+      },
       // JSON created from the type definition
       displayJson: {
         type: String,
@@ -259,6 +262,40 @@ Use `paper-tabs`, `paper-tab` and `structure-display` mixins to style this eleme
     // Computes tab name, `Type` if not schema and `Schema` otherise.
     _getTypeTabName: function(isSchema) {
       return isSchema ? 'Schema' : 'Type';
+    },
+
+    _computeSchemaTypeHidden: function(type) {
+      if (!type || !type.schema) {
+        return true;
+      }
+      if (type.schema && type.schema === type.schemaContent) {
+        return true;
+      }
+      return false;
+    },
+
+    _computeSchemaLabel: function(type) {
+      if (!type || !type.schema) {
+        return;
+      }
+      if (type.schema && type.schema === type.schemaContent) {
+        return;
+      }
+      return type.schema;
+    },
+
+    // Computes `isSchema` value for given type.
+    _computeIsSchema: function(object) {
+      if (!object) {
+        return false;
+      }
+      if (object.schema) {
+        return true;
+      }
+      if (object.type === 'json') {
+        return true;
+      }
+      return false;
     }
   });
   })();
