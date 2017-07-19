@@ -1,4 +1,4 @@
-<!--
+  <!--
 @license
 Copyright 2016 The Advanced REST client authors
 Licensed under the Apache License, Version 2.0 (the "License"); you may not
@@ -68,16 +68,16 @@ Custom property | Description | Default
       },
 
       observers: [
-        '_highlightSchema(display)',
+        '_highlightSchema(display, dataType)',
         '_autoHideChanged(autoHide, display)'
       ],
 
       ready: function() {
         this.classList.add('markdown-html');
         this._ready = true;
-        // This callbacks are be called before the element ready event is fired.
+        // This callbacks are called before the element ready event is fired.
         // So they must be called again.
-        this._highlightSchema(this.display);
+        this._highlightSchema(this.display, this.dataType);
       },
 
       _autoHideChanged: function(state, display) {

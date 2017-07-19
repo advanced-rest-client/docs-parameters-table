@@ -87,7 +87,7 @@ Use `paper-tabs`, `paper-tab` and `structure-display` mixins to style this eleme
         </paper-tabs>
         <iron-pages selected="{{selectedSchemaPage}}">
           <div class="schema">
-            <h5 hidden$="[[_computeSchemaTypeHidden(type)]]">Schema: [[type.schema]]</h5>
+            <h5 hidden$="[[_computeSchemaTypeHidden(type)]]">Schema: [[_computeSchemaLabel(type)]]</h5>
             <pre is="structure-display" display="[[displayJson]]" class="language-javascript" auto-hide></pre>
           </div>
           <div class="examples">
@@ -262,26 +262,6 @@ Use `paper-tabs`, `paper-tab` and `structure-display` mixins to style this eleme
     // Computes tab name, `Type` if not schema and `Schema` otherise.
     _getTypeTabName: function(isSchema) {
       return isSchema ? 'Schema' : 'Type';
-    },
-
-    _computeSchemaTypeHidden: function(type) {
-      if (!type || !type.schema) {
-        return true;
-      }
-      if (type.schema && type.schema === type.schemaContent) {
-        return true;
-      }
-      return false;
-    },
-
-    _computeSchemaLabel: function(type) {
-      if (!type || !type.schema) {
-        return;
-      }
-      if (type.schema && type.schema === type.schemaContent) {
-        return;
-      }
-      return type.schema;
     },
 
     // Computes `isSchema` value for given type.

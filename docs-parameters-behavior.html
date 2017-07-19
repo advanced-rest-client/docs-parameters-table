@@ -255,6 +255,38 @@ the License.
     // Returns true if `displayName` is set and it's different that `name`
     _hasDisplayName: function(item) {
       return !!(item && item.displayName && item.displayName !== item.name);
+    },
+
+    /**
+     * Used by schema display elements.
+     * Returns a value for 'hidden' attribute to hide the schema title label
+     * when schema is RAML 0.8 definition.
+     *
+     * @param {Object} type RAML type definition.
+     * @return {Boolean} True when not schema with label to display.
+     */
+    _computeSchemaTypeHidden: function(type) {
+      if (!type || !type.schema) {
+        return true;
+      }
+      if (type.schema && type.schema === type.schemaContent) {
+        return true;
+      }
+      return false;
+    },
+    /**
+     * Computes schema's label to display in schema viewer.
+     * @param {Object} type RAML type definition.
+     * @return {String|undefined} Label to display in schema viewer or undefined.
+     */
+    _computeSchemaLabel: function(type) {
+      if (!type || !type.schema) {
+        return;
+      }
+      if (type.schema && type.schema === type.schemaContent) {
+        return;
+      }
+      return type.schema;
     }
   };
 })();
