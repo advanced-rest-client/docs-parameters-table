@@ -163,8 +163,12 @@ Custom property | Description | Default
         value: false,
         notify: true
       },
-      // Will be set to true
-      isSchema: Boolean,
+      // Computed value, will be set to `true` if current type contains a
+      // schema definition.
+      isSchema: {
+        type: Boolean,
+        computed: '_computeIsSchema(type)'
+      },
       // If true then the schema / sxamples section is displayed.
       structureDisplayOpened: {
         type: Boolean,
@@ -211,26 +215,35 @@ Custom property | Description | Default
 
     _computeHasType: function(record) {
       if (!record.base) {
-        this.isSchema = false;
         return false;
       }
       var object = record.base;
       if (object.schema) {
-        this.isSchema = true;
         return !!object.schemaContent;
       }
-      this.isSchema = false;
       switch (object.type) {
         case 'array':
           return !!object.items;
         case 'union':
           return !!(object.anyOf && object.anyOf.length);
         case 'json':
-          this.isSchema = true;
           return !!(object.content);
       }
       var hasType = !!(object.properties && Object.keys(object.properties).length);
       return hasType;
+    },
+    // Computes `isSchema` value for given type.
+    _computeIsSchema: function(object) {
+      if (!object) {
+        return false;
+      }
+      if (object.schema) {
+        return true;
+      }
+      if (object.type === 'json') {
+        return true;
+      }
+      return false;
     },
     /**
      * Generates a model for the view.
