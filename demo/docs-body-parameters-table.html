@@ -52,6 +52,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         <paper-item data-url$="[[testRaml]]">Test case</paper-item>
         <paper-item data-url$="[[testArrayRaml]]">Test case with array value</paper-item>
         <paper-item data-url$="[[testSchemaRaml]]">Schema example</paper-item>
+        <paper-item data-url$="[[testXmlRaml]]">XML example</paper-item>
         <h1>The docs-body-parameters-table element</h1>
         <div main>
           <template is="dom-if" if="[[!hasOptions]]">
@@ -133,6 +134,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       scope.testRaml = ramlRoot + 'docs-body-parameters-table.raml';
       scope.testArrayRaml = ramlRoot + 'docs-body-array-parameters-table.raml';
       scope.testSchemaRaml = ramlRoot + 'schema.raml';
+      scope.testXmlRaml = ramlRoot + 'xml.raml';
     })(document.getElementById('app'));
     </script>
   </body>
