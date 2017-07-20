@@ -20,6 +20,7 @@ the License.
 <link rel="import" href="../paper-tooltip/paper-tooltip.html">
 <link rel="import" href="../marked-element/marked-element.html">
 <link rel="import" href="../raml-behaviors/raml-behavior.html">
+<link rel="import" href="../iron-collapse/iron-collapse.html">
 <link rel="import" href="docs-parameters-behavior.html">
 <link rel="import" href="docs-parameters-table-shared-styles.html">
 <link rel="import" href="docs-json-parameters-table.html">
@@ -158,13 +159,17 @@ Custom property | Description | Default
       <docs-json-parameters-table type="[[typeProperties(selectedType)]]" structure-display-opened="[[structureDisplayOpened]]" narrow="[[narrow]]"></docs-json-parameters-table>
     </template>
     <template is="dom-if" if="[[isJson]]" restamp>
-      <docs-json-structure-view type="[[selectedType]]" has-type narrow="[[narrow]]"></docs-json-structure-view>
+      <iron-collapse opened="[[structureDisplayOpened]]">
+        <docs-json-structure-view type="[[selectedType]]" has-type narrow="[[narrow]]"></docs-json-structure-view>
+      </iron-collapse>
     </template>
     <template is="dom-if" if="[[isXml]]" restamp>
       <docs-xml-parameters-table type="[[selectedType]]" structure-display-opened="[[structureDisplayOpened]]" narrow="[[narrow]]"></docs-xml-parameters-table>
     </template>
     <template is="dom-if" if="[[isPrimitive]]" restamp>
-      <raml-type-property-description item="[[selectedType]]" display-type></raml-type-property-description>
+      <iron-collapse opened="[[structureDisplayOpened]]">
+        <raml-type-property-description item="[[selectedType]]" display-type></raml-type-property-description>
+      </iron-collapse>
     </template>
     <iron-media-query query="max-width: 640px" query-matches="{{narrow}}"></iron-media-query>
   </template>
