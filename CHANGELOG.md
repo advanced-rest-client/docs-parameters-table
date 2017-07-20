@@ -1,3 +1,13 @@
+<a name="1.1.36"></a>
+## [1.1.36](https://github.com/advanced-rest-client/docs-parameters-table/compare/1.1.35...1.1.36) (2017-07-20)
+
+
+### Fix
+
+* Fixes https://github.com/mulesoft/api-console/issues/504 ([b6ba94255ccd36e7889801b3d878c40aa3659431](https://github.com/advanced-rest-client/docs-parameters-table/commit/b6ba94255ccd36e7889801b3d878c40aa3659431))
+
+
+
 <a name="1.1.35"></a>
 ## [1.1.35](https://github.com/advanced-rest-client/docs-parameters-table/compare/1.1.34...1.1.35) (2017-07-20)
 
