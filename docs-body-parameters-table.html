@@ -28,6 +28,7 @@ the License.
 <link rel="import" href="docs-form-parameters-table.html">
 <link rel="import" href="docs-body-media-type-selector.html">
 <link rel="import" href="raml-type-property-description.html">
+<link rel="import" href="docs-xml-structure-view.html">
 <!--
 `<docs-parameters-table>` A parameters list and description table for the RAML documentation view
 
@@ -164,6 +165,11 @@ Custom property | Description | Default
       </iron-collapse>
     </template>
     <template is="dom-if" if="[[isXml]]" restamp>
+      <iron-collapse opened="[[structureDisplayOpened]]">
+        <docs-xml-structure-view type="[[selectedType]]" narrow="[[narrow]]"></docs-xml-structure-view>
+      </iron-collapse>
+    </template>
+    <template is="dom-if" if="[[isTypedXml]]" restamp>
       <docs-xml-parameters-table type="[[selectedType]]" structure-display-opened="[[structureDisplayOpened]]" narrow="[[narrow]]"></docs-xml-parameters-table>
     </template>
     <template is="dom-if" if="[[isPrimitive]]" restamp>
@@ -246,6 +252,14 @@ Custom property | Description | Default
         value: false,
         readOnly: true
       },
+      /**
+       * A case when the type is RAML type but in context of XML media type.
+       */
+      isTypedXml: {
+        type: Object,
+        value: false,
+        readOnly: true
+      },
       // Computed value, true if current type is a primitive
       isPrimitive: {
         type: Object,
@@ -295,6 +309,7 @@ Custom property | Description | Default
       this._setIsJson(false);
       this._setIsXml(false);
       this._setIsPrimitive(false);
+      this._setIsTypedXml(false);
     },
     /**
      * Hides the element by setting `[hidden]` attribute if body is not set
@@ -320,6 +335,12 @@ Custom property | Description | Default
       }
       switch (type.type) {
         case 'object':
+          if (type.key === 'application/xml') {
+            this._setIsTypedXml(true);
+            break;
+          }
+          this._setIsObject(true);
+          break;
         case 'array':
         case 'union':
           this._setIsObject(true);
@@ -375,7 +396,7 @@ Custom property | Description | Default
       if (this.isObject) {
         value = !this.$$('docs-json-parameters-table').hasType;
       } else if (this.isXml) {
-        value = !this.$$('docs-xml-parameters-table').hasType;
+        value = !this.$$('docs-xml-structure-view').hasType;
       }
       this.hideStructureToggle = value;
     }

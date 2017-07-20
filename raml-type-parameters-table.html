@@ -1,0 +1,186 @@
+<!--
+@license
+Copyright 2016 The Advanced REST client authors
+Licensed under the Apache License, Version 2.0 (the "License"); you may not
+use this file except in compliance with the License. You may obtain a copy of
+the License at
+http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+License for the specific language governing permissions and limitations under
+the License.
+-->
+<link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="../paper-dropdown-menu/paper-dropdown-menu.html">
+<link rel="import" href="../paper-listbox/paper-listbox.html">
+<link rel="import" href="../paper-item/paper-item.html">
+<link rel="import" href="docs-parameters-table-shared-styles.html">
+<link rel="import" href="raml-type-property-description.html">
+<!--
+`<raml-type-parameters-table>` renders a table view with RAML type properties.
+
+The element accepts the `model` property which is generated in
+`RamlBehaviors.DocsTypeDisplayBehavior`.
+
+### Example
+```
+<raml-type-parameters-table
+  model="[[viewModel]]"></raml-type-parameters-table>
+```
+
+### Styling
+`<docs-json-parameters-table>` provides the following custom properties
+and mixins for styling:
+
+Custom property | Description | Default
+----------------|-------------|----------
+`--docs-parameters-table` | Mixin applied to all parameter table elements | `{}`
+`--docs-parameters-url-table` | Mixin applied to this elements | `{}`
+`--params-table-header-background-color` | Background color of table header | `#00A1DF`
+`--params-table-header-color` | Font color of table header | `rgba(255, 255, 255, 0.87)`
+`--params-table-subheader-background-color` | Background color of table subheader | `rgba(0, 161, 223, 0.24)`
+`--params-table-subheader-color` | Font color of table subheader | `rgba(0, 0, 0, 0.87)`
+`--params-table-row-border-color` | Border color of table rows | `rgba(0, 161, 223, 1)`
+`--params-table-row-subproperty-border-color` | Border color of table row which is a description of child property. | `rgba(0, 161, 223, 0.24)`
+`--params-table-row-background-color` | Background color of table's each row |  `#fff`
+`--params-table-row-color` | Font color of table's each row |  `#fff`
+`--docs-parameters-table-cell` | Mixin applied to each cell | `{}`
+`--docs-parameters-table-meta` | Mixin applied to property's metadata (example, pattern, etc) | `{}`
+`--params-table-subproperty-prefix-color` | Color of the parent property name in the subproperty list | `rgba(0, 0, 0, 0.54)`
+
+@element raml-type-parameters-table
+@demo demo/docs-body-parameters-table.html
+-->
+<dom-module id="raml-type-parameters-table">
+  <template>
+    <style include="docs-parameters-table-shared-styles"></style>
+    <style>
+    .parent-prefix {
+      color: var(--params-table-subproperty-prefix-color, rgba(0, 0, 0, 0.54));
+    }
+
+    .parent-prefix::after {
+      content: '.';
+    }
+
+    paper-listbox paper-item {
+      cursor: pointer;
+    }
+    </style>
+    <div class="params-table">
+      <div class="thead params-table-header">
+        <section class="tr">
+          <span class="th">Parameter</span>
+          <span class="th">Type</span>
+          <span class="th">Description</span>
+        </section>
+      </div>
+      <h5 class="narrow-title">Properties</h5>
+      <div class="tbody">
+        <template is="dom-repeat" items="[[model]]">
+          <template is="dom-if" if="[[item.isArrayHeader]]">
+            <section class="tr">
+              <div class="td param-type"></div>
+              <div class="td param-type"></div>
+              <div class="td param-type">Array of [[item.type]] items</div>
+            </section>
+          </template>
+          <template is="dom-if" if="[[item.isUnionSelector]]">
+            <section class="tr">
+              <div class="td param-name">Type variant</div>
+              <div class="td param-type">
+                <paper-dropdown-menu no-label-float>
+                  <paper-listbox class="dropdown-content" selected="{{selectedUnion}}" data-action="toggle-type">
+                    <template is="dom-repeat" items="[[item.options]]" as="union">
+                      <paper-item data-type$="[[union.index]]">[[union.label]]</paper-item>
+                    </template>
+                  </paper-listbox>
+                </paper-dropdown-menu>
+              </div>
+              <div class="td param-desc"></div>
+            </section>
+          </template>
+          <template is="dom-if" if="[[item.isProperyItem]]">
+            <section class="tr" data-parent$="[[item.dataParent]]" hidden$="[[item.isHidden]]" subproperty$="[[item.isSubproperty]]" has-children$="[[item.hasChildren]]">
+              <div class="td param-name">
+                <span class="name" child$="[[item.isSubproperty]]">
+                  <template is="dom-if" if="[[item.withParent]]">
+                    <span class="parent-prefix">[[item.parentDisplayValue]]</span>
+                    <span>[[item.nameDisplayValue]]</span>
+                  </template>
+                  <template is="dom-if" if="[[!item.withParent]]">[[item.nameDisplayValue]]</template>
+                </span>
+                <template is="dom-if" if="[[item.required]]">
+                  <span class="required-label">(required)</span>
+                </template>
+              </div>
+              <div class="td param-type">
+                <span class="type">[[item.typeDisplay]]</span>
+                <template is="dom-if" if="[[item.hasEnum]]">
+                  <span class="enum-label">(enum)</span>
+                </template>
+              </div>
+              <div class="td param-desc">
+                <raml-type-property-description item="[[item]]"></raml-type-property-description>
+              </div>
+            </section>
+          </template>
+        </template>
+      </div>
+    </div>
+  </template>
+  <script>
+  (function() {
+  Polymer({
+    is: 'raml-type-parameters-table',
+
+    properties: {
+      // Model for the view.
+      model: Array,
+      // If true then the narrow layout is applied.
+      narrow: {
+        type: Boolean,
+        reflectToAttribute: true
+      },
+      /**
+       * Selected union type if the object is a type of union.
+       */
+      selectedUnion: {
+        type: Number,
+        value: 0
+      }
+    },
+
+    observers: [
+      '_selectedUnionChanged(selectedUnion, model)',
+    ],
+
+    /**
+     * Called when `selectedUnion` changes.
+     * This function changes the model by setting `isHidden` property on
+     * children.
+     */
+    _selectedUnionChanged: function(selectedUnion, model) {
+      if (!model || selectedUnion === undefined) {
+        return;
+      }
+      model.forEach(function(item, i) {
+        if (!item.isProperyItem || item.dataParent === undefined) {
+          return;
+        }
+        if (item.dataParent === selectedUnion) {
+          if (model[i].isHidden) {
+            this.set(['model', i, 'isHidden'], false);
+          }
+        } else {
+          if (!model[i].isHidden) {
+            this.set(['model', i, 'isHidden'], true);
+          }
+        }
+      }, this);
+    }
+  });
+  })();
+  </script>
+</dom-module>
