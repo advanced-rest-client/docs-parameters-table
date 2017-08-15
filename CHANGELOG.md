@@ -1,3 +1,18 @@
+<a name="1.1.38"></a>
+## [1.1.38](https://github.com/advanced-rest-client/docs-parameters-table/compare/1.1.37...1.1.38) (2017-08-15)
+
+
+### New
+
+* Adding package lock file ([c047ddd9b6c66fb4a4a97ccc03eaa7b7c3b3d3a8](https://github.com/advanced-rest-client/docs-parameters-table/commit/c047ddd9b6c66fb4a4a97ccc03eaa7b7c3b3d3a8))
+
+### Update
+
+* updated enhancer version ([36dc6ef3506208b847f9bdad8f1a6134f796f4ef](https://github.com/advanced-rest-client/docs-parameters-table/commit/36dc6ef3506208b847f9bdad8f1a6134f796f4ef))
+* Updated tests configuration and package metadata ([5ae57f7e26b8111981e2141c5c690d82e30af816](https://github.com/advanced-rest-client/docs-parameters-table/commit/5ae57f7e26b8111981e2141c5c690d82e30af816))
+
+
+
 <a name="1.1.37"></a>
 ## [1.1.37](https://github.com/advanced-rest-client/docs-parameters-table/compare/1.1.36...1.1.37) (2017-07-20)
 

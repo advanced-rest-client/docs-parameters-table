@@ -61,7 +61,7 @@
     "webcomponentsjs": "webcomponents/webcomponentsjs#^0.7.0",
     "arc-demo-helpers": "advanced-rest-client/arc-demo-helpers#^1.0.4",
     "raml-js-parser": "advanced-rest-client/raml-js-parser#^2.0.0",
-    "raml-json-enhance": "advanced-rest-client/raml-json-enhance#^0.1.7"
+    "raml-json-enhance": "advanced-rest-client/raml-json-enhance#^0.2.0"
   },
   "ignore": [
     "**/.*",
@@ -70,5 +70,5 @@
     "test",
     "tasks"
   ],
-  "version": "1.1.37"
+  "version": "1.1.38"
 }
