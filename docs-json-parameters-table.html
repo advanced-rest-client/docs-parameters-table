@@ -94,9 +94,7 @@ Custom property | Description | Default
           <template is="dom-repeat" items="[[model]]">
             <template is="dom-if" if="[[item.isArrayHeader]]">
               <section class="tr">
-                <div class="td param-type"></div>
-                <div class="td param-type"></div>
-                <div class="td param-type">Array of [[item.type]] items</div>
+                <div class="td param-type subheader">Array of [[item.type]] items</div>
               </section>
             </template>
             <template is="dom-if" if="[[item.isUnionSelector]]">
