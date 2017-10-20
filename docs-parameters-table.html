@@ -83,8 +83,8 @@ Custom property | Description | Default
         <template is="dom-if" if="[[hasUriParameteres]]">
           <section class="tr params-table-header subheader path">
             <div class="td subheader">Path parameters</div>
-            <div class="td subheader"></div>
-            <div class="td subheader"></div>
+            <div class="td subheader subheader-empty-cell"></div>
+            <div class="td subheader subheader-empty-cell"></div>
           </section>
           <template is="dom-repeat" items="[[displayUriParameters]]">
             <docs-parameters-table-row class="tr uri-parameter" item="[[item]]"></docs-parameters-table-row>
@@ -93,8 +93,8 @@ Custom property | Description | Default
         <template is="dom-if" if="[[hasQueryParameteres]]">
           <section class="tr params-table-header subheader query">
             <div class="td subheader">Query parameters</div>
-            <div class="td subheader"></div>
-            <div class="td subheader"></div>
+            <div class="td subheader subheader-empty-cell"></div>
+            <div class="td subheader subheader-empty-cell"></div>
           </section>
           <template is="dom-repeat" items="[[displayQueryParameters]]">
             <docs-parameters-table-row class="tr query-param" item="[[item]]"></docs-parameters-table-row>
