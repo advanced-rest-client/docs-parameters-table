@@ -1,3 +1,13 @@
+<a name="1.1.52"></a>
+## [1.1.52](https://github.com/advanced-rest-client/docs-parameters-table/compare/1.1.51...1.1.52) (2017-10-23)
+
+
+### Fix
+
+* Fixing table heqader width. ([8829ee5b39d26fae8d62fe2c32eb788dcf14bad4](https://github.com/advanced-rest-client/docs-parameters-table/commit/8829ee5b39d26fae8d62fe2c32eb788dcf14bad4))
+
+
+
 <a name="1.1.51"></a>
 ## [1.1.51](https://github.com/advanced-rest-client/docs-parameters-table/compare/1.1.50...1.1.51) (2017-10-23)
 
