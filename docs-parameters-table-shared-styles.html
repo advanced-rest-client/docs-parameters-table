@@ -60,22 +60,27 @@ Custom property | Description | Default
 
     .tr {
       display: table-row;
+      @apply --docs-parameters-table-tr;
     }
 
     .td {
       display: table-cell;
+      @apply --docs-parameters-table-td;
     }
 
     .tbody {
       display: table-row-group;
+      @apply --docs-parameters-table-tbody;
     }
 
     .thead {
       display: table-header-group;
+      @apply --docs-parameters-table-thead;
     }
 
     .thead .tr > span {
       display: table-cell;
+      @apply --docs-parameters-table-thead-tr-span;
     }
 
     .thead .tr,
@@ -136,6 +141,10 @@ Custom property | Description | Default
       vertical-align: top;
     }
 
+    .td.fullrow {
+      width: 100%;
+    }
+
     .meta-property.pattern,
     .meta-property.example,
     .meta-property.enum,
@@ -174,6 +183,18 @@ Custom property | Description | Default
     .td.param-name,
     .td.param-type {
       font-weight: 500;
+    }
+
+    .param-desc {
+      @apply --docs-parameters-table-td-param-desc;
+    }
+
+    .subheader {
+      @apply --docs-parameters-table-subheader;
+    }
+
+    .subheader-empty-cell {
+      @apply --docs-parameters-table-subheader-empty-cell;
     }
 
     .markdown-html p:first-child {
@@ -232,6 +253,7 @@ Custom property | Description | Default
       display: block;
       font-weight: 400;
       color: var(--params-table-meta-required-color, rgba(0, 0, 0, 0.64));
+      @apply --params-table-label-required;
     }
 
     marked-element {
