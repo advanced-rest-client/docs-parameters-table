@@ -1,3 +1,13 @@
+<a name="1.1.56"></a>
+## [1.1.56](https://github.com/advanced-rest-client/docs-parameters-table/compare/1.1.55...1.1.56) (2017-12-04)
+
+
+### Fix
+
+* Updated protected variable name to a one that is not defined. ([4a4ce85b7829e0f25ed9711067e691640bbb6214](https://github.com/advanced-rest-client/docs-parameters-table/commit/4a4ce85b7829e0f25ed9711067e691640bbb6214))
+
+
+
 <a name="1.1.55"></a>
 ## [1.1.55](https://github.com/advanced-rest-client/docs-parameters-table/compare/1.1.54...1.1.55) (2017-10-25)
 
