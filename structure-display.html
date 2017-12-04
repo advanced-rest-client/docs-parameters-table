@@ -64,7 +64,7 @@ Custom property | Description | Default
           value: false
         },
         // Set to true when the element has been initialized.
-        _ready: Boolean
+        _elementReady: Boolean
       },
 
       observers: [
@@ -74,7 +74,7 @@ Custom property | Description | Default
 
       ready: function() {
         this.classList.add('markdown-html');
-        this._ready = true;
+        this._elementReady = true;
         // This callbacks are called before the element ready event is fired.
         // So they must be called again.
         this._highlightSchema(this.display, this.dataType);
@@ -99,7 +99,7 @@ Custom property | Description | Default
       },
 
       _highlightSchema: function(str) {
-        if (!this._ready) {
+        if (!this._elementReady) {
           return;
         }
         if (!str) {
