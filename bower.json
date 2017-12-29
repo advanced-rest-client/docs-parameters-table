@@ -59,9 +59,7 @@
     "iron-test-helpers": "PolymerElements/iron-test-helpers#^1.4.0",
     "test-fixture": "PolymerElements/test-fixture#^3.0.0",
     "webcomponentsjs": "webcomponents/webcomponentsjs#^0.7.0",
-    "arc-demo-helpers": "advanced-rest-client/arc-demo-helpers#^1.0.4",
-    "raml-js-parser": "advanced-rest-client/raml-js-parser#^2.0.0",
-    "raml-json-enhance": "advanced-rest-client/raml-json-enhance#^0.2.0"
+    "arc-demo-helpers": "advanced-rest-client/arc-demo-helpers#^1.0.4"
   },
   "ignore": [
     "**/.*",
@@ -70,5 +68,5 @@
     "test",
     "tasks"
   ],
-  "version": "1.1.57"
+  "version": "1.1.58"
 }
