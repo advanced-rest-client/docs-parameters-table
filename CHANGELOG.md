@@ -1,3 +1,13 @@
+<a name="1.1.58"></a>
+## [1.1.58](https://github.com/advanced-rest-client/docs-parameters-table/compare/1.1.57...1.1.58) (2017-12-29)
+
+
+### Update
+
+* Added hidden rule to shared styles. ([13bb2c0777579f8e7e222f9d9f3f00acd87130d0](https://github.com/advanced-rest-client/docs-parameters-table/commit/13bb2c0777579f8e7e222f9d9f3f00acd87130d0))
+
+
+
 <a name="1.1.57"></a>
 ## [1.1.57](https://github.com/advanced-rest-client/docs-parameters-table/compare/1.1.56...1.1.57) (2017-12-04)
 
