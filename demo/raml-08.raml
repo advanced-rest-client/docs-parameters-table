@@ -41,6 +41,26 @@ traits:
                           }
                         ]
                       }
+            application/xml:
+              example: |
+                <?xml version='1.0' encoding='UTF-8'?>
+                <data>
+                  <start-address><![CDATA[35-37 William Road, London, NW1 3ER]]></start-address>
+                  <services>
+                    <service>
+                      <code>OneFourPassengers</code>
+                    </service>
+                    <service>
+                      <code>FiveSixPassengers</code>
+                    </service>
+                  </services>
+                  <locations>
+                    <location>
+                      <lat>-0.139435</lat>
+                      <lon>51.526972</lon>
+                    </location>
+                  </locations>
+                </data>
         responses:
             "200":
                 body:
@@ -61,6 +81,48 @@ traits:
                               ],
                               "session": "abc123def123"
                             }
+                    application/xml:
+                      example: |
+                        <?xml version='1.0' encoding='UTF-8'?>
+                        <data>
+                          <location><![CDATA[35-37 William Road, London, NW1 3ER]]></location>
+                          <lat>51.52199935913086</lat>
+                          <lon>-0.14198000729084015</lon>
+                          <times>
+                            <time>
+                              <service>OneFourPassengers</service>
+                              <eta>5</eta>
+                            </time>
+                          </times>
+                        </data>
+                      schema: |
+                        <xs:schema attributeFormDefault="unqualified"
+                                   elementFormDefault="qualified"
+                                   xmlns:xs="http://www.w3.org/2001/XMLSchema">
+                          <xs:element name="data">
+                            <xs:complexType>
+                              <xs:sequence>
+                                <xs:element type="xs:string" name="location"/>
+                                <xs:element type="xs:double" name="lat"/>
+                                <xs:element type="xs:double" name="lon"/>
+                                <xs:element name="times">
+                                  <xs:complexType>
+                                    <xs:sequence>
+                                      <xs:element name="time">
+                                        <xs:complexType>
+                                          <xs:sequence>
+                                            <xs:element type="xs:string" name="service"/>
+                                            <xs:element type="xs:integer" name="eta"/>
+                                          </xs:sequence>
+                                        </xs:complexType>
+                                      </xs:element>
+                                    </xs:sequence>
+                                  </xs:complexType>
+                                </xs:element>
+                              </xs:sequence>
+                            </xs:complexType>
+                          </xs:element>
+                        </xs:schema>
             "400":
                 body:
                     application/json:
@@ -71,6 +133,20 @@ traits:
                               "message": "Invalid email address",
                               "transaction_id": "ABC123"
                             }
+                    application/xml:
+                      schema: |
+                        <xs:schema attributeFormDefault="unqualified" elementFormDefault="qualified" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+                          <xs:element name="data">
+                            <xs:complexType>
+                              <xs:sequence>
+                                <xs:element type="xs:short" name="status"/>
+                                <xs:element type="xs:string" name="code"/>
+                                <xs:element type="xs:string" name="message"/>
+                                <xs:element type="xs:string" name="transaction-id"/>
+                              </xs:sequence>
+                            </xs:complexType>
+                          </xs:element>
+                        </xs:schema>
             "404":
                 body:
                     application/json:

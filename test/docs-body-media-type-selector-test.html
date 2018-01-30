@@ -20,6 +20,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     <link rel="import" href="../../raml-js-parser/raml-js-parser.html">
     <link rel="import" href="../../raml-json-enhance/raml-json-enhance.html">
     <link rel="import" href="../docs-body-media-type-selector.html">
+    <script src="data-helper.js"></script>
   </head>
   <body>
 
@@ -42,25 +43,21 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     </test-fixture>
 
     <script>
-    /* global fixture, assert, TestHelpers, sinon */
+    /* global fixture, assert, TestHelpers, sinon, DataHelper */
     suite('docs-body-media-type-selector', function() {
       var raml;
       var element;
       suiteSetup(function(done) {
         this.timeout(120000);
-        var baseUrl = location.href.substr(0, location.href.lastIndexOf('/') + 1);
         var parser = fixture('parser');
         var enhancer = fixture('enhancer');
-        enhancer.addEventListener('raml-json-enhance-ready', function(e) {
-          raml = e.detail.json;
-          done();
-        });
-        parser.loadApi(baseUrl + 'docs-body-parameters-table.raml')
-        .then(function(data) {
-          enhancer.json = data.json.specification;
-        })
-        .catch(function(e) {
-          done(new Error('Parser error: ' + (e.message || 'Some error happened...')));
+        DataHelper.initRaml(parser, enhancer, 'docs-body-parameters-table.raml', function(data) {
+          if (data instanceof Error) {
+            done(data);
+          } else {
+            raml = data;
+            done();
+          }
         });
       });
 

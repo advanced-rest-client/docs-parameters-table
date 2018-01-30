@@ -63,7 +63,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         var element;
         suiteSetup(function(done) {
           this.timeout(120000);
-          var baseUrl = location.href.substr(0, location.href.lastIndexOf('/') + 1);
+          var baseUrl = location.href.substr(0, location.href.lastIndexOf('/') + 1)
+            .replace('/test', '/demo');
           var parser = fixture('parser');
           var enhancer = fixture('enhancer');
           enhancer.addEventListener('raml-json-enhance-ready', function(e) {
@@ -232,7 +233,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         var element;
         suiteSetup(function(done) {
           this.timeout(120000);
-          var baseUrl = location.href.substr(0, location.href.lastIndexOf('/') + 1);
+          var baseUrl = location.href.substr(0, location.href.lastIndexOf('/') + 1)
+            .replace('/test', '/demo');
           var parser = fixture('parser');
           var enhancer = fixture('enhancer');
           enhancer.addEventListener('raml-json-enhance-ready', function(e) {
