@@ -148,6 +148,12 @@ Custom property | Description | Default
 
 `<docs-xml-parameters-table>` displays a documentation view for XML structured body.
 
+The element displays documentation for 3 cases:
+
+- Type and examples are defined
+- Type is defined
+- Example is defined
+
 ### Example
 ```
 <docs-xml-parameters-table

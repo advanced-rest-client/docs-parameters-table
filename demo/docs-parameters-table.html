@@ -58,7 +58,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           path = path.substr(0, path.lastIndexOf('/') + 1);
         }
         scope.testRaml = location.protocol + '//' + location.host +
-          path.replace('demo', 'test') + 'docs-parameters-table.raml';
+          path + 'docs-parameters-table.raml';
       })(document.getElementById('app'));
       </script>
     </template>

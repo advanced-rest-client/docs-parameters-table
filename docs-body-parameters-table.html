@@ -80,18 +80,18 @@ Custom property | Description | Default
 @demo demo/docs-body-parameters-table.html
 -->
 <dom-module id="docs-body-parameters-table">
-  <template>
+  <template strip-whitespace>
     <style include="docs-parameters-table-shared-styles"></style>
     <style>
     :host {
       display: block;
       overflow: auto;
       width: 100%;
-      @apply(--docs-body-parameters-table);
+      @apply --docs-body-parameters-table;
     }
 
     h4 {
-      @apply(--docs-body-parameters-table-type-name);
+      @apply --docs-body-parameters-table-type-name;
     }
 
     paper-listbox paper-item {
@@ -99,19 +99,19 @@ Custom property | Description | Default
     }
 
     .type-title {
-      @apply(--layout-horizontal);
-      @apply(--layout-center);
+      @apply --layout-horizontal;
+      @apply --layout-center;
     }
 
     .type-title h4 {
-      @apply(--layout-flex);
+      @apply --layout-flex;
     }
 
     .toggle-button {
       color: var(--docs-body-parameters-table-toggle-icon-color, rgba(0, 0, 0, 0.54));
       transform: rotateZ(0deg);
       transition: color 0.25s linear, transform 0.3s linear;
-      @apply(--toggle-button);
+      @apply --toggle-button;
     }
 
     .toggle-button.opened {
@@ -120,7 +120,7 @@ Custom property | Description | Default
 
     .toggle-button:hover {
       color: var(--docs-body-parameters-toggle-icon-hover-color, rgba(0, 0, 0, 0.78));
-      @apply(--toggle-button-hover);
+      @apply --toggle-button-hover;
     }
 
     *[hidden] {
@@ -130,12 +130,11 @@ Custom property | Description | Default
     .type-desc {
       margin-bottom: 28px;
       color: rgba(0, 0, 0, 0.74);
-      @apply(--arc-font-body1);
-      @apply(--raml-docs-item-description);
+      @apply --arc-font-body1;
+      @apply --raml-docs-item-description;
     }
     </style>
     <docs-body-media-type-selector hidden$="[[!renderMediaTypeSelector]]" selected-type="{{selectedType}}" body="[[body]]" media-type="{{selectedMediaType}}"></docs-body-media-type-selector>
-
     <div class="type-title">
       <h4>
         <span class="label">Type</span>
@@ -161,7 +160,7 @@ Custom property | Description | Default
     </template>
     <template is="dom-if" if="[[isJson]]" restamp>
       <iron-collapse opened="[[structureDisplayOpened]]">
-        <docs-json-structure-view type="[[selectedType]]" has-type narrow="[[narrow]]"></docs-json-structure-view>
+        <docs-json-structure-view type="[[selectedType]]" has-type="[[_computeHasDataType(selectedType)]]" narrow="[[narrow]]"></docs-json-structure-view>
       </iron-collapse>
     </template>
     <template is="dom-if" if="[[isXml]]" restamp>
@@ -347,6 +346,14 @@ Custom property | Description | Default
             // TODO: This is an issue, probably with enhancer. At some point
             // type becomes type content and contains schema.
             this._setIsXml(true);
+          } else if (!type.type && type.example) {
+            if (type.key.indexOf('json') !== -1) {
+              this._setIsJson(true);
+            } else if (type.key.indexOf('xml') !== -1) {
+              this._setIsXml(true);
+            } else {
+              this._setIsPrimitive(true);
+            }
           } else {
             this._setIsPrimitive(true);
           }
@@ -379,6 +386,19 @@ Custom property | Description | Default
         value = !this.$$('docs-xml-parameters-table').hasType;
       }
       this.hideStructureToggle = value;
+    },
+
+    _computeHasDataType: function(type) {
+      if (!type) {
+        return false;
+      }
+      if (!type.type) {
+        return false;
+      }
+      if (typeof type.type === 'string') {
+        return false;
+      }
+      return true;
     }
   });
   </script>
