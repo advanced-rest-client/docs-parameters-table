@@ -87,11 +87,11 @@ Custom property | Description | Default
       display: block;
       overflow: auto;
       width: 100%;
-      @apply(--docs-body-parameters-table);
+      @apply --docs-body-parameters-table;
     }
 
     h4 {
-      @apply(--docs-body-parameters-table-type-name);
+      @apply --docs-body-parameters-table-type-name;
     }
 
     paper-listbox paper-item {
@@ -99,19 +99,19 @@ Custom property | Description | Default
     }
 
     .type-title {
-      @apply(--layout-horizontal);
-      @apply(--layout-center);
+      @apply --layout-horizontal;
+      @apply --layout-center;
     }
 
     .type-title h4 {
-      @apply(--layout-flex);
+      @apply --layout-flex;
     }
 
     .toggle-button {
       color: var(--docs-body-parameters-table-toggle-icon-color, rgba(0, 0, 0, 0.54));
       transform: rotateZ(0deg);
       transition: color 0.25s linear, transform 0.3s linear;
-      @apply(--toggle-button);
+      @apply --toggle-button;
     }
 
     .toggle-button.opened {
@@ -120,7 +120,7 @@ Custom property | Description | Default
 
     .toggle-button:hover {
       color: var(--docs-body-parameters-toggle-icon-hover-color, rgba(0, 0, 0, 0.78));
-      @apply(--toggle-button-hover);
+      @apply --toggle-button-hover;
     }
 
     *[hidden] {
@@ -130,8 +130,8 @@ Custom property | Description | Default
     .type-desc {
       margin-bottom: 28px;
       color: rgba(0, 0, 0, 0.74);
-      @apply(--arc-font-body1);
-      @apply(--raml-docs-item-description);
+      @apply --arc-font-body1;
+      @apply --raml-docs-item-description;
     }
     </style>
     <docs-body-media-type-selector hidden$="[[!renderMediaTypeSelector]]" selected-type="{{selectedType}}" body="[[body]]" media-type="{{selectedMediaType}}"></docs-body-media-type-selector>
