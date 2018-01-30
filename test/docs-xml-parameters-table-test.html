@@ -19,14 +19,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     <script src="../../iron-test-helpers/mock-interactions.js"></script>
     <link rel="import" href="../../raml-js-parser/raml-js-parser.html">
     <link rel="import" href="../../raml-json-enhance/raml-json-enhance.html">
-    <link rel="import" href="../docs-json-parameters-table.html">
+    <link rel="import" href="../docs-xml-parameters-table.html">
     <script src="data-helper.js"></script>
   </head>
   <body>
 
     <test-fixture id="basic">
       <template>
-        <docs-json-parameters-table></docs-json-parameters-table>
+        <docs-xml-parameters-table></docs-xml-parameters-table>
       </template>
     </test-fixture>
 
@@ -44,7 +44,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
     <script>
     /* global fixture, assert, TestHelpers, DataHelper */
-    suite('docs-json-parameters-table', function() {
+    suite('docs-xml-parameters-table', function() {
       var raml;
       var element;
       suiteSetup(function(done) {
@@ -63,78 +63,24 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       setup(function() {
         element = fixture('basic');
-        element.type = raml.resources[0].methods[0].body[0];
+        element.type = raml.resources[0].methods[0].body[1];
         TestHelpers.forceXIfStamp(element);
+      });
+
+      test('schemaDisplay is computed', function() {
+        assert.typeOf(element.schemaDisplay, 'string');
       });
 
       test('Computes hasType', function() {
         assert.isTrue(element.hasType);
       });
 
-      test('Computes isSchema', function() {
-        assert.isFalse(element.isSchema);
+      test('Computes hasSchema', function() {
+        assert.isTrue(element.hasSchema);
       });
 
-      test('structureDisplayOpened is true', function() {
-        assert.isTrue(element.structureDisplayOpened);
-      });
-
-      test('selectedUnion is 0', function() {
-        assert.equal(element.selectedUnion, 0);
-      });
-
-      test('renderTable is true', function() {
-        assert.isTrue(element.renderTable);
-      });
-
-      test('Computes the model', function(done) {
-        setTimeout(function() {
-          assert.typeOf(element.model, 'array');
-          done();
-        }, 101);
-      });
-    });
-
-    suite('model generation', function() {
-      var raml;
-      var element;
-      var model;
-      suiteSetup(function(done) {
-        this.timeout(120000);
-        var parser = fixture('parser');
-        var enhancer = fixture('enhancer');
-        DataHelper.initRaml(parser, enhancer, 'docs-body-parameters-table.raml', function(data) {
-          if (data instanceof Error) {
-            done(data);
-          } else {
-            raml = data;
-            done();
-          }
-        });
-      });
-
-      setup(function(done) {
-        element = fixture('basic');
-        element.type = raml.resources[0].methods[0].body[0];
-        setTimeout(function() {
-          TestHelpers.forceXIfStamp(element);
-          model = element.model;
-          done();
-        }, 101);
-      });
-
-      test('Model has 14 items', function() {
-        assert.lengthOf(model, 14);
-      });
-
-      test('Table is rendered', function() {
-        var table = Polymer.dom(element.root).querySelector('.params-table');
-        assert.ok(table);
-      });
-
-      test('Table has rows as model size', function() {
-        var rows = Polymer.dom(element.root).querySelectorAll('.tbody > .tr');
-        assert.lengthOf(rows, model.length);
+      test('schemaAndExample is true', function() {
+        assert.isTrue(element.schemaAndExample);
       });
     });
     </script>

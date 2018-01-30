@@ -27,6 +27,12 @@ the License.
 <!--
 `<docs-xml-parameters-table>` displays a documentation view for XML structured body.
 
+The element displays documentation for 3 cases:
+
+- Type and examples are defined
+- Type is defined
+- Example is defined
+
 ### Example
 ```
 <docs-xml-parameters-table
@@ -47,7 +53,7 @@ Use `paper-tabs`, `paper-tab` and `structure-display` mixins to style this eleme
 @demo demo/docs-body-parameters-table.html
 -->
 <dom-module id="docs-xml-parameters-table">
-  <template>
+  <template strip-whitespace>
     <style include="prism-theme-default"></style>
     <style include="markdown-styles"></style>
     <style include="docs-parameters-table-shared-styles"></style>
@@ -64,34 +70,43 @@ Use `paper-tabs`, `paper-tab` and `structure-display` mixins to style this eleme
       display: block;
     }
 
-    :host([has-type]) .no-type {
-      display: none;
-    }
-
     .no-type {
-      @apply(--no-info-message);
+      @apply --no-info-message;
     }
     </style>
     <prism-highlighter></prism-highlighter>
-    <p class="no-type">
-      This object doesn't have a type description.
-    </p>
+
+    <template is="dom-if" if="[[!hasType]]">
+      <p class="no-type">
+        This object doesn't have a type description.
+      </p>
+    </template>
+
     <div id="content">
-      <template is="dom-if" if="[[!hasExamples]]" restamp>
+      <template is="dom-if" if="[[schemaOnly]]" restamp>
         <iron-collapse opened="[[structureDisplayOpened]]">
           <div>
             <pre is="structure-display" display="[[schemaDisplay]]" class="language-xml" data-type="xml" auto-hide></pre>
           </div>
         </iron-collapse>
       </template>
-      <template is="dom-if" if="[[hasExamples]]" restamp>
+      <template is="dom-if" if="[[exampleOnly]]" restamp="true">
+        <iron-collapse opened="[[structureDisplayOpened]]">
+          <template is="dom-repeat" items="[[examples]]">
+            <div>
+              <pre is="structure-display" display="[[item]]" class="language-xml" data-type="xml" auto-hide></pre>
+            </div>
+          </template>
+        </iron-collapse>
+      </template>
+      <template is="dom-if" if="[[schemaAndExample]]" restamp>
         <iron-collapse opened="[[structureDisplayOpened]]">
           <div>
             <paper-tabs class="schemas" selected="{{selectedSchemaPage}}">
               <paper-tab>Schema</paper-tab>
               <paper-tab>Examples</paper-tab>
             </paper-tabs>
-            <iron-pages selected="{{selectedSchemaPage}}">
+            <iron-pages selected="[[selectedSchemaPage]]">
               <div class="schema">
                 <h5 hidden$="[[_computeSchemaTypeHidden(type)]]">Schema: [[_computeSchemaLabel(type)]]</h5>
                 <pre is="structure-display" display="[[schemaDisplay]]" class="language-xml" data-type="xml" auto-hide></pre>
@@ -123,10 +138,21 @@ Use `paper-tabs`, `paper-tab` and `structure-display` mixins to style this eleme
         type: String,
         computed: '_computeDisplay(type.*)'
       },
-      // True when `type` is present
+      // True when either shema or example is available.
       hasType: {
         type: Boolean,
-        computed: '_computeHasType(schemaDisplay)',
+        computed: '_computeHasType(hasSchema, hasExamples)',
+        value: false,
+        notify: true,
+        reflectToAttribute: true
+      },
+      /**
+       * Computed value, `true` when there's a schema information in passed
+       * body definition.
+       */
+      hasSchema: {
+        type: Boolean,
+        computed: '_computeHasSchema(schemaDisplay)',
         value: false,
         notify: true,
         reflectToAttribute: true
@@ -153,10 +179,25 @@ Use `paper-tabs`, `paper-tab` and `structure-display` mixins to style this eleme
       /**
        * If true then the collapse will be closed.
        */
-      structureDisplayOpened: Boolean
+      structureDisplayOpened: Boolean,
+      // Computed value, true when data contains example only
+      exampleOnly: {
+        type: Boolean,
+        computed: '_computeExampleOnly(hasSchema, hasExamples)'
+      },
+      // Computed value, true when data contains xml schema only
+      schemaOnly: {
+        type: Boolean,
+        computed: '_computeShemaOnly(hasSchema, hasExamples)'
+      },
+      // Computed value, true when data contains example and schema information
+      schemaAndExample: {
+        type: Boolean,
+        computed: '_computeShemaAndExample(hasSchema, hasExamples)'
+      }
     },
     // Computed boolean value if the `type` object has XML relevant information.
-    _computeHasType: function(display) {
+    _computeHasSchema: function(display) {
       return !!display;
     },
     // Computes the schema content to display.
@@ -175,6 +216,22 @@ Use `paper-tabs`, `paper-tab` and `structure-display` mixins to style this eleme
         return object.type;
       }
       return undefined;
+    },
+
+    _computeHasType: function(hasSchema, hasExamples) {
+      return hasSchema || hasExamples;
+    },
+
+    _computeExampleOnly: function(hasSchema, hasExamples) {
+      return !hasSchema && hasExamples;
+    },
+
+    _computeShemaOnly: function(hasSchema, hasExamples) {
+      return hasSchema && !hasExamples;
+    },
+
+    _computeShemaAndExample: function(hasSchema, hasExamples) {
+      return hasSchema && hasExamples;
     }
   });
   </script>
