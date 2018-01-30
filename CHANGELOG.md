@@ -1,3 +1,22 @@
+<a name="1.1.60"></a>
+## [1.1.60](https://github.com/advanced-rest-client/docs-parameters-table/compare/1.1.59...1.1.60) (2018-01-30)
+
+
+### Fix
+
+* Fixed issue with dispaying examples in RAML 0.8 ([d1d06f92e55f954822fa1428be87e3e973f785a0](https://github.com/advanced-rest-client/docs-parameters-table/commit/d1d06f92e55f954822fa1428be87e3e973f785a0))
+
+### New
+
+* Added demo page with RAML 0.8 ([3d7db02b2e86c1ae3d3c4a92859ec619d1f33a8a](https://github.com/advanced-rest-client/docs-parameters-table/commit/3d7db02b2e86c1ae3d3c4a92859ec619d1f33a8a))
+
+### Update
+
+* Updated css mixins syntax in an element. ([96fb4922cb817803e17a3ea1d4720106629b5755](https://github.com/advanced-rest-client/docs-parameters-table/commit/96fb4922cb817803e17a3ea1d4720106629b5755))
+* Updated tests and demo pages. ([febff82133bda4c031419ec393a0f2dd9cc3fa79](https://github.com/advanced-rest-client/docs-parameters-table/commit/febff82133bda4c031419ec393a0f2dd9cc3fa79))
+
+
+
 <a name="1.1.59"></a>
 ## [1.1.59](https://github.com/advanced-rest-client/docs-parameters-table/compare/1.1.58...1.1.59) (2017-12-29)
 
