@@ -1,3 +1,13 @@
+<a name="1.1.62"></a>
+## [1.1.62](https://github.com/advanced-rest-client/docs-parameters-table/compare/1.1.61...1.1.62) (2018-02-22)
+
+
+### Fix
+
+* Fixed linter version number. ([3504523c5eb714be9365ced62047bd82401b7312](https://github.com/advanced-rest-client/docs-parameters-table/commit/3504523c5eb714be9365ced62047bd82401b7312))
+
+
+
 <a name="1.1.61"></a>
 ## [1.1.61](https://github.com/advanced-rest-client/docs-parameters-table/compare/1.1.60...1.1.61) (2018-01-30)
 
