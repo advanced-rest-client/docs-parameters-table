@@ -87,7 +87,7 @@ Custom property | Description | Default
             <div class="td subheader subheader-empty-cell"></div>
           </section>
           <template is="dom-repeat" items="[[displayUriParameters]]">
-            <docs-parameters-table-row class="tr uri-parameter" item="[[item]]"></docs-parameters-table-row>
+            <docs-parameters-table-row class="tr uri-parameter" item="[[item]]" narrow="[[narrow]]"></docs-parameters-table-row>
           </template>
         </template>
         <template is="dom-if" if="[[hasQueryParameteres]]">
@@ -97,7 +97,7 @@ Custom property | Description | Default
             <div class="td subheader subheader-empty-cell"></div>
           </section>
           <template is="dom-repeat" items="[[displayQueryParameters]]">
-            <docs-parameters-table-row class="tr query-param" item="[[item]]"></docs-parameters-table-row>
+            <docs-parameters-table-row class="tr query-param" item="[[item]]" narrow="[[narrow]]"></docs-parameters-table-row>
           </template>
         </template>
       </div>

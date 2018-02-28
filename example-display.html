@@ -45,7 +45,7 @@ Custom property | Description | Default
     <style>
     :host {
       display: block;
-      @apply(--example-display);
+      @apply --example-display;
     }
 
     *[hidden] {
@@ -59,11 +59,11 @@ Custom property | Description | Default
     paper-icon-button[active] {
       background-color: var(--example-display-button-active-background-color, #e0e0e0);
       border-radius: 50%;
-      @apply(--example-display-button-active);
+      @apply --example-display-button-active;
     }
 
     .example-actions {
-      @apply(--example-display-actions-container);
+      @apply --example-display-actions-container;
     }
     </style>
     <template is="dom-if" if="[[exampleTitle]]">
