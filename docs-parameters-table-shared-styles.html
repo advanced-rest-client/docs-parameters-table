@@ -12,7 +12,6 @@ License for the specific language governing permissions and limitations under
 the License.
 -->
 <link rel="import" href="../polymer/polymer.html">
-<link rel="import" href="../paper-styles/typography.html">
 <!--
 ### Styling
 `<docs-parameters-table>` provides the following custom properties and mixins for styling:
@@ -52,10 +51,10 @@ Custom property | Description | Default
       text-align: left;
       width: 100%;
       margin-bottom: 40px;
-      @apply(--paper-font-body1);
+      @apply --arc-font-body1;
       font-size: 15px;
-      @apply(--docs-parameters-table);
-      @apply(--docs-parameters-url-table);
+      @apply --docs-parameters-table;
+      @apply --docs-parameters-url-table;
     }
 
     .tr {
@@ -88,7 +87,7 @@ Custom property | Description | Default
       vertical-align: middle;
       background-color: var(--params-table-header-background-color, #00A1DF);
       color: var(--params-table-header-color, rgba(255, 255, 255, 0.87));
-      @apply(--docs-parameters-table-header);
+      @apply --docs-parameters-table-header;
     }
 
     .params-table-header .tr {
@@ -102,7 +101,7 @@ Custom property | Description | Default
     .tr.params-table-header.subheader {
       background-color: var(--params-table-subheader-background-color, rgba(0, 161, 223, 0.24));
       color: var(--params-table-subheader-color, rgba(0, 0, 0, 0.87));
-      @apply(--docs-parameters-table-subheader);
+      @apply --docs-parameters-table-subheader;
     }
 
     .tr {
@@ -134,7 +133,7 @@ Custom property | Description | Default
     .params-table .th,
     .params-table .td {
       padding: 8px 12px;
-      @apply(--docs-parameters-table-cell);
+      @apply --docs-parameters-table-cell;
     }
 
     .params-table .td {
@@ -150,8 +149,8 @@ Custom property | Description | Default
     .meta-property.annotations,
     .meta-property.type  {
       color: var(--params-table-meta-color, rgba(0, 0, 0, 0.64));
-      margin: 0px 0 12px 20px;
-      @apply(--docs-parameters-table-meta);
+      margin-bottom: 4px;
+      @apply --docs-parameters-table-meta;
     }
 
     .meta-property.pattern span,

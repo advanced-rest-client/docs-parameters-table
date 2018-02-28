@@ -1,3 +1,13 @@
+<a name="1.1.64"></a>
+## [1.1.64](https://github.com/advanced-rest-client/docs-parameters-table/compare/1.1.63...1.1.64) (2018-02-28)
+
+
+### Fix
+
+* Fixes #6 - narrow property propagation ([14590eba059a65f2fb142a2906f6f491e5f1f564](https://github.com/advanced-rest-client/docs-parameters-table/commit/14590eba059a65f2fb142a2906f6f491e5f1f564)), closes [#6](https://github.com/advanced-rest-client/docs-parameters-table/issues/6)
+
+
+
 <a name="1.1.63"></a>
 ## [1.1.63](https://github.com/advanced-rest-client/docs-parameters-table/compare/1.1.62...1.1.63) (2018-02-22)
 

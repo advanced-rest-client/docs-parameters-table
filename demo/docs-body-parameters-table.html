@@ -48,7 +48,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   </head>
   <body unresolved>
     <template is="dom-bind" id="app">
-      <raml-demo-page selected-object="{{selected}}" is-method="{{isMethod}}">
+      <raml-demo-page selected-object="{{selected}}" is-method="{{isMethod}}" narrow="{{narrow}}">
         <paper-item data-url$="[[testRaml]]">Test case</paper-item>
         <paper-item data-url$="[[testArrayRaml]]">Test case with array value</paper-item>
         <paper-item data-url$="[[testSchemaRaml]]">Schema example</paper-item>
@@ -71,7 +71,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
               </template>
             </section>
             <section class="docs-body-parameters-table-content">
-              <docs-body-parameters-table auto-hide has-body="{{hasBody}}" body="[[selectedBody]]"></docs-body-parameters-table>
+              <docs-body-parameters-table auto-hide has-body="{{hasBody}}" body="[[selectedBody]]" narrow="[[narrow]]"></docs-body-parameters-table>
             </section>
             <p hidden$="[[hasBody]]">Selected method does not have the <b>body</b> property.</p>
           </template>
