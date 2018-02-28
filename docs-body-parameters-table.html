@@ -168,7 +168,7 @@ Custom property | Description | Default
     </template>
     <template is="dom-if" if="[[isPrimitive]]" restamp>
       <iron-collapse opened="[[structureDisplayOpened]]">
-        <raml-type-property-description item="[[selectedType]]" display-type></raml-type-property-description>
+        <raml-type-property-description item="[[selectedType]]" display-type narrow="[[narrow]]"></raml-type-property-description>
       </iron-collapse>
     </template>
     <iron-media-query query="max-width: 640px" query-matches="{{narrow}}"></iron-media-query>
