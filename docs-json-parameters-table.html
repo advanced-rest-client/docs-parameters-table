@@ -99,9 +99,8 @@ Custom property | Description | Default
             </template>
             <template is="dom-if" if="[[item.isUnionSelector]]">
               <section class="tr">
-                <div class="td param-name">Type variant</div>
-                <div class="td param-desc">
-                  <paper-dropdown-menu no-label-float>
+                <div class="td param-name">
+                  <paper-dropdown-menu label="Union variant">
                     <paper-listbox class="dropdown-content" selected="{{selectedUnion}}" data-action="toggle-type">
                       <template is="dom-repeat" items="[[item.options]]" as="union">
                         <paper-item data-type$="[[union.index]]">[[union.label]]</paper-item>
@@ -109,6 +108,7 @@ Custom property | Description | Default
                     </paper-listbox>
                   </paper-dropdown-menu>
                 </div>
+                <div class="td param-desc"></div>
               </section>
             </template>
             <template is="dom-if" if="[[item.isProperyItem]]">
@@ -455,20 +455,11 @@ Custom property | Description | Default
         item.withParent = false;
       }
       if (item.type === 'array') {
-        var name = '';
-        if (typeof item.items === 'string') {
-          name += 'Array[' + item.items + ']';
-        } else if (!item.items.properties || !item.items.displayName) {
-          name += 'Array[' + (item.items.type || 'any') + ']';
-        } else {
-          name += item.items.displayName + '[' + item.items.type + ']';
-        }
-        item.typeDisplay = name;
+        item.typeDisplay = 'Array';
       } else if (item.type === 'any' && item.enum) {
         item.typeDisplay = 'Enum';
       } else {
-        item.typeDisplay = item.type === 'object' ?
-          (item.displayName || item.type) : item.type;
+        item.typeDisplay = item.type;
       }
 
       item.hasDisplaName = this._hasDisplayName(item);
