@@ -99,9 +99,8 @@ Custom property | Description | Default
             </template>
             <template is="dom-if" if="[[item.isUnionSelector]]">
               <section class="tr">
-                <div class="td param-name">Type variant</div>
-                <div class="td param-desc">
-                  <paper-dropdown-menu no-label-float>
+                <div class="td param-name">
+                  <paper-dropdown-menu label="Union variant">
                     <paper-listbox class="dropdown-content" selected="{{selectedUnion}}" data-action="toggle-type">
                       <template is="dom-repeat" items="[[item.options]]" as="union">
                         <paper-item data-type$="[[union.index]]">[[union.label]]</paper-item>
@@ -109,6 +108,7 @@ Custom property | Description | Default
                     </paper-listbox>
                   </paper-dropdown-menu>
                 </div>
+                <div class="td param-desc"></div>
               </section>
             </template>
             <template is="dom-if" if="[[item.isProperyItem]]">
@@ -288,6 +288,12 @@ Custom property | Description | Default
       if (object.properties && object.properties.length) {
         for (i = 0, len = object.properties.length; i < len; i++) {
           property = object.properties[i];
+          if (property.type === 'union') {
+            if (property.anyOf.length) {
+              this._processUnionProperty(property, model, opts);
+            }
+            continue;
+          }
           list = this.__handleModelProperty(property, opts);
           if (list) {
             model = model.concat(list);
@@ -325,26 +331,37 @@ Custom property | Description | Default
         if (!object.anyOf.length) {
           return model;
         }
-        modelItem = this.__createModelForUnion(object.anyOf.length);
-        model.push(modelItem);
-        for (i = 0, len = object.anyOf.length; i < len; i++) {
-          for (var j = 0, pLen = object.anyOf[i].properties.length; j < pLen; j++) {
-            property = object.anyOf[i].properties[j];
-            options = {
-              inUnion: true,
-              parent: opts.parent || object,
-              variantIndex: i,
-              childIndex: j
-            };
-            list = this.__handleModelProperty(property, options);
-            if (list) {
-              model = model.concat(list);
+        this._processUnionProperty(object, model, opts);
+      }
+      return model;
+    },
+
+    _processUnionProperty: function(object, model, opts) {
+      if (!object.anyOf.length) {
+        return;
+      }
+      opts = opts || {};
+      var modelItem = this.__createModelForUnion(object.anyOf);
+      model.push(modelItem);
+      for (var i = 0, len = object.anyOf.length; i < len; i++) {
+        for (var j = 0, pLen = object.anyOf[i].properties.length; j < pLen; j++) {
+          var property = object.anyOf[i].properties[j];
+          var options = {
+            inUnion: true,
+            parent: opts.parent || object,
+            variantIndex: i,
+            childIndex: j
+          };
+          var list = this.__handleModelProperty(property, options);
+          if (list && list.length) {
+            for (var k = 0, kLen = list.length; k < kLen; k++) {
+              model.push(list[k]);
             }
           }
         }
       }
-      return model;
     },
+
     /**
      * Creates a model for object / array / union property.
      *
@@ -357,7 +374,7 @@ Custom property | Description | Default
       var model = [];
 
       var hasChildren = false;
-      if (property.properties || property.items) {
+      if (property.properties || property.items || (property.items && typeof property.items !== 'string') || property.anyOf) {
         hasChildren = true;
       }
       var options;
@@ -366,7 +383,7 @@ Custom property | Description | Default
 
       if (hasChildren) {
         var list;
-        var children = property.properties || property.items.properties || property.items;
+        var children = property.properties || property.items || (property.items && property.items.properties) || property.anyOf;
         var childrenType = typeof children;
         if (!children.type && childrenType !== 'string') {
           children = this.readProperties(children);
@@ -383,7 +400,7 @@ Custom property | Description | Default
             }
           }
         } else if (typeof children === 'string') {
-
+          modelItem.typeDisplay = 'Array[' + children + ']';
         } else {
           if (children.type === 'any' && !children.enum) {
             return model;
@@ -438,20 +455,11 @@ Custom property | Description | Default
         item.withParent = false;
       }
       if (item.type === 'array') {
-        var name = '';
-        if (typeof item.items === 'string') {
-          name += 'Array[' + item.items + ']';
-        } else if (!item.items.properties || !item.items.displayName) {
-          name += 'Array[' + (item.items.type || 'any') + ']';
-        } else {
-          name += item.items.displayName + '[' + item.items.type + ']';
-        }
-        item.typeDisplay = name;
+        item.typeDisplay = 'Array';
       } else if (item.type === 'any' && item.enum) {
         item.typeDisplay = 'Enum';
       } else {
-        item.typeDisplay = item.type === 'object' ?
-          (item.displayName || item.type) : item.type;
+        item.typeDisplay = item.type;
       }
 
       item.hasDisplaName = this._hasDisplayName(item);
@@ -497,16 +505,23 @@ Custom property | Description | Default
       };
     },
 
-    __createModelForUnion: function(no) {
-      if (!no) {
+    __createModelForUnion: function(anyOf) {
+      if (!anyOf) {
         console.warn('Trying to invoke row for union but number is not set');
         return [];
       }
       var options = [];
-      for (var i = 0; i < no; i++) {
+      for (var i = 0, len = anyOf.length; i < len; i++) {
+        var item = anyOf[i];
+        var label;
+        if (item.displayName) {
+          label = item.displayName;
+        } else {
+          label = 'Variant ' + (i + 1);
+        }
         options.push({
           index: i,
-          label: 'Variant ' + (i + 1)
+          label: label
         });
       }
       return {

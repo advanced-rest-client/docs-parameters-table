@@ -173,6 +173,9 @@ Custom property | Description | Default
         <raml-type-property-description item="[[selectedType]]" display-type narrow="[[narrow]]"></raml-type-property-description>
       </iron-collapse>
     </template>
+    <template is="dom-if" if="[[isEmpty]]">
+      <p class="no-info">Schema is not defined for this type</p>
+    </template>
     <iron-media-query query="max-width: 640px" query-matches="{{narrow}}"></iron-media-query>
   </template>
   <script>
@@ -232,26 +235,30 @@ Custom property | Description | Default
       selectedMediaType: String,
       // Computed value, true if current type is a RAML type definition
       isObject: {
-        type: Object,
+        type: Boolean,
         value: false,
         readOnly: true
       },
       // Computed value, true if current type is a JSON schema
       isJson: {
-        type: Object,
+        type: Boolean,
         value: false,
         readOnly: true
       },
       // Computed value, true if current type is an XML type object
       isXml: {
-        type: Object,
+        type: Boolean,
         value: false,
         readOnly: true
       },
       // Computed value, true if current type is a primitive
       isPrimitive: {
-        type: Object,
+        type: Boolean,
         value: false,
+        readOnly: true
+      },
+      isEmpty: {
+        type: Boolean,
         readOnly: true
       },
       /**
@@ -297,6 +304,7 @@ Custom property | Description | Default
       this._setIsJson(false);
       this._setIsXml(false);
       this._setIsPrimitive(false);
+      this._setIsEmpty(false);
     },
     /**
      * Hides the element by setting `[hidden]` attribute if body is not set
@@ -356,8 +364,10 @@ Custom property | Description | Default
             } else {
               this._setIsPrimitive(true);
             }
-          } else {
+          } else if (type.type) {
             this._setIsPrimitive(true);
+          } else {
+            this._setIsEmpty(true);
           }
       }
 
@@ -386,6 +396,8 @@ Custom property | Description | Default
         value = !this.$$('docs-json-parameters-table').hasType;
       } else if (this.isXml) {
         value = !this.$$('docs-xml-parameters-table').hasType;
+      } else if (this.isEmpty) {
+        value = true;
       }
       this.hideStructureToggle = value;
     },
