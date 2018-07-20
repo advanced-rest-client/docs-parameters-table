@@ -85,7 +85,6 @@ Custom property | Description | Default
         <div class="thead params-table-header">
           <section class="tr">
             <span class="th">Parameter</span>
-            <span class="th">Type</span>
             <span class="th">Description</span>
           </section>
         </div>
@@ -96,13 +95,12 @@ Custom property | Description | Default
               <section class="tr">
                 <div class="td param-type subheader">Array of [[item.type]] items</div>
                 <div class="td param-type subheader subheader-empty-cell"></div>
-                <div class="td param-type subheader subheader-empty-cell"></div>
               </section>
             </template>
             <template is="dom-if" if="[[item.isUnionSelector]]">
               <section class="tr">
                 <div class="td param-name">Type variant</div>
-                <div class="td param-type">
+                <div class="td param-desc">
                   <paper-dropdown-menu no-label-float>
                     <paper-listbox class="dropdown-content" selected="{{selectedUnion}}" data-action="toggle-type">
                       <template is="dom-repeat" items="[[item.options]]" as="union">
@@ -111,27 +109,24 @@ Custom property | Description | Default
                     </paper-listbox>
                   </paper-dropdown-menu>
                 </div>
-                <div class="td param-desc"></div>
               </section>
             </template>
             <template is="dom-if" if="[[item.isProperyItem]]">
               <section class="tr" data-parent$="[[item.dataParent]]" hidden$="[[item.isHidden]]" subproperty$="[[item.isSubproperty]]" has-children$="[[item.hasChildren]]">
                 <div class="td param-name">
-                  <span class="name" child$="[[item.isSubproperty]]">
+                  <div class="name" child$="[[item.isSubproperty]]">
                     <template is="dom-if" if="[[item.withParent]]">
                       <span class="parent-prefix">[[item.parentDisplayValue]]</span>
                       <span>[[item.nameDisplayValue]]</span>
                     </template>
                     <template is="dom-if" if="[[!item.withParent]]">[[item.nameDisplayValue]]</template>
-                  </span>
+                  </div>
+                  <span class="type-label">[[item.typeDisplay]]</span>
                   <template is="dom-if" if="[[item.required]]">
-                    <span class="required-label">(required)</span>
+                    <span class="required-label">Required</span>
                   </template>
-                </div>
-                <div class="td param-type">
-                  <span class="type">[[item.typeDisplay]]</span>
                   <template is="dom-if" if="[[item.hasEnum]]">
-                    <span class="enum-label">(enum)</span>
+                    <span class="enum-label">Enum</span>
                   </template>
                 </div>
                 <div class="td param-desc">
