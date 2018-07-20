@@ -374,7 +374,7 @@ Custom property | Description | Default
       var model = [];
 
       var hasChildren = false;
-      if (property.properties || property.items || property.anyOf) {
+      if (property.properties || property.items || (property.items && typeof property.items !== 'string') || property.anyOf) {
         hasChildren = true;
       }
       var options;
@@ -383,7 +383,7 @@ Custom property | Description | Default
 
       if (hasChildren) {
         var list;
-        var children = property.properties || (property.items && property.items.properties) || property.anyOf;
+        var children = property.properties || property.items || (property.items && property.items.properties) || property.anyOf;
         var childrenType = typeof children;
         if (!children.type && childrenType !== 'string') {
           children = this.readProperties(children);
@@ -400,7 +400,7 @@ Custom property | Description | Default
             }
           }
         } else if (typeof children === 'string') {
-
+          modelItem.typeDisplay = 'Array[' + children + ']';
         } else {
           if (children.type === 'any' && !children.enum) {
             return model;
