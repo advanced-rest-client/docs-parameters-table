@@ -1,6 +1,6 @@
 {
   "name": "docs-parameters-table",
-  "version": "1.1.66",
+  "version": "1.1.67",
   "license": "Apache-2.0 OR CC-BY-4.0",
   "description": "Elements to display RAML type documentation",
   "private": false,
@@ -16,5 +16,8 @@
   "repository": {
     "type": "git",
     "url": "git://github.com/advanced-rest-client/docs-parameters-table.git"
+  },
+  "dependencies": {
+    "conventional-changelog-cli": "^2.0.1"
   }
 }
