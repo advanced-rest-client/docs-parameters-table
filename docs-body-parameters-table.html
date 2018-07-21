@@ -17,7 +17,6 @@ the License.
 <link rel="import" href="../arc-icons/arc-icons.html">
 <link rel="import" href="../iron-media-query/iron-media-query.html">
 <link rel="import" href="../arc-polyfills/arc-polyfills.html">
-<link rel="import" href="../paper-tooltip/paper-tooltip.html">
 <link rel="import" href="../marked-element/marked-element.html">
 <link rel="import" href="../raml-behaviors/raml-behavior.html">
 <link rel="import" href="../iron-collapse/iron-collapse.html">
@@ -145,8 +144,7 @@ Custom property | Description | Default
         <span class="value">[[typeName(selectedType)]]</span>
       </h4>
       <span hidden$="[[hideStructureToggle]]">
-        <paper-icon-button class$="toggle-button[[_computeToggleClass(structureDisplayOpened)]]" icon="arc:expand-more" on-tap="toggleOpened"></paper-icon-button>
-        <paper-tooltip animation-delay="200" position="left">Toggle structure display</paper-tooltip>
+        <paper-icon-button class$="toggle-button[[_computeToggleClass(structureDisplayOpened)]]" icon="arc:expand-more" on-tap="toggleOpened" title="Toggle structure display"></paper-icon-button>
       </span>
     </div>
 
@@ -174,6 +172,9 @@ Custom property | Description | Default
       <iron-collapse opened="[[structureDisplayOpened]]">
         <raml-type-property-description item="[[selectedType]]" display-type narrow="[[narrow]]"></raml-type-property-description>
       </iron-collapse>
+    </template>
+    <template is="dom-if" if="[[isEmpty]]">
+      <p class="no-info">Schema is not defined for this type</p>
     </template>
     <iron-media-query query="max-width: 640px" query-matches="{{narrow}}"></iron-media-query>
   </template>
@@ -234,26 +235,30 @@ Custom property | Description | Default
       selectedMediaType: String,
       // Computed value, true if current type is a RAML type definition
       isObject: {
-        type: Object,
+        type: Boolean,
         value: false,
         readOnly: true
       },
       // Computed value, true if current type is a JSON schema
       isJson: {
-        type: Object,
+        type: Boolean,
         value: false,
         readOnly: true
       },
       // Computed value, true if current type is an XML type object
       isXml: {
-        type: Object,
+        type: Boolean,
         value: false,
         readOnly: true
       },
       // Computed value, true if current type is a primitive
       isPrimitive: {
-        type: Object,
+        type: Boolean,
         value: false,
+        readOnly: true
+      },
+      isEmpty: {
+        type: Boolean,
         readOnly: true
       },
       /**
@@ -299,6 +304,7 @@ Custom property | Description | Default
       this._setIsJson(false);
       this._setIsXml(false);
       this._setIsPrimitive(false);
+      this._setIsEmpty(false);
     },
     /**
      * Hides the element by setting `[hidden]` attribute if body is not set
@@ -358,8 +364,10 @@ Custom property | Description | Default
             } else {
               this._setIsPrimitive(true);
             }
-          } else {
+          } else if (type.type) {
             this._setIsPrimitive(true);
+          } else {
+            this._setIsEmpty(true);
           }
       }
 
@@ -388,6 +396,8 @@ Custom property | Description | Default
         value = !this.$$('docs-json-parameters-table').hasType;
       } else if (this.isXml) {
         value = !this.$$('docs-xml-parameters-table').hasType;
+      } else if (this.isEmpty) {
+        value = true;
       }
       this.hideStructureToggle = value;
     },

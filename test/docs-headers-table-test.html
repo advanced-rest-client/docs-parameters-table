@@ -88,7 +88,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       var row = Polymer.dom(element.root)
       .querySelector('.params-table .tbody .tr:nth-child(1)');
       var node = Polymer.dom(row.root)
-      .querySelector('span.name');
+      .querySelector('div.name');
       var property = element.headers[0];
       assert.equal(node.textContent, property.name);
     });
@@ -105,7 +105,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       var row = Polymer.dom(element.root)
       .querySelector('.params-table .tbody .tr:nth-child(1)');
       var node = Polymer.dom(row.root)
-      .querySelector('.param-type .type');
+      .querySelector('.param-name .type-label');
       var property = element.headers[0];
       assert.equal(node.textContent, property.type);
     });

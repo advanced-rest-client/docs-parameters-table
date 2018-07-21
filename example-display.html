@@ -15,7 +15,6 @@ the License.
 <link rel="import" href="../clipboard-copy/clipboard-copy.html">
 <link rel="import" href="../arc-icons/arc-icons.html">
 <link rel="import" href="../paper-icon-button/paper-icon-button.html">
-<link rel="import" href="../paper-tooltip/paper-tooltip.html">
 <link rel="import" href="../json-table/json-table.html">
 <link rel="import" href="structure-display.html">
 <!--
@@ -70,15 +69,9 @@ Custom property | Description | Default
       <h5>[[exampleTitle]]</h5>
     </template>
     <div class="example-actions">
-      <span>
-        <paper-icon-button icon="arc:content-copy" on-tap="_copyToClipboard"></paper-icon-button>
-        <paper-tooltip animation-delay="200">Copy example to clipboard</paper-tooltip>
-      </span>
+      <paper-icon-button icon="arc:content-copy" on-tap="_copyToClipboard" title="Copy example to clipboard"></paper-icon-button>
       <template is="dom-if" if="[[isJson]]">
-        <span>
-          <paper-icon-button icon="arc:view-column" active="[[table]]" toggles on-tap="toggleTable"></paper-icon-button>
-          <paper-tooltip animation-delay="200">Toggle table view</paper-tooltip>
-        </span>
+        <paper-icon-button icon="arc:view-column" active="[[table]]" toggles on-tap="toggleTable" title="Toggle table view"></paper-icon-button>
       </template>
     </div>
     <template is="dom-if" if="[[!table]]">

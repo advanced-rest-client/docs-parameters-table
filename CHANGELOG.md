@@ -1,4 +1,23 @@
 <a name="1.1.66"></a>
+## [1.1.66](https://github.com/advanced-rest-client/docs-parameters-table/compare/1.1.64...1.1.66) (2018-07-21)
+
+
+### Fix
+
+* Fixing SE-8533 ([7c80156c345bd6d50369de4dbc818f7cb07e4bcf](https://github.com/advanced-rest-client/docs-parameters-table/commit/7c80156c345bd6d50369de4dbc818f7cb07e4bcf))
+
+### Update
+
+* A design improvemenets for the table. ([1e32735418441ee181f50d62e28175d0f1f20036](https://github.com/advanced-rest-client/docs-parameters-table/commit/1e32735418441ee181f50d62e28175d0f1f20036))
+* Adding empty info message for missing schema ([af5215c4c27cb4335882cbd45469b1dc1129b129](https://github.com/advanced-rest-client/docs-parameters-table/commit/af5215c4c27cb4335882cbd45469b1dc1129b129))
+* Adding support for new union model from datatype expansion ([8e63b1d054ddd0cf2534adfdcd27e8c02b8b0a6f](https://github.com/advanced-rest-client/docs-parameters-table/commit/8e63b1d054ddd0cf2534adfdcd27e8c02b8b0a6f))
+* removing paper-tooltip ([a222abdfbfe6a970688f4d653d05d01910b68b22](https://github.com/advanced-rest-client/docs-parameters-table/commit/a222abdfbfe6a970688f4d653d05d01910b68b22))
+* Updating labels for complex types ([ad703f2e06c8a92d094e080df4660e7a0862f44a](https://github.com/advanced-rest-client/docs-parameters-table/commit/ad703f2e06c8a92d094e080df4660e7a0862f44a))
+* Updating test adter API change ([67aab98d34378da302fafc56ebbf74abc3814761](https://github.com/advanced-rest-client/docs-parameters-table/commit/67aab98d34378da302fafc56ebbf74abc3814761))
+
+
+
+<a name="1.1.66"></a>
 ## [1.1.66](https://github.com/advanced-rest-client/docs-parameters-table/compare/1.1.64...1.1.66) (2018-04-17)
 
 

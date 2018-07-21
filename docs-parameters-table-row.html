@@ -23,15 +23,13 @@ A property row in the description table.
   <template>
     <style include="docs-parameters-table-shared-styles"></style>
     <div class="td param-name">
-      <span class="name">[[item.name]]</span>
+      <div class="name">[[item.name]]</div>
+      <span class="type-label">[[item.type]]</span>
       <template is="dom-if" if="[[item.required]]">
-        <span class="required-label">(required)</span>
+        <span class="required-label">Required</span>
       </template>
-    </div>
-    <div class="td param-type">
-      <span class="type">[[item.type]]</span>
       <template is="dom-if" if="[[hasValue(item.enum)]]">
-        <span class="enum-label">(enum)</span>
+        <span class="enum-label">Enum</span>
       </template>
     </div>
     <div class="td param-desc">
